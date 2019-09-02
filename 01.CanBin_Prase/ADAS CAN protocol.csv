@@ -1,0 +1,57 @@
+START,,,,,,
+ID,0x700,,,,,
+Signal,Start,Len,Offset,Min,Max,Res
+soundtype,0,3,0,0,7,1
+timedistanceswitch,16,1,0,0,1,1
+carheadtimedistance,17,7,0,0,9.9,0.1
+error,24,1,0,0,1,1
+errorcode,25,7,0,0,124,1
+LDWswitch,32,1,0,0,1,1
+Left LDW,33,1,0,0,1,1
+Right LDW,34,1,0,0,1,1
+fcw_on,35,1,0,0,1,1
+tsr Level,48,3,0,0,7,1
+hmw_level,56,2,0,0,3,1
+hmw_repeat_enable,58,1,0,0,1,1
+END,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+START,,,,,,
+ID,0x780,,,,,
+Signal,Start,Len,Offset,Min,Max,Res
+soundtype,0,4,0,0,7,1
+timedistanceswitch,8,1,0,0,1,1
+carheadtimedistance,9,7,0,0,9.9,0.1
+errorcode,16,8,0,0,255,1
+LDWswitch,24,1,0,0,1,1
+Left LDW,26,1,0,0,1,1
+Right LDW,27,1,0,0,1,1
+PCW Level,28,2,0,0,3,1
+carmonitorswitch,32,1,0,0,1,1
+FCW Level,34,2,0,0,3,1
+cardiswarning,36,2,0,0,3,1
+slide,38,1,0,0,1,1
+follow,39,1,0,0,1,1
+TTCeffect,40,1,0,0,1,1
+TTC,41,7,0,0,12.5,0.1
+END,,,,,,
+,,,,,,
+START,,,,,,
+ID,0xa0,,,,,
+Signal,Start,Len,Offset,Min,Max,Res
+int_1,0,32,0,0,3,1
+int_2,32,16,0,0,3,1
+speed,48,16,0,0,15,1
+END,,,,,,
+,,,,,,
+START,,,,,,
+ID,0x68,,,,,
+Signal,Start,Len,Offset,Min,Max,Res
+t1,0,8,0,0,15,1
+speed_h,8,8,0,0,40.94,1
+t2,16,3,0,0,160,1
+speed_l,19,5,0,0,7,1
+t3,24,8,0,0,51.1,1
+obj_y_vrel,32,32,0,0,128,1
+END,,,,,,
