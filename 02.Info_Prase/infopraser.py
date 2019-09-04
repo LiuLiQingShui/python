@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 def TypeHeaderlist():
-    return ['VINF','ADAS','LANE','OBJS','ROBJ']
+    return ['VINF','ADAS','LANE','OBJS','ROBJ','ICAN']
 
 def prasePacket(TypeHeader,packet):
     Data = packet
@@ -90,14 +90,24 @@ def prasePacket(TypeHeader,packet):
             Result.append(["hmw_time" + "_ID_" + str(k), (struct.unpack_from("B", Data, 17 + 16 * k))[0]])
             Result.append(["obj_y_vrel" + "_ID_" + str(k), (struct.unpack_from("h", Data, 18 + 16 * k))[0]])
         return Result
+    if TypeHeader == 'ICAN':
+        Result.append(["speed",(struct.unpack_from("i",Data,0))[0]])
+        Result.append(["steering_angle", (struct.unpack_from("i", Data, 4))[0]])
+        Result.append(["steering_speed", (struct.unpack_from("i", Data, 8))[0]])
+        Result.append(["yaw_rate", (struct.unpack_from("i", Data, 12))[0]])
+        Result.append(["brake", (struct.unpack_from("b", Data, 16))[0]])
+        Result.append(["reverse", (struct.unpack_from("b", Data, 17))[0]])
+        Result.append(["left_light", (struct.unpack_from("b", Data, 18))[0]])
+        Result.append(["right_light", (struct.unpack_from("b", Data, 19))[0]])
+        return Result
     return None
 
 
 #解析info文件内的数据
 def praseInfo(DataFolder,filename,h):
     UsbData_Path = os.path.join(DataFolder, filename)
-    print(UsbData_Path)
-    print("Start Processing ...........")
+    #print(UsbData_Path)
+    print("Start Processing : ",UsbData_Path)
     testresult_csv_path = os.path.join(DataFolder, h + '_testresult_ALL.csv')
     testresult_txt_path = os.path.join(DataFolder, h + '_testresult_ALL.txt')
     with open(testresult_csv_path, 'w') as fw:
@@ -119,17 +129,20 @@ def praseInfo(DataFolder,filename,h):
     while data:
         data = f.read(4)
         try:
+            #print((struct.unpack('4s', data))[0])
             TypeHeader = ((struct.unpack('4s', data))[0]).decode('ascii')
+            #print(TypeHeader)
         except:
+            #data = f.read(4)
             #print("Finish 1!")
-            break
+            continue
         if TypeHeader not in TypeHeaderlist():
             continue
         data = f.read(4)
         try:
             DataSize = (struct.unpack('<L', data))[0]
         except:
-            #print("Finish 2!")
+            print("Finish 2!")
             break
         data = f.read(DataSize)
         try:
@@ -194,8 +207,8 @@ def praseInfo(DataFolder,filename,h):
                 fw.write(str(result[j][1]))
                 fw.write("  ")
             fw.write("\n")
-
-
+    print("Process finished !")
+    print("\n")
 
 
 
