@@ -54,9 +54,10 @@ def selectRadarData(DataFolder,h):
                                 if int(row_radar[k_row_radar + 1]) == obi_id:
                                     row_radar_obi_id_obj_x = int(row_radar[k_row_radar + 9])
                                     row_radar_obi_id_obj_y = int(row_radar[k_row_radar + 11])
+                                    row_radar_obi_id_obj_Vy = int(row_radar[k_row_radar + 21])
                                     findlaber11 = 1
                                     RadarData.append(
-                                        [row_radar_frameID, obi_id, row_radar_obi_id_obj_x, row_radar_obi_id_obj_y])
+                                        [row_radar_frameID, obi_id, row_radar_obi_id_obj_x, row_radar_obi_id_obj_y,row_radar_obi_id_obj_Vy/3.6])
                                     break
                         if findlaber11==0:
                             1
@@ -109,9 +110,10 @@ def selectJimuData(DataFolder,h):
                                 if int(row_radar[k_row_radar + 1]) == obi_id:
                                     row_radar_obi_id_obj_x = float(row_radar[k_row_radar + 15])
                                     row_radar_obi_id_obj_y = float(row_radar[k_row_radar + 13])
+                                    row_radar_obi_id_obj_Vy = float(row_radar[k_row_radar + 17])
                                     findlaber11 = 1
                                     RadarData.append(
-                                        [row_radar_frameID, obi_id, row_radar_obi_id_obj_x, row_radar_obi_id_obj_y])
+                                        [row_radar_frameID, obi_id, row_radar_obi_id_obj_x, row_radar_obi_id_obj_y,row_radar_obi_id_obj_Vy])
                                     break
                         if findlaber11==0:
                             1
@@ -150,7 +152,7 @@ def draw(DataFolder,h):
                 if radardata[tt][0] > 0 and radardata[tt][3] > 0 :
                     ratio.append([jimudata[k][0], (jimudata[k][3] - radardata[tt][3] / 100) / (radardata[tt][3] / 100)*100])
                     if radardata[tt][3]<distance_max*100 and radardata[tt][3]>distance_min*100:
-                        cleanDataLT150.append([jimudata[k][0], (jimudata[k][3] - radardata[tt][3] / 100) / (radardata[tt][3] / 100)* 100,jimudata[k][3],                                                   radardata[tt][3] / 100])
+                        cleanDataLT150.append([jimudata[k][0], (jimudata[k][3] - radardata[tt][3] / 100) / (radardata[tt][3] / 100)* 100,jimudata[k][3],  radardata[tt][3] / 100,jimudata[k][4], radardata[tt][4]])
                 break
     ratio = np.array(ratio)
     breakpoint_jimudata = []
@@ -217,6 +219,7 @@ def draw(DataFolder,h):
     np.savetxt(os.path.join(DataFolder, h + 'jimudata.csv'), jimudata, delimiter=',')
     np.savetxt(os.path.join(DataFolder, h + 'radardata.csv'), radardata, delimiter=',')
     np.savetxt(os.path.join(DataFolder, h + 'ratio.csv'), ratio, delimiter=',')
+    np.savetxt(os.path.join(DataFolder, h + 'speed.csv'), cleanDataLT150, delimiter=',')
     np.savetxt(os.path.join(DataFolder, h + 'breakpoint_jimudata.csv'), ((np.array(jimudata[breakpoint_jimudata]))[:,0]+1)[:len(breakpoint_jimudata)-1], delimiter=',')
     np.savetxt(os.path.join(DataFolder, h + 'breakpoint_radar.csv'), ((np.array(radardata[breakpoint_radar]))[:,0]+1)[:len(breakpoint_radar)-1], delimiter=',')
     np.savetxt(os.path.join(DataFolder, h + 'breakpoint_ratio.csv'), ((np.array(ratio[breakpoint_ratio]))[:,0]+1)[:len(breakpoint_ratio)-1], delimiter=',')
@@ -229,6 +232,7 @@ def draw(DataFolder,h):
         distance = np.array(cleanDataLT150)[:,3]
         jimudis = np.array(cleanDataLT150)[:,2]
         ratio = np.array(cleanDataLT150)[:,1]
+
         pl.sca(ax1)
         pl.hist(ttt, 100,  histtype='bar', facecolor='red', alpha=0.75)
         pl.xlabel('error/%')
