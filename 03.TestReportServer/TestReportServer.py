@@ -1,14 +1,18 @@
 import os
+import json
+import pymongo
 import threading
 from flask import Flask,jsonify,request,abort
 from werkzeug import security,utils
 import CanBinDataProcessV2
 import analyseData2
 import GetDataFromServer
+from flask import send_file,render_template
 
-
-
+from flask_cors import CORS
 app = Flask(__name__)
+
+CORS(app, resources=r'/*')
 
 tasks = [
     {
@@ -31,47 +35,103 @@ ALLOWED_EXTENSIONS = set(['bin'])
 THREAD_COUNT = 1
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.jinja_env.auto_reload = True
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+class G:
+    situ = []
 
 
 class myThread (threading.Thread):   #继承父类threading.Thread
-    def __init__(self, threadID, DataFolder, filename):
+    def __init__(self, threadID, DataFolder, filename,situ):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.DataFolder = DataFolder
         self.filename = filename
+        self.situ = situ
     def run(self):                   #把要执行的代码写到run函数里面 线程在创建后会直接运行run函数
-        CanBinDataProcessV2.CanBinDataProcess(self.DataFolder, self.filename)
-        analyseData2.analyseData(self.DataFolder, self.filename)
+        #CanBinDataProcessV2.CanBinDataProcess(self.DataFolder, self.filename)
+        analyseData2.analyseData(self.DataFolder, self.filename,self.situ)
 
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
+
+
+@app.route('/getsituiation',methods=['POST'])
+def getsituiation():
+    data = request.get_data()
+    #print(data)
+    json_data = json.loads(data.decode("utf-8"))
+    #print(json_data)
+    print(json_data["situ"])
+    #situ = json_data["situ"]
+    G.situ = json_data["situ"]
+    return jsonify({"status": True})
+
+
+@app.route('/missingwrong',methods=['POST'])
+def missingwrong():
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    saveMongoDBdict = json_data
+    print(saveMongoDBdict)
+    myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
+    mydb = myclient["jimu_TestResult"]
+    mycol = mydb["MissingWrong"]
+    mycol.insert_one(saveMongoDBdict)
+    return jsonify({"status": True})
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
+    # print("AAAAAA")
+    # print(request.method)
+    # if request.method == 'OPTIONS':
+    #     print("DDDDDDDDDDD")
+    #     res = Flask.make_response()
+    #     res.headers['Access-Control-Allow-Origin'] = '*'
+    #     res.headers['Access-Control-Allow-Methods'] = 'POST，GET,OPTIONS'
+    #     res.headers['Access-Control-Allow-Headers'] = 'x-requested-with,content-type'
+    #     return res
     if request.method == 'POST':
-        file = request.files['file']
-        if file and allowed_file(file.filename):
-            filename = utils.secure_filename(file.filename)
-            savefilepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(savefilepath)
-            thread1 = myThread(THREAD_COUNT, app.config['UPLOAD_FOLDER'], filename)
-            thread1.start()
-            thread_count = THREAD_COUNT+1
-            #CanBinDataProcessV2.CanBinDataProcess(app.config['UPLOAD_FOLDER'], filename)
-            return 'succeed'
+        for key in request.files.keys():
+            file = request.files[key]
+            if file and allowed_file(file.filename):
+                filename = utils.secure_filename(file.filename)
+                print(filename)
+                savefilepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(savefilepath)
+                thread1 = myThread(THREAD_COUNT, app.config['UPLOAD_FOLDER'], filename,G.situ)
+                thread1.start()
+                thread_count = THREAD_COUNT + 1
+                # CanBinDataProcessV2.CanBinDataProcess(app.config['UPLOAD_FOLDER'], filename)
+        return 'succeed'
     return 'failed'
 
-@app.route('/',methods=['post'])
+
+# @app.route('/',methods=['post'])
+# def query():
+#     if not request.json:
+#         abort(400)
+#     return jsonify({'task': tasks}),201
+
+@app.route('/')
 def query():
-    if not request.json:
-        abort(400)
-    return jsonify({'task': tasks}),201
+    #return send_file("TestReport.html")
+    return render_template("TestReport.html")
+
+@app.route('/uploadbin')
+def uploadbin():
+    return render_template("uploadbin.html")
 
 @app.route('/getsummary',methods=['get'])
 def getsummary():
-    return jsonify({'Summart': GetDataFromServer.getSummary()}),200
+    response = jsonify({'Summart': GetDataFromServer.getSummary()})
+    # return jsonify({'Summart': GetDataFromServer.getSummary()}),200
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 @app.route('/getOneItem',methods=['get'])
 def getOneItem():
@@ -81,14 +141,47 @@ def getOneItem():
         print({filename: GetDataFromServer.getOneItem(filename)})
         return jsonify({filename: GetDataFromServer.getOneItem(filename)}),200
 
-@app.route('/getDataByTime',methods=['get'])
+@app.route('/getDataByTime',methods=['get', 'POST'])
 def getDataByTime():
-    print(request.args)
-    if request.args:
-        starttime = request.args.get('starttime')
-        endtime = request.args.get('endtime')
-        print({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime))})
-        return jsonify({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime))}),200
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    if json_data:
+        starttime = json_data['starttime']
+        endtime = json_data['endtime']
+        Situation = json_data['Situation']
+        print(Situation)
+        print({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime),Situation)})
+        response = jsonify({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime),Situation)})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
+       # return jsonify({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime))}),200
+
+
+
+@app.route('/getDataByTimemissingwrong',methods=['get', 'POST'])
+def getDataByTimemissingwrong():
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    if json_data:
+        starttime = json_data['starttime']
+        endtime = json_data['endtime']
+        Situation = json_data['Situation']
+        print(Situation)
+        print({"Data": GetDataFromServer.getDataByTimemissingwrong(float(starttime),float(endtime),Situation)})
+        response = jsonify({"Data": GetDataFromServer.getDataByTimemissingwrong(float(starttime),float(endtime),Situation)})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
+
+@app.route("/joinus",methods=['GET','POST'])
+def index():
+    data=request.get_json(force=True)
+    if data:
+        print(data)
+        return jsonify({"status": True})
+    else:
+        return jsonify({"status": False})
+
 
 if __name__ =='__main__':
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host='0.0.0.0')

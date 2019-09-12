@@ -111,7 +111,7 @@ def getOneItem(filename):
 
 
 
-def getDataByTime(starttime,endtime):
+def getDataByTime(starttime,endtime,Situation):
     myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
     mydb = myclient["jimu_TestResult"]
     mycol = mydb["LDW"]
@@ -125,7 +125,40 @@ def getDataByTime(starttime,endtime):
     cst_tz = pytz.timezone('Asia/Shanghai')
     utc_tz = pytz.timezone('UTC')
     count = 0
+
+
+
+    #print(Situation)
     for item in dbdata:
+        if Situation is not None and len(Situation)>0:
+            dict = {}
+            # dict['光照'] = 1
+            for x in Situation:
+                t = x.split("-")
+                if t[0] not in dict:
+                    dict[t[0]] = [t[1]]
+                else:
+                    attt = dict[t[0]]
+                    attt.append(t[1])
+                    dict[t[0]] = attt
+            if 'Situation' in item:
+                findlaber = 1
+                for key, value in dict.items():
+                    findlaber_sub = 0
+                    for t in value:
+                        if (key + '-' + t) in item['Situation']:
+                            findlaber_sub = 1
+                            break;
+                    if findlaber_sub == 0:
+                        findlaber = 0
+                        break
+                if findlaber==0:
+                    continue
+            else:
+                continue
+
+
+
         if item['Timestamp'][0]>=starttime and item['Timestamp'][0]<=endtime:
             if count>0:
                 LDW = LDW + (np.array(item['LDW'])).astype(np.float)
@@ -146,6 +179,7 @@ def getDataByTime(starttime,endtime):
                     [(ts[0].replace(tzinfo=utc_tz)).astimezone(cst_tz).strftime('%y-%m-%d %H:%M:%S ')] + ts[1:] for ts
                     in item['TTC_specific']]
             count = count + 1
+
     print(LDW)
     print(TTC)
     print(LDW_specific)
@@ -207,4 +241,79 @@ def getDataByTime(starttime,endtime):
 
 
 
+    return data
+
+
+
+
+
+def getDataByTimemissingwrong(starttime,endtime,Situation):
+    myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
+    mydb = myclient["jimu_TestResult"]
+    mycol = mydb["MissingWrong"]
+    dbdata = mycol.find()
+    if not dbdata:
+        return []
+    # valueGeted=[]
+    # for item in data:
+    #     valueGeted.append(item)
+    #     break
+    cst_tz = pytz.timezone('Asia/Shanghai')
+    utc_tz = pytz.timezone('UTC')
+    count = 0
+
+
+
+    #print(Situation)
+    for item in dbdata:
+        if Situation is not None and len(Situation)>0:
+            dict = {}
+            # dict['光照'] = 1
+            for x in Situation:
+                t = x.split("-")
+                if t[0] not in dict:
+                    dict[t[0]] = [t[1]]
+                else:
+                    attt = dict[t[0]]
+                    attt.append(t[1])
+                    dict[t[0]] = attt
+            if 'Situation' in item:
+                findlaber = 1
+                for key, value in dict.items():
+                    findlaber_sub = 0
+                    for t in value:
+                        if (key + '-' + t) in item['Situation']:
+                            findlaber_sub = 1
+                            break;
+                    if findlaber_sub == 0:
+                        findlaber = 0
+                        break
+                if findlaber==0:
+                    continue
+            else:
+                continue
+
+
+
+        if item['Timestamp'][0]>=starttime and item['Timestamp'][0]<=endtime:
+            if count>0:
+                distance = distance + (np.array(item['distance'])).astype(np.float)
+                Car_wrong = Car_wrong + (np.array(item['Car_wrong'])).astype(np.float)
+                Car_missing = Car_missing + (np.array(item['Car_missing'])).astype(np.float)
+                persion_wrong = persion_wrong + (np.array(item['persion_wrong'])).astype(np.float)
+                persion_missing = persion_missing + (np.array(item['persion_missing'])).astype(np.float)
+            else:
+                distance = (np.array(item['distance'])).astype(np.float)
+                Car_wrong =  (np.array(item['Car_wrong'])).astype(np.float)
+                Car_missing = (np.array(item['Car_missing'])).astype(np.float)
+                persion_wrong = (np.array(item['persion_wrong'])).astype(np.float)
+                persion_missing =  (np.array(item['persion_missing'])).astype(np.float)
+            count = count + 1
+    if count==0:
+        distance = 0
+        Car_wrong = 0
+        Car_missing = 0
+        persion_wrong = 0
+        persion_missing = 0
+    data = {'distance':distance,'Car_wrong':Car_wrong,'Car_missing':Car_missing,'persion_wrong':persion_wrong,'persion_missing':persion_missing}
     return data

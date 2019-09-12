@@ -1,0 +1,258 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="stylesheet" href="/static/css/style.css" media="screen" type="text/css" />
+		<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">  
+		<link href="/static/css/bootstrap-select.min.css" rel="stylesheet" />
+		<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+		<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>	
+		<script src="/static/js/bootstrap-select.min.js"></script>
+		<script src="/static/js/i18n/defaults-zh_CN.min.js"></script>
+		<script>			
+			function toPercent() {
+			      Number.prototype.toPercent = function(){
+			          return (Math.round(this * 10000)/100).toFixed(2) + '%';
+			      }
+			    }
+			var failedfn = function() {
+				$("#LDW").empty();
+				$("#LDWPicture").empty();
+				$("#TTC").empty();
+				$("#TTCPicture").empty();
+				var divObj = document.getElementById("LDWPicture");
+				divObj.innerHTML = '<h1> 选定范围内不存在数据 </h1>';
+				
+				}				
+			var successfn = function(jdata) {				
+								var data = JSON.parse(jdata)								
+								$("#LDW").empty();
+								var _HTML="<thead><tr><th>LDW</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
+								var obj = data.Data.LDW								
+								for (var i=0;i<obj.length;i++)
+								{ 
+									switch (i) 
+									{ 
+									  case 0:_HTML=_HTML+"<tr><td>"+"Mobileye 左";
+									  break; 
+									  case 1:_HTML=_HTML+"<tr><td>"+"Jimu 左";
+									  break; 
+									  case 2:_HTML=_HTML+"<tr><td>"+"Mobileye 右";
+									  break; 
+									  case 3:_HTML=_HTML+"<tr><td>"+"Jimu 右";
+									  break; 
+									  case 4:_HTML=_HTML+"<tr><td>"+"Mobileye 总";
+									  break; 
+									  case 5:_HTML=_HTML+"<tr><td>"+"Jimu 总";
+									  break; 
+									}
+									
+									_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
+								}								
+								_HTML = _HTML + "</tbody>";
+								$("#LDW").append(_HTML);
+								
+								$("#LDWPicture").empty();
+								var obj = data.Data.LDW_bar;
+								var divObj = document.getElementById("LDWPicture");
+								divObj.innerHTML = '<img src=\"'+'data:image/png;base64,'+obj+'\" />'
+								
+								$("#TTC").empty();
+								var _HTML="<thead><tr><th>TTC</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
+								var obj = data.Data.TTC								
+								for (var i=0;i<obj.length;i++)
+								{ 
+									switch (i) 
+									{  
+									  case 0:_HTML=_HTML+"<tr><td>"+"Mobileye 总";
+									  break; 
+									  case 1:_HTML=_HTML+"<tr><td>"+"Jimu 总";
+									  break; 
+									}
+									
+									_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
+								}								
+								_HTML = _HTML + "</tbody>";
+								$("#TTC").append(_HTML);
+								
+								
+								$("#TTCPicture").empty();
+								var obj = data.Data.TTC_bar;
+								var divObj = document.getElementById("TTCPicture");
+								divObj.innerHTML = '<img src=\"'+'data:image/png;base64,'+obj+'\" />';
+								};
+								
+			var getSummary_bin = function(starttime,endtime){
+				$.ajax({
+									url: "http://127.0.0.1:5000/getDataByTime",
+									type: "GET",
+									dataType: "json",
+									data:{"starttime":starttime,"endtime":endtime},
+									success: function (data) {
+									<!--var music="<ul>"; 
+									<!--music+="<li>"+JSON.stringify(data)+"</li>"; 
+									<!--music+="</ul>"; 
+									<!--$('#result').append(music);-->
+									successfn(JSON.stringify(data));
+									},
+									
+									complete:function(){
+										//请求结束时
+									},
+									
+									error:function(){
+										//请求失败时
+										failedfn();
+									}				  
+									});										
+			}
+			
+			var click_table1 = function(){
+				alert("test");
+					var divObj = document.getElementById("headtable");
+					divObj.innerHTML = '<li class="active" id="headtable1" onclick="click_table1()"><a href="#">测试结果</a></li>'+'<li  id="headtable2" onclick="click_table2()"><a href="#" >上传测试数据</a></li>';
+			document.getElementById("wrapper").style.visibility="visible";
+			}
+			
+			var click_table2 = function(){
+				alert("test2");
+				var divObj = document.getElementById("headtable");
+				divObj.innerHTML = '<li  id="headtable1" onclick="click_table1()"><a href="#">测试结果</a></li>'+'<li class="active" id="headtable2" onclick="click_table2()"><a href="#" >上传测试数据</a></li>';
+
+				document.getElementById("wrapper").style.visibility="hidden";
+				}
+			
+			$(function(){
+			//按钮单击时执行
+					$("#testAjax").click(function(){						
+					  	/*var options=$("#dataselect option:selected");
+						strs=options.text().split(/[.~]/); //字符分割
+						getSummary_bin(Date.UTC(Number(strs[0]),Number(strs[1])-1,Number(strs[2]),0,0,0),Date.UTC(Number(strs[3]),Number(strs[4])-1,Number(strs[5]),0,0,0));
+						$('.selectpicker').selectpicker('selectAll');
+						var value = $('.selectpicker').val();
+						alert(value);
+						alert(typeof "value");*/
+						var files = $('#bin_file').prop('files');//这句话可能错误
+						var data1 = new FormData();
+						data1.append("bin_file", $('#bin_file')[0].files[0]);
+						
+						$.ajax({
+						            type:'POST',
+						            //crossDomain: true,//这句话可以不要
+						            //url: "http://127.0.0.1:5000/joinus",
+									url: "http://127.0.0.1:5000/upload",
+						            //data: JSON.stringify({"Test":"testdata","Data":data}),
+						            data:data1,
+									            processData: false,//这2个参数一定要加
+									            contentType: false,//这2个参数一定要加
+
+									//dataType : 'json',
+						            success:function(res){
+						                alert("提交成功");
+						            },
+						            error: function (res){
+						                var json_data=JSON.stringify(res);
+						                alert(json_data);
+						                // alert("现在不迎新哦~");
+						            },
+						        });
+						
+					});	
+					
+				/*	$("#headtable").click(function(){
+						
+						alert("test");
+						var divObj = document.getElementById("headtable");
+						divObj.innerHTML = '<li class="active" id="headtable1"><a href="#">测试结果</a></li>'+'<li  id="headtable2"><a href="#" >上传测试数据</a></li>';
+					});*/
+					/*
+					$("#headtable1").click(function(){
+						alert("test");
+						var divObj = document.getElementById("headtable");
+						divObj.innerHTML = '<li class="active" id="headtable1"><a href="#">测试结果</a></li>'+'<li  id="headtable2"><a href="#" >上传测试数据</a></li>';
+					});
+					
+					$("#headtable2").click(function(){
+						var divObj = document.getElementById("headtable");
+						divObj.innerHTML = '<li  id="headtable1"><a href="#">测试结果</a></li>'+'<li class="active" id="headtable2"><a href="#" >上传测试数据</a></li>';
+					});*/
+					
+
+					
+					    $("#import").click(function () {
+					        var files = $('#bin_file').prop('files');
+					        var data = new FormData();
+					        data.append("bin_file", files[0]);
+							
+					        $.ajax({
+								url: "http://127.0.0.1:5000/upload",
+					            type: "POST",
+								crossDomain: true,    // 允许跨域请求
+					            data: data,
+					            cache: false,
+					            processData: false,
+					            contentType: "application/json",
+					            success: function (ret) {
+					                alert(ret);
+					            }
+					        });
+					    });
+					
+				}); 			
+		</script>
+	</head>
+	
+	<body  onload="getSummary_bin(0,100000000000000000)">
+		<ul class="nav nav-tabs" id='headtable'>
+		  <li  id="headtable1" onclick="click_table1()"><a href="#">测试结果</a></li>
+		  <li class="active" id="headtable2" onclick="click_table2()"><a href="#" >上传测试数据</a></li>
+		</ul>
+		<div id='sitiationselect'>
+		<select class="form-control selectpicker" data-live-search="true" multiple data-actions-box="true" title="场景选择">
+        <optgroup label="广东省">
+                <option value="1">广州市</option>
+                <option value="2">深圳市</option>
+                <option value="3">珠海市</option>
+         </optgroup>   
+          <optgroup label="广西">
+                  <option value="1">南宁市</option>
+                  <option value="2">柳州</option>
+                  <option value="3">桂林市</option>
+           </optgroup>  
+           <optgroup label="山东">
+                   <option value="1">烟台</option>
+                   <option value="2">青岛</option>
+                   <option value="3">济南</option>
+             </optgroup>                          
+		</select>
+		</div>
+		
+		<div id='wrapper'>
+			  <form>
+			    <select id="dataselect" class='custom-date' name='dataselect'>
+			      <option value='7'>7 Days</option>
+			      <option value='30'>30 Days</option>
+			      <option selected='selected' value='90'>90 Days</option>
+			      <option value='180'>180 Days</option>
+			      <option value='365'>365 Days</option>
+			      <option value='custom'>Custom</option>
+			    </select>
+			  </form>
+			</div>
+		<script src="/static/js/index.js"></script>
+		
+		
+		<form enctype="multipart/form-data">
+		        <p>上传bin文件<input type="file" id="bin_file" name="bin_file"/></p>
+		        <button id="import">导入</button>
+		</form>
+
+		
+		<button id="testAjax" type="button">查询统计测试结果</button>
+		<div ><table class="table table-bordered" id="LDW"></table></div>
+		<div id="LDWPicture"></div>
+		<div ><table class="table table-bordered" id="TTC"></table></div>
+		<div id="TTCPicture"></div>	
+
+	</body>
+	
+</html>

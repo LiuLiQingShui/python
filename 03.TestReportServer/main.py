@@ -2,26 +2,39 @@ import os
 import re
 import CanBinDataProcessV2
 import time
-import analyseData_Test
+import analyseData2
 
 
 
 #DataFolder = os.path.join(os.getcwd(),'Data')
-DataFolder = os.path.join(r'F:/test/1')
-#DataFolder = os.path.join(r'F:/00.python/01.CanBinPrase/dist/AdasCanDataPrase - 副本 - 副本 (3)/backup')
+#DataFolder = os.path.join(r'F:/00.Python/03.TestReportServer/bin')
+#analyseData2.analyseData(DataFolder,'20190815195702.bin',["cccc","ddddd"])
 
-if not os.path.exists(DataFolder):
-    os.makedirs(DataFolder)
+a = ['光照-白天', '光照-傍晚', '光照-黑夜', '天气-晴', '天气-雨', '天气-雪', '天气-阴', '天气-沙尘暴', '天气-雾', '路况-市内', '路况-高速', '路况-国道', '路况-县道']
+b = ['光照-白天',  '光照-黑夜',  '路况-市内', '路况-高速', '路况-国道', '路况-县道']
 
-FindLaber = '.bin'
+dict = {}
+#dict['光照'] = 1
+for x in a:
+    t = x.split("-")
+    if t[0] not in dict:
+        dict[t[0]] = [t[1]]
+    else:
+        attt = dict[t[0]]
+        attt.append(t[1])
+        dict[t[0]] = attt
 
-for parent, dirnames, filenames in os.walk(DataFolder):
-    for filename in filenames:
-        if filename.find(FindLaber) >= 0:
-            h = re.split(FindLaber, filename)
-            #CanBinDataProcessV2.CanBinDataProcess(DataFolder,filename)
-            analyseData_Test.analyseData(DataFolder,filename)
+print(dict)
 
-#CalcAllV2.CalcAll(DataFolder)
-print("\n\n")
-print("ALL bins have been parsed!")
+findlaber = 1
+for key,value in dict.items():
+    findlaber_sub = 0
+    for t in value:
+        if (key+'-'+t ) in b:
+            findlaber_sub=1
+            break;
+    if  findlaber_sub==0:
+        findlaber = 0
+        break
+
+print(findlaber)
