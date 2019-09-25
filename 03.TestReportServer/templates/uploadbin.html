@@ -8,7 +8,29 @@
 		<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>	
 		<script src="/static/js/bootstrap-select.min.js"></script>
 		<script src="/static/js/i18n/defaults-zh_CN.min.js"></script>
+		<script src="/static/js/configure.js"></script>
 		<script>
+			var ipAddress = configure["address"];
+			
+			function checkInt(n,max,id){
+			    var regex = /^\d+$/;
+			    if(regex.test(n)){
+			       if( n>=0){
+			          //alert("这是小于"+max+"的正整数！！")
+					  return 0;
+			       }
+			    }else{
+			       
+				   
+				   //alert(document.getElementById(id).value)
+				   document.getElementById(id).value = ""
+				   return 1;
+				   //$("#"+id).setAttribute('value',0);
+				   //document.getElementById("#"+id).setAttribute('value',"");
+				   //$("#"+id).
+			    }
+			}
+			
 			$(function(){
 				
 				
@@ -24,11 +46,22 @@
 				   
 				   var options=$("#dataselect option:selected");
 				   	strs=options.text().split(/[.~]/); //字符分割	   	
+				   var res1 = checkInt(document.getElementById('text1').value,100,'text1');
+				   var res3 = checkInt(document.getElementById('text3').value,100,'text3');
+				   var res4 = checkInt(document.getElementById('text4').value,100,'text4');
+				   var res5 = checkInt(document.getElementById('text5').value,100,'text5');
+				   var res6 = checkInt(document.getElementById('text6').value,100,'text6');
+				   //||checkInt(this.value,100,'text3')||checkInt(this.value,100,'text4')||checkInt(this.value,100,'text5')||checkInt(this.value,100,'text6');
+				   if(res1||res6||res3||res4||res5)
+				   {
+					   alert("非法输入：非整数");
+					   return;
+				   }
 				   
 				   
 				   $.ajax({
 				   	type: "POST",  
-				   	url: 'http://192.168.0.247:5000/missingwrong',  
+				   	url: ipAddress+'missingwrong',  
 				   	async: false, // 使用同步方式  
 				   	// 1 需要使用JSON.stringify 否则格式为 a=2&b=3&now=14...  
 				   	// 2 需要强制类型转换，否则格式为 {"a":"2","b":"3"}  
@@ -63,7 +96,7 @@
 						
 						$.ajax({  
 							type: "POST",  
-							url: 'http://192.168.0.247:5000/getsituiation',  
+							url: ipAddress+'getsituiation',  
 							async: false, // 使用同步方式  
 							// 1 需要使用JSON.stringify 否则格式为 a=2&b=3&now=14...  
 							// 2 需要强制类型转换，否则格式为 {"a":"2","b":"3"}  
@@ -83,8 +116,8 @@
 							data1.append("bin_file"+String(i), $('#bin_file')[0].files[i]);	
 						}										
 						$.ajax({
-						            type:'POST',
-									url: "http://192.168.0.247:5000/upload",
+						            type:"POST",
+									url: ipAddress+"upload",
 						            data:data1,
 									processData: false,//这2个参数一定要加
 									contentType: false,//这2个参数一定要加
@@ -112,13 +145,15 @@
 			$("#filename").append('<p>'+$('#bin_file')[0].files[i].name+'</p>');
 			}
 			}
+			
+
 		</script>
 	</head>
 	
 	<body >
 		
 		<ul class="nav nav-tabs" id='headtable'>
-		  <li  id="headtable1" ><a href="http://192.168.0.247:5000/">测试结果</a></li>
+		  <li  id="headtable1" ><a href="/">测试结果</a></li>
 		  <li class="active" id="headtable2" ><a href="#" >上传测试数据</a></li>
 		</ul>
 		<h1> </h1>
@@ -213,12 +248,12 @@
 				        	    </select>
 				        	  </form>
 				        	</div>
-				        <script src="/static/js/index.js"></script>
+				        <script src="/static/js/index_1.js"></script>
 				        
 				        
 				                <div class="input-group">
 				                    <span class="input-group-addon">公里数</span>
-				                    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text1">
+				                    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text1" >
 				                </div>
 				        		<div class="input-group">
 				        		    <span class="input-group-addon">版本号</span>
@@ -226,19 +261,19 @@
 				        		</div>
 				        		<div class="input-group">
 				        		    <span class="input-group-addon">车辆误检</span>
-				        		    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text3">
+				        		    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text3" >
 				        		</div>
 				        		<div class="input-group">
 				        		    <span class="input-group-addon">车辆漏检</span>
-				        		    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text4">
+				        		    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text4" >
 				        		</div>
 				        		<div class="input-group">
 				        		    <span class="input-group-addon">行人误检</span>
-				        		    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text5">
+				        		    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text5" >
 				        		</div>
 				        		<div class="input-group">
 				        		    <span class="input-group-addon">行人漏检</span>
-				        		    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text6">
+				        		    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text6" >
 				        		</div>
 				        		<div class="input-group">
 				        		    <span class="input-group-addon">问题描述</span>

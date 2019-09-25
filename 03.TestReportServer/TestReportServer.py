@@ -11,9 +11,8 @@ from flask import send_file,render_template
 
 from flask_cors import CORS
 app = Flask(__name__)
-
+CORS(app, supports_credentials=True)
 CORS(app, resources=r'/*')
-
 tasks = [
     {
         'id': 1,
@@ -50,7 +49,7 @@ class myThread (threading.Thread):   #继承父类threading.Thread
         self.filename = filename
         self.situ = situ
     def run(self):                   #把要执行的代码写到run函数里面 线程在创建后会直接运行run函数
-        #CanBinDataProcessV2.CanBinDataProcess(self.DataFolder, self.filename)
+        CanBinDataProcessV2.CanBinDataProcess(self.DataFolder, self.filename)
         analyseData2.analyseData(self.DataFolder, self.filename,self.situ)
 
 
@@ -126,6 +125,10 @@ def query():
 def uploadbin():
     return render_template("uploadbin.html")
 
+@app.route('/managerment')
+def managerment():
+    return render_template("EntryManagerment.html")
+
 @app.route('/getsummary',methods=['get'])
 def getsummary():
     response = jsonify({'Summart': GetDataFromServer.getSummary()})
@@ -133,13 +136,31 @@ def getsummary():
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
-@app.route('/getOneItem',methods=['get'])
+@app.route('/getOneItem',methods=['get', 'POST'])
 def getOneItem():
-    print(request.args)
-    if request.args:
-        filename = request.args.get('filename')
-        print({filename: GetDataFromServer.getOneItem(filename)})
-        return jsonify({filename: GetDataFromServer.getOneItem(filename)}),200
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    if json_data:
+        filename = json_data['filename']
+        print({"Data": GetDataFromServer.getOneItem(filename)})
+        response = jsonify({"Data": GetDataFromServer.getOneItem(filename)})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
+        #return jsonify({"Data": GetDataFromServer.getOneItem(filename)}),200
+
+
+@app.route('/deleteoneitem',methods=['get', 'POST'])
+def deleteoneitem():
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    if json_data:
+        filename = json_data['filename']
+        #print({"Data": GetDataFromServer.getOneItem(filename)})
+        response = jsonify({"Data": GetDataFromServer.deleteoneitem(filename)})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
+        #return jsonify({"Data": GetDataFromServer.getOneItem(filename)}),200
+
 
 @app.route('/getDataByTime',methods=['get', 'POST'])
 def getDataByTime():

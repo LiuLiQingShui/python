@@ -26,7 +26,21 @@ def getSummary():
         if 'OrangeBinData' in item:
             Summarylist.append([item['OrangeBinData'],item['Time'],item['Timestamp']])
     print(Summarylist)
-    return Summarylist
+    if len(Summarylist)==0:
+        return {}
+    else:
+        return {"Data":Summarylist}
+
+
+def deleteoneitem(filename):
+    myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
+    mydb = myclient["jimu_TestResult"]
+    mycol = mydb["LDW"]
+    myquery = {"OrangeBinData": filename}
+    mycol.delete_one(myquery)
+    return {}
+    #data = mycol.find_one(myquery)
+
 
 def getOneItem(filename):
     myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
@@ -35,7 +49,7 @@ def getOneItem(filename):
     myquery = {"OrangeBinData": filename}
     data = mycol.find_one(myquery)
     if not data:
-        return []
+        return {}
     # valueGeted=[]
     # for item in data:
     #     valueGeted.append(item)
@@ -49,48 +63,51 @@ def getOneItem(filename):
     T = [TTC[:,0]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))]),TTC[:,1]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))]),TTC[:,2]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))])]
     for i in range(len(T)):
         TTC = np.insert(TTC,len(TTC[0,:]), values=T[i], axis=1)
+
+    LDW = np.nan_to_num(LDW)  # 替换nan为0.否则json接口查询会出错
+    TTC = np.nan_to_num(TTC)
     data['LDW'] = LDW.tolist()
     data['TTC'] = TTC.tolist()
     print(data)
-    LDW = pd.DataFrame(LDW,
-                       index=['Mobileye LDW左', 'Jimu LDW左', 'Mobileye LDW右', 'Jimu LDW右', 'Mobileye Total',
-                              'Jimu Total'], columns=['Right', 'Missing', 'Wrong','Right_ratio','Missing_ratio','Wrong_ratio'])
-    plt.close('all')
-    plt.rcParams['font.sans-serif'] = ['SimHei']
-    LDW.iloc[:, :3].plot.bar(stacked=True, figsize=(8, 8),
-                             title='LDW告警对比分析：Jimu、Mobileye\n' + data['Time'])
-    [(plt.text(k * 2 + 1, (LDW.iloc[1::2, :3].to_numpy())[k, 0], '%d' % (LDW.iloc[1::2, :3].to_numpy())[k, 0],
-               ha='center', va='top'),
-      plt.text(k * 2 + 1, (LDW.iloc[1::2, :3].to_numpy())[k, :2].sum(), '%d' % (LDW.iloc[1::2, :3].to_numpy())[k, 1],
-               ha='center', va='top'),
-      plt.text(k * 2 + 1, (LDW.iloc[1::2, :3].to_numpy())[k, :3].sum(), '%d' % (LDW.iloc[1::2, :3].to_numpy())[k, 2],
-               ha='center', va='top')) for k in range(len(LDW.iloc[1::2, 2].to_numpy()))]
-    [(plt.text(k * 2, (LDW.iloc[0::2, :3].to_numpy())[k, 0], '%d' % (LDW.iloc[0::2, :3].to_numpy())[k, 0], ha='center',
-               va='top')) for k in range(len(LDW.iloc[0::2, 2].to_numpy()))]
-    plt.xticks(rotation=30)
-    plt.savefig('LDW.png')
-    plt.close()
-    image = imageToStr('LDW.png')
-    data['LDW_bar'] = image
+    # LDW = pd.DataFrame(LDW,
+    #                    index=['Mobileye LDW左', 'Jimu LDW左', 'Mobileye LDW右', 'Jimu LDW右', 'Mobileye Total',
+    #                           'Jimu Total'], columns=['Right', 'Missing', 'Wrong','Right_ratio','Missing_ratio','Wrong_ratio'])
+    # plt.close('all')
+    # plt.rcParams['font.sans-serif'] = ['SimHei']
+    # LDW.iloc[:, :3].plot.bar(stacked=True, figsize=(8, 8),
+    #                          title='LDW告警对比分析：Jimu、Mobileye\n' + data['Time'])
+    # [(plt.text(k * 2 + 1, (LDW.iloc[1::2, :3].to_numpy())[k, 0], '%d' % (LDW.iloc[1::2, :3].to_numpy())[k, 0],
+    #            ha='center', va='top'),
+    #   plt.text(k * 2 + 1, (LDW.iloc[1::2, :3].to_numpy())[k, :2].sum(), '%d' % (LDW.iloc[1::2, :3].to_numpy())[k, 1],
+    #            ha='center', va='top'),
+    #   plt.text(k * 2 + 1, (LDW.iloc[1::2, :3].to_numpy())[k, :3].sum(), '%d' % (LDW.iloc[1::2, :3].to_numpy())[k, 2],
+    #            ha='center', va='top')) for k in range(len(LDW.iloc[1::2, 2].to_numpy()))]
+    # [(plt.text(k * 2, (LDW.iloc[0::2, :3].to_numpy())[k, 0], '%d' % (LDW.iloc[0::2, :3].to_numpy())[k, 0], ha='center',
+    #            va='top')) for k in range(len(LDW.iloc[0::2, 2].to_numpy()))]
+    # plt.xticks(rotation=30)
+    # plt.savefig('LDW.png')
+    # plt.close()
+    # image = imageToStr('LDW.png')
+    #data['LDW_bar'] = image
 
-    TTC = pd.DataFrame(TTC,
-                       index=['TTC_Mobileye','TTC_Jimu'], columns=['Right', 'Missing', 'Wrong','Right_ratio','Missing_ratio','Wrong_ratio'])
-
-    TTC.iloc[:, :3].plot.bar(stacked=True, figsize=(8, 8),
-                             title='TTC告警对比分析：Jimu、Mobileye\n' + data['Time'])
-    [(plt.text(k * 2 + 1, (TTC.iloc[1::2, :3].to_numpy())[k, 0], '%d' % (TTC.iloc[1::2, :3].to_numpy())[k, 0],
-               ha='center', va='top'),
-      plt.text(k * 2 + 1, (TTC.iloc[1::2, :3].to_numpy())[k, :2].sum(), '%d' % (TTC.iloc[1::2, :3].to_numpy())[k, 1],
-               ha='center', va='top'),
-      plt.text(k * 2 + 1, (TTC.iloc[1::2, :3].to_numpy())[k, :3].sum(), '%d' % (TTC.iloc[1::2, :3].to_numpy())[k, 2],
-               ha='center', va='top')) for k in range(len(TTC.iloc[1::2, 2].to_numpy()))]
-    [(plt.text(k * 2, (TTC.iloc[0::2, :3].to_numpy())[k, 0], '%d' % (TTC.iloc[0::2, :3].to_numpy())[k, 0], ha='center',
-               va='top')) for k in range(len(TTC.iloc[0::2, 2].to_numpy()))]
-    plt.xticks(rotation=30)
-    plt.savefig('TTC.png')
-    plt.close()
-    image = imageToStr('TTC.png')
-    data['TTC_bar'] = image
+    # TTC = pd.DataFrame(TTC,
+    #                    index=['TTC_Mobileye','TTC_Jimu'], columns=['Right', 'Missing', 'Wrong','Right_ratio','Missing_ratio','Wrong_ratio'])
+    #
+    # TTC.iloc[:, :3].plot.bar(stacked=True, figsize=(8, 8),
+    #                          title='TTC告警对比分析：Jimu、Mobileye\n' + data['Time'])
+    # [(plt.text(k * 2 + 1, (TTC.iloc[1::2, :3].to_numpy())[k, 0], '%d' % (TTC.iloc[1::2, :3].to_numpy())[k, 0],
+    #            ha='center', va='top'),
+    #   plt.text(k * 2 + 1, (TTC.iloc[1::2, :3].to_numpy())[k, :2].sum(), '%d' % (TTC.iloc[1::2, :3].to_numpy())[k, 1],
+    #            ha='center', va='top'),
+    #   plt.text(k * 2 + 1, (TTC.iloc[1::2, :3].to_numpy())[k, :3].sum(), '%d' % (TTC.iloc[1::2, :3].to_numpy())[k, 2],
+    #            ha='center', va='top')) for k in range(len(TTC.iloc[1::2, 2].to_numpy()))]
+    # [(plt.text(k * 2, (TTC.iloc[0::2, :3].to_numpy())[k, 0], '%d' % (TTC.iloc[0::2, :3].to_numpy())[k, 0], ha='center',
+    #            va='top')) for k in range(len(TTC.iloc[0::2, 2].to_numpy()))]
+    # plt.xticks(rotation=30)
+    # plt.savefig('TTC.png')
+    # plt.close()
+    # image = imageToStr('TTC.png')
+    #data['TTC_bar'] = image
 
     return data
 
@@ -180,6 +197,9 @@ def getDataByTime(starttime,endtime,Situation):
                     in item['TTC_specific']]
             count = count + 1
 
+    if count==0:
+        return {}
+
     print(LDW)
     print(TTC)
     print(LDW_specific)
@@ -194,6 +214,9 @@ def getDataByTime(starttime,endtime,Situation):
     T = [TTC[:,0]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))]),TTC[:,1]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))]),TTC[:,2]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))])]
     for i in range(len(T)):
         TTC = np.insert(TTC,len(TTC[0,:]), values=T[i], axis=1)
+
+    LDW = np.nan_to_num(LDW)#替换nan为0.否则json接口查询会出错
+    TTC = np.nan_to_num(TTC)
     data['LDW'] = LDW.tolist()
     data['TTC'] = TTC.tolist()
     print(data)
@@ -315,5 +338,11 @@ def getDataByTimemissingwrong(starttime,endtime,Situation):
         Car_missing = 0
         persion_wrong = 0
         persion_missing = 0
+    else:
+        distance = distance.tolist()
+        Car_wrong = Car_wrong.tolist()
+        Car_missing = Car_missing.tolist()
+        persion_wrong = persion_wrong.tolist()
+        persion_missing = persion_missing.tolist()
     data = {'distance':distance,'Car_wrong':Car_wrong,'Car_missing':Car_missing,'persion_wrong':persion_wrong,'persion_missing':persion_missing}
     return data

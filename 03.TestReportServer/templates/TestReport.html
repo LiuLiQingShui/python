@@ -8,7 +8,16 @@
 		<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>	
 		<script src="/static/js/bootstrap-select.min.js"></script>
 		<script src="/static/js/i18n/defaults-zh_CN.min.js"></script>
-		<script>			
+		<script src="/static/js/configure.js"></script>
+		<script>
+			var ipAddress = configure["address"];
+			
+			$(document).ready(function () {
+				
+				getSummary_bin(0,100000000000000000);
+			});
+			
+			
 			function toPercent() {
 			      Number.prototype.toPercent = function(){
 			          return (Math.round(this * 10000)/100).toFixed(2) + '%';
@@ -20,7 +29,7 @@
 				$("#TTC").empty();
 				$("#TTCPicture").empty();
 				var divObj = document.getElementById("LDWPicture");
-				divObj.innerHTML = '<p> LDW\TTC数据查询失败 </p>';
+				divObj.innerHTML = '<p> LDW、TTC数据查询失败 </p>';
 				
 				}	
 							
@@ -40,8 +49,20 @@
 							
 			
 			var successfn = function(jdata) {				
-								var data = JSON.parse(jdata)								
+								var data = JSON.parse(jdata);
+								//alert(data);
 								$("#LDW").empty();
+								$("#LDWPicture").empty();
+								$("#TTC").empty();
+								$("#TTCPicture").empty();
+								
+								if(jQuery.isEmptyObject(data.Data)){  
+								      var divObj = document.getElementById("LDWPicture");
+								      divObj.innerHTML = '<p> 选定范围内无LDW、TTC数据 </p>';  
+									  return;
+									  //alert("NNN")
+								}  
+								
 								var _HTML="<thead><tr><th>LDW</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
 								var obj = data.Data.LDW								
 								for (var i=0;i<obj.length;i++)
@@ -67,12 +88,12 @@
 								_HTML = _HTML + "</tbody>";
 								$("#LDW").append(_HTML);
 								
-								$("#LDWPicture").empty();
+								
 								var obj = data.Data.LDW_bar;
 								var divObj = document.getElementById("LDWPicture");
 								divObj.innerHTML = '<img src=\"'+'data:image/png;base64,'+obj+'\" />'
 								
-								$("#TTC").empty();
+								
 								var _HTML="<thead><tr><th>TTC</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
 								var obj = data.Data.TTC								
 								for (var i=0;i<obj.length;i++)
@@ -90,7 +111,7 @@
 								_HTML = _HTML + "</tbody>";
 								$("#TTC").append(_HTML);								
 								
-								$("#TTCPicture").empty();
+								
 								var obj = data.Data.TTC_bar;
 								var divObj = document.getElementById("TTCPicture");
 								divObj.innerHTML = '<img src=\"'+'data:image/png;base64,'+obj+'\" />';
@@ -105,24 +126,27 @@
 					}
 				
 					$.ajax({
-									url: "http://192.168.0.247:5000/getDataByTime",
+									url: ipAddress+"getDataByTime",
 									type: "POST",
 									dataType: "json",
 									async: false, // 使用同步方式  
 									data:JSON.stringify({"starttime":starttime,"endtime":endtime,'Situation':jsondata}),
 									contentType: "application/json; charset=utf-8", 
 									success: function (data) {
+										//alert("aaa");
 									successfn(JSON.stringify(data));
 									},									
-									complete:function(){										//请求结束时
+									complete:function(){	
+										//alert("ccc");//请求结束时
 									},									
-									error:function(){										//请求失败时
+									error:function(){	
+										//alert("bbb");//请求失败时
 										failedfn();
 									}				  
 							});	
 																
 					$.ajax({
-									url: "http://192.168.0.247:5000/getDataByTimemissingwrong",
+									url: ipAddress+"getDataByTimemissingwrong",
 									type: "POST",
 									dataType: "json",
 									async: false, // 使用同步方式  
@@ -157,14 +181,14 @@
 		</script>
 	</head>
 	
-	<body onload="getSummary_bin(0,100000000000000000)">
+	<body>
 
 		<ul class="nav nav-tabs" id='headtable'>
 		  <li  class="active" id="headtable1" ><a href="#">测试结果</a></li>
-		  <li  id="headtable2" ><a href="http://192.168.0.247:5000/uploadbin" >上传测试数据</a></li>
+		  <li  id="headtable2" ><a href="/uploadbin" >上传测试数据</a></li>
 		</ul>
-		<h1> </h1>
-		<h1> </h1>
+		<h1></h1>
+		<h1></h1>
 		
 		<div class="panel panel-info">
 		    <div class="panel-heading">
