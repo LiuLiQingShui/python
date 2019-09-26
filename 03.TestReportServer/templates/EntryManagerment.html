@@ -11,14 +11,11 @@
 		<script src="/static/js/configure.js"></script>
 		<script>
 			var ipAddress = configure["address"];
-			
+						
 			$(document).ready(function () {
-				
-				getSummary_bin(0,100000000000000000);
 				getEntry(0,0);
-				
+				getEntry_missingwrong(0,0);
 			});
-			
 			
 			var getEntry = function(startnumber,endnumber){
 					$.ajax({
@@ -40,39 +37,64 @@
 										failed_getEntry();
 									}				  
 							});	
-																
-					/*$.ajax({
-									url: ipAddress+"getDataByTimemissingwrong",
-									type: "POST",
-									dataType: "json",
-									async: false, // 使用同步方式  
-									data:JSON.stringify({"starttime":starttime,"endtime":endtime,'Situation':jsondata}),
-									contentType: "application/json; charset=utf-8", 
-									success: function (data) {
-									successfn_missingwrong(JSON.stringify(data));
-									},									
-									complete:function(){										//请求结束时
-									},									
-									error:function(){										//请求失败时
-										failedfn_missingwrong();
-									}				  
-							});	*/
 					}
+					
+			var success_getEntry = function(jdata) {
+								var data = JSON.parse(jdata);
+								$("#Entry").empty();
+								if(jQuery.isEmptyObject(data.Summart)){  
+								      var divObj = document.getElementById("Entry");
+								      divObj.innerHTML = '<p> 条目为空 </p>'; 
+									  return;
+								}  
+								var obj = data.Summart.Data;								
+								var _HTML= '';
+								if (obj.length>0)
+								{
+									_HTML= _HTML + '<div class="panel-group" id="accordion">';									
+									_HTML= _HTML + '<div class="container">';									 															        
+									for (var i=0;i<obj.length;i++)
+									{ 										
+										_HTML= _HTML + '<div class="row">';
+										_HTML= _HTML +  '<div class="col-xs-11 col-sm-11" >';										
+										_HTML= _HTML + [
+										'<div class="panel-group" id="accordion">',
+										   ' <div class="panel panel-default">',
+												'<div class="panel-heading">',
+										            '<h4 class="panel-title">',
+										                '<a data-toggle="collapse" data-parent="#accordion" ',
+														'href="#'+obj[i][0].split('.')[0]+'"  onclick="freshoneitem('+obj[i][0].split('.')[0]+');">',
+										                obj[i][0],
+										                '</a>',
+										            '</h4>',
+										        '</div>',
+										        '<div id="'+obj[i][0].split('.')[0]+'" class="panel-collapse collapse">',
+										            '<div class="panel-body">',
+										            '</div>',
+										        '</div>',
+										    '</div>',
+										'</div>',
+										//].join('');
+										].join('\n');
+										
+										_HTML= _HTML +'</div>';										
+										 _HTML= _HTML +'<div class="col-xs-1 col-sm-1" ><button type="button" onclick="deleteoneitem('+obj[i][0].split('.')[0]+');" class="btn btn-danger">delete</button></div>  ';
+										_HTML= _HTML +'</div>';										
+										}								 
+								
+									_HTML= _HTML +'</div></div>';
+									$("#Entry").append(_HTML);	
+								}																
+				};	
 			
 			var failed_getEntry = function() {
 				$("#Entry").empty();
 				var divObj = document.getElementById("Entry");
-				divObj.innerHTML = '<p> 条目查询失败 </p>';
-				
+				divObj.innerHTML = '<p> 条目查询失败 </p>';				
 				}
 				
 			var freshoneitem = function(e) {
-				//alert('ssssss')
-				//var id = e.getAttribute("data-id");
-				
-				
-				var id = e;
-				
+				var id = e;				
 				$.ajax({
 								url: ipAddress+"getOneItem",
 								type: "POST",
@@ -80,30 +102,34 @@
 								async: false, // 使用同步方式  
 								data:JSON.stringify({"filename":id+'.bin'}),
 								contentType: "application/json; charset=utf-8", 
-								
-								
-								
-								
-								success: function (data) {
-								
-								
-								//alert(e);								
+								success: function (data) {		
 								jdata = JSON.stringify(data);
 								var data = JSON.parse(jdata);
-
 								var _HTML="";
 								if(jQuery.isEmptyObject(data.Data)){  
-								      //var divObj = document.getElementById("LDWPicture");
-								      _HTML = '<p> 选定范围内无LDW、TTC数据 </p>';  
-									  //return;
-									  //alert("NNN")
-									
+								      _HTML = '<p> 选定范围内无LDW、TTC数据 </p>';									
 								}  
 								else
-								{
-									_HTML= _HTML+'<div ><table class="table table-bordered" >';
+								{									
+									var obj = data.Data.Situation									
+									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
+									_HTML = _HTML+ "<thead><tr><th>测试版本</th><th>测试场景</th></tr></thead><tbody>";									
+									_HTML=_HTML+"<tr><td>"+data.Data.version+"</td><td>";
+									if (obj.length>0)
+																{
+																	
+																	for (var i=0;i<obj.length;i++)
+																	{ 
+																	
+																		
+																		_HTML=_HTML+obj[i]+" ";
+																	}								
+																		
+																}
+									_HTML = _HTML + "</td></tr></tbody>";								
+									_HTML= _HTML+'</div>';												
 									
-									//<div ><table class="table table-bordered" id="TTC"></table></div>;
+									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
 									_HTML=_HTML+"<thead><tr><th>LDW</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
 									var obj = data.Data.LDW								
 									for (var i=0;i<obj.length;i++)
@@ -126,16 +152,10 @@
 										
 										_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
 									}								
-									_HTML = _HTML + "</tbody>";
-									
+									_HTML = _HTML + "</tbody>";									
 									_HTML= _HTML+'</div>';
 									
-									
-									//var obj = data.Data.LDW_bar;
-									//_HTML = _HTML+ '<img src=\"'+'data:image/png;base64,'+obj+'\" />'
-									
-									_HTML= _HTML+'<div ><table class="table table-bordered" >';
-									
+									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
 									_HTML = _HTML+ "<thead><tr><th>TTC</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
 									var obj = data.Data.TTC								
 									for (var i=0;i<obj.length;i++)
@@ -150,16 +170,12 @@
 										
 										_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
 									}								
-									_HTML = _HTML + "</tbody>";
-									
+									_HTML = _HTML + "</tbody>";									
 									_HTML= _HTML+'</div>';								
 									
-									
-									var obj = data.Data.LDW_specific	
-									
+									var obj = data.Data.LDW_specific										
 									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
-									_HTML = _HTML+ "<thead><tr><th>LDW</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
-									
+									_HTML = _HTML+ "<thead><tr><th>时间</th><th>timestamp</th><th>Left LDW_Mobileye</th><th>Right LDW_Mobileye</th><th>Left LDW_Jimu</th><th>Right LDW_Jimu</th><th>speed</th></tr></thead><tbody>";
 									if (obj.length>0)
 																{
 																	for (var i=0;i<obj.length;i++)
@@ -171,14 +187,11 @@
 																	_HTML = _HTML + "</tbody>";	
 																}
 								
-									_HTML= _HTML+'</div>';		
+									_HTML= _HTML+'</div>';	
 									
-									
-									var obj = data.Data.TTC_specific
-									
+									var obj = data.Data.TTC_specific									
 									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
-									_HTML = _HTML+ "<thead><tr><th>TTC</th><th>正报</th><th>漏报</th><th>误报</th><th>误报率</th></tr></thead><tbody>";
-									
+									_HTML = _HTML+ "<thead><tr><th>时间</th><th>timestamp</th><th>TTC_Mobileye</th><th>TTC_Jimu</th><th>speed</th></tr></thead><tbody>";
 									if (obj.length>0)
 																{
 																	for (var i=0;i<obj.length;i++)
@@ -188,316 +201,202 @@
 																		_HTML=_HTML+"<tr><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+obj[i][3]  + "</td><td>"+obj[i][4] + "</td></tr>";
 																	}								
 																	_HTML = _HTML + "</tbody>";	
-																}
-																	
-									_HTML= _HTML+'</div>';	
-									//var obj = data.Data.TTC_bar;
-									//_HTML = _HTML+ '<img src=\"'+'data:image/png;base64,'+obj+'\" />';
-								
+																}																	
+									_HTML= _HTML+'</div>';									
 								}
 								
 								
 								$("#"+id).empty();
-								var _HTML_ = 								            ['<div class="panel-body">',
+								var _HTML_ = ['<div class="panel-body">',
 												                _HTML,
 												            '</div>',
 												].join('\n');
-								$("#"+id).append(_HTML_);
+								$("#"+id).append(_HTML_);								
+								},																
 								
-								
-								},	
-																
-																
-																
-																
-																
-																
-																
 								complete:function(){										//请求结束时
 								},									
-								error:function(){										//请求失败时
-									
+								error:function(){										//请求失败时	
 								}				  
-						});	
-				
-
+						});				
 				}
 				
 			
 			var deleteoneitem = function(e) {
-				//alert('ssssss')
-				//var id = e.getAttribute("data-id");
-				
-				
-				var id = e;
-				
+				var id = e;				
 				$.ajax({
 								url: ipAddress+"deleteoneitem",
 								type: "POST",
 								dataType: "json",
 								async: false, // 使用同步方式  
 								data:JSON.stringify({"filename":id+'.bin'}),
-								contentType: "application/json; charset=utf-8",
-								
-								success: function (data) {
-								
-								alert(e);
+								contentType: "application/json; charset=utf-8",	
+															
+								success: function (data) {								
 								getEntry(0,0);
-								//alert(e);								
-								
-								
 								},	
 																
-																
-																
-																
-																
-																
-																
 								complete:function(){										//请求结束时
-								},									
+								},	
+																
 								error:function(){										//请求失败时
 									alert("删除失败");
 								}				  
-						});	
-				
-			
+						});				
 				}
-				
-			
-				
-			var success_getEntry = function(jdata) {
-								var data = JSON.parse(jdata);
-								//alert(data);
-								$("#Entry").empty();
-
-								
-								if(jQuery.isEmptyObject(data.Summart)){  
-								      var divObj = document.getElementById("Entry");
-								      divObj.innerHTML = '<p> 条目为空 </p>'; 
-									  return;
-									  //alert("NNN")
-								}  
-								var obj = data.Summart.Data;
-								
-								var _HTML= '';
-								if (obj.length>0)
-								{
-
-									_HTML= _HTML + '<div class="panel-group" id="accordion">';
-									
-									_HTML= _HTML + '<div class="container">';
-									 															        
-									   
-									
-									
-									
-									
-									for (var i=0;i<obj.length;i++)
-									{ 
-										
-										_HTML= _HTML + '<div class="row">';
-										_HTML= _HTML +  '<div class="col-xs-11 col-sm-11" >';
-										
-										_HTML= _HTML + [
-										'<div class="panel-group" id="accordion">',
-										   ' <div class="panel panel-default">',
-												'<div class="panel-heading">',
-										            '<h4 class="panel-title">',
-										                '<a data-toggle="collapse" data-parent="#accordion" ',
-										                //'href="#aaa">',
-														'href="#'+obj[i][0].split('.')[0]+'"  onclick="freshoneitem('+obj[i][0].split('.')[0]+');">',
-										                obj[i][0],
-										                '</a>',
-										            '</h4>',
-										        '</div>',
-												//'<div id="aaa" class="panel-collapse collapse in">',
-										        '<div id="'+obj[i][0].split('.')[0]+'" class="panel-collapse collapse">',
-										            '<div class="panel-body">',
-										               // 'Nihil anim keffiyeh helvetica, craft beer labore wes anderson ',
-										            '</div>',
-										        '</div>',
-										    '</div>',
-										'</div>',
-										].join('\n');
-										
-										_HTML= _HTML +'</div>';
-										
-										 _HTML= _HTML +'<div class="col-xs-1 col-sm-1" ><button type="button" onclick="deleteoneitem('+obj[i][0].split('.')[0]+');" class="btn btn-danger">delete</button></div>  ';
-										
-										_HTML= _HTML +'</div>';
-										
-										}
-								 
-								
-									_HTML= _HTML +'</div></div>';
-									$("#Entry").append(_HTML);	
-								}
-								//alert(_HTML)
-																
-								};
-			
-			
-			function toPercent() {
-			      Number.prototype.toPercent = function(){
-			          return (Math.round(this * 10000)/100).toFixed(2) + '%';
-			      }
-			    }
-			var failedfn = function() {
-				$("#LDW").empty();
-				$("#LDWPicture").empty();
-				$("#TTC").empty();
-				$("#TTCPicture").empty();
-				var divObj = document.getElementById("LDWPicture");
-				divObj.innerHTML = '<p> LDW、TTC数据查询失败 </p>';
-				
-				}	
-							
-			var failedfn_missingwrong = function() {
-				$("#MissingWrong").empty();
-				var divObj = document.getElementById("MissingWrong");
-				divObj.innerHTML = '<p> 误检漏检数据查询失败 </p>';
-				}	
-								
-			var successfn_missingwrong = function(jdata) {
-								var data = JSON.parse(jdata)								
-								$("#MissingWrong").empty();
-								var _HTML="<thead><tr><th>公里数</th><th>车辆错报</th><th>车辆漏报</th><th>行人错报</th><th>行人漏报</th></tr></thead><tbody>";
-								_HTML=_HTML+"<tr><td>"+data.Data.distance+"</td><td>"+data.Data.Car_wrong+"</td><td>"+data.Data.Car_missing+"</td><td>"+data.Data.persion_wrong+"</td><td>"+data.Data.persion_missing+"</td></tr>"+ "</tbody>";
-								$("#MissingWrong").append(_HTML);		
-								};				
-							
-			
-			var successfn = function(jdata) {				
-								var data = JSON.parse(jdata);
-								//alert(data);
-								$("#LDW").empty();
-								$("#LDWPicture").empty();
-								$("#TTC").empty();
-								$("#TTCPicture").empty();
-								
-								if(jQuery.isEmptyObject(data.Data)){  
-								      var divObj = document.getElementById("LDWPicture");
-								      divObj.innerHTML = '<p> 选定范围内无LDW、TTC数据 </p>';  
-									  return;
-									  //alert("NNN")
-								}  
-								
-								var _HTML="<thead><tr><th>LDW</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
-								var obj = data.Data.LDW								
-								for (var i=0;i<obj.length;i++)
-								{ 
-									switch (i) 
-									{ 
-									  case 0:_HTML=_HTML+"<tr><td>"+"Mobileye 左";
-									  break; 
-									  case 1:_HTML=_HTML+"<tr><td>"+"Jimu 左";
-									  break; 
-									  case 2:_HTML=_HTML+"<tr><td>"+"Mobileye 右";
-									  break; 
-									  case 3:_HTML=_HTML+"<tr><td>"+"Jimu 右";
-									  break; 
-									  case 4:_HTML=_HTML+"<tr><td>"+"Mobileye 总";
-									  break; 
-									  case 5:_HTML=_HTML+"<tr><td>"+"Jimu 总";
-									  break; 
-									}
-									
-									_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
-								}								
-								_HTML = _HTML + "</tbody>";
-								$("#LDW").append(_HTML);
-								
-								
-								var obj = data.Data.LDW_bar;
-								var divObj = document.getElementById("LDWPicture");
-								divObj.innerHTML = '<img src=\"'+'data:image/png;base64,'+obj+'\" />'
-								
-								
-								var _HTML="<thead><tr><th>TTC</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
-								var obj = data.Data.TTC								
-								for (var i=0;i<obj.length;i++)
-								{ 
-									switch (i) 
-									{  
-									  case 0:_HTML=_HTML+"<tr><td>"+"Mobileye 总";
-									  break; 
-									  case 1:_HTML=_HTML+"<tr><td>"+"Jimu 总";
-									  break; 
-									}
-									
-									_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
-								}								
-								_HTML = _HTML + "</tbody>";
-								$("#TTC").append(_HTML);								
-								
-								
-								var obj = data.Data.TTC_bar;
-								var divObj = document.getElementById("TTCPicture");
-								divObj.innerHTML = '<img src=\"'+'data:image/png;base64,'+obj+'\" />';
-								};
-								
-			var getSummary_bin = function(starttime,endtime){
-					var jsondata = $('#selectpicker1').selectpicker('val');
-					if (!$('#selectpicker1').selectpicker('val'))
-					{
-						//$('#selectpicker1').selectpicker('selectAll');
-						jsondata =[];
-					}
-				
+					
+			var getEntry_missingwrong = function(startnumber,endnumber){
 					$.ajax({
-									url: ipAddress+"getDataByTime",
-									type: "POST",
+									url: ipAddress+"getsummarymissingwrong",
+									type: "GET",
 									dataType: "json",
 									async: false, // 使用同步方式  
-									data:JSON.stringify({"starttime":starttime,"endtime":endtime,'Situation':jsondata}),
+									//data:JSON.stringify({"starttime":starttime,"endtime":endtime,'Situation':jsondata}),
 									contentType: "application/json; charset=utf-8", 
 									success: function (data) {
 										//alert("aaa");
-									successfn(JSON.stringify(data));
+									success_getEntry_missingwrong(JSON.stringify(data));
 									},									
 									complete:function(){	
 										//alert("ccc");//请求结束时
 									},									
 									error:function(){	
 										//alert("bbb");//请求失败时
-										failedfn();
-									}				  
-							});	
-																
-					$.ajax({
-									url: ipAddress+"getDataByTimemissingwrong",
-									type: "POST",
-									dataType: "json",
-									async: false, // 使用同步方式  
-									data:JSON.stringify({"starttime":starttime,"endtime":endtime,'Situation':jsondata}),
-									contentType: "application/json; charset=utf-8", 
-									success: function (data) {
-									successfn_missingwrong(JSON.stringify(data));
-									},									
-									complete:function(){										//请求结束时
-									},									
-									error:function(){										//请求失败时
-										failedfn_missingwrong();
+										failed_getEntry_missingwrong();
 									}				  
 							});	
 					}
-			
-			//$(document).ready(function() {
-			 //   getSummary_bin(0,100000000000000000); 
-			    //这个是jquery代码 
-			//});
-			
-			$(function(){
-
-					$("#testAjax").click(function(){						
-						var options=$("#dataselect option:selected");
-						strs=options.text().split(/[.~]/); //字符分割
-						getSummary_bin(Date.UTC(Number(strs[0]),Number(strs[1])-1,Number(strs[2]),0,0,0),Date.UTC(Number(strs[3]),Number(strs[4])-1,Number(strs[5]),0,0,0));
-					});	
-				}); 
-			
-
+					
+			var success_getEntry_missingwrong = function(jdata) {
+								var data = JSON.parse(jdata);
+								$("#missingwrong").empty();
+								if(jQuery.isEmptyObject(data.Summart)){  
+								      var divObj = document.getElementById("missingwrong");
+								      divObj.innerHTML = '<p> 条目为空 </p>'; 
+									  return;
+								}  
+								var obj = data.Summart.Data;								
+								var _HTML= '';
+								if (obj.length>0)
+								{
+									_HTML= _HTML + '<div class="panel-group" id="accordion_missingwrong">';									
+									_HTML= _HTML + '<div class="container">';									 															        
+									for (var i=0;i<obj.length;i++)
+									{ 										
+										_HTML= _HTML + '<div class="row">';
+										_HTML= _HTML +  '<div class="col-xs-11 col-sm-11" >';										
+										_HTML= _HTML + [
+										'<div class="panel-group" id="accordion_missingwrong">',
+										   ' <div class="panel panel-default">',
+												'<div class="panel-heading">',
+										            '<h4 class="panel-title">',
+										                '<a data-toggle="collapse" data-parent="#accordion_missingwrong" ',
+														'href="#'+obj[i][0]+'"  onclick="freshoneitem_missingwrong('+obj[i][0]+');">',
+										                obj[i][1],
+										                '</a>',
+										            '</h4>',
+										        '</div>',
+										        '<div id="'+obj[i][0]+'" class="panel-collapse collapse">',
+										            '<div class="panel-body">',
+										            '</div>',
+										        '</div>',
+										    '</div>',
+										'</div>',
+										].join('\n');
+										
+										_HTML= _HTML +'</div>';										
+										 _HTML= _HTML +'<div class="col-xs-1 col-sm-1" ><button type="button" onclick="deleteoneitem_missingwrong('+obj[i][0]+');" class="btn btn-danger">delete</button></div>  ';
+										_HTML= _HTML +'</div>';										
+										}								 
+								
+									_HTML= _HTML +'</div></div>';
+									$("#missingwrong").append(_HTML);	
+								}	
+							};	
+			var failed_getEntry_missingwrong = function() {
+				$("#missingwrong").empty();
+				var divObj = document.getElementById("missingwrong");
+				divObj.innerHTML = '<p> 条目查询失败 </p>';				
+				}
+							
+			var freshoneitem_missingwrong = function(e) {
+				var id = e;	
+				$.ajax({
+								url: ipAddress+"getOneItemmissingwrong",
+								type: "POST",
+								dataType: "json",
+								async: false, // 使用同步方式  
+								data:JSON.stringify({"ID":id}),
+								contentType: "application/json; charset=utf-8", 
+								success: function (data) {		
+								jdata = JSON.stringify(data);
+								var data = JSON.parse(jdata);
+								var _HTML="";
+								if(jQuery.isEmptyObject(data.Data)){  
+								      _HTML = '<p> 选定范围内无数据 </p>';									
+								}  
+								else
+								{																	
+									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
+									_HTML = _HTML+ "<thead><tr><th>时间</th><th>测试版本</th><th>测试场景</th><th>公里数</th><th>车误检</th><th>车漏检</th><th>行人误检</th><th>行人漏检</th><th>问题描述</th></tr></thead><tbody>";
+									var obj = data.Data.Situation
+									Situation_str='';
+									if (obj.length>0)
+										{
+											
+											for (var i=0;i<obj.length;i++)
+											{ 
+											
+												
+												Situation_str=Situation_str+obj[i]+" ";
+											}								
+												
+										}
+									var obj = data.Data;		
+									_HTML=_HTML+"<tr><td>"+data.Data.Time+"</td><td>"+data.Data.version+ "</td><td>"+Situation_str+"</td><td>"+data.Data.distance+"</td><td>"+data.Data.Car_wrong  + "</td><td>"+data.Data.Car_missing +"</td><td>"+data.Data.persion_wrong  + "</td><td>"+data.Data.persion_missing+"</td><td>"+data.Data.problem+ "</td></tr></tbody>";
+									_HTML= _HTML+'</div>';	
+																		
+								}
+								
+								
+								$("#"+id).empty();
+								var _HTML_ = ['<div class="panel-body">',
+												                _HTML,
+												            '</div>',
+												].join('\n');
+								$("#"+id).append(_HTML_);								
+								},																
+								
+								complete:function(){										//请求结束时
+								},									
+								error:function(){										//请求失败时	
+								}				  
+						});				
+				}
+				
+			var deleteoneitem_missingwrong = function(e) {
+				var id = e;				
+				$.ajax({
+								url: ipAddress+"deleteoneitemmissingwrong",
+								type: "POST",
+								dataType: "json",
+								async: false, // 使用同步方式  
+								data:JSON.stringify({"ID":id}),
+								contentType: "application/json; charset=utf-8",	
+															
+								success: function (data) {								
+								getEntry_missingwrong(0,0);
+								},	
+																
+								complete:function(){										//请求结束时
+								},	
+																
+								error:function(){										//请求失败时
+									alert("删除失败");
+								}				  
+						});				
+				}
+					
 		</script>
 	</head>
 	
@@ -510,104 +409,25 @@
 		<h1></h1>
 		<h1></h1>
 		
-		<div class="panel panel-info">
-		    <div class="panel-heading">
-		        <h3 class="panel-title">选择场景、时间范围，查询测试统计结果（首次默认全部查询）</h3>
-		    </div>
-		    <div class="panel-body">
-		        <div id='sitiationselect'>
-		        <select class="form-control selectpicker" data-live-search="true" multiple data-actions-box="true" title="场景选择" id="selectpicker1">
-		        <optgroup label="光照">
-		                <option value="光照-白天">白天</option>
-		                <option value="光照-傍晚">傍晚</option>
-		                <option value="光照-黑夜">黑夜</option>
-		         </optgroup>   
-		          <optgroup label="天气">
-		                  <option value="天气-晴">晴</option>
-		                  <option value="天气-雨">雨</option>
-		                  <option value="天气-雪">雪</option>
-		        		  <option value="天气-阴">阴</option>
-		        		  <option value="天气-沙尘暴">沙尘暴</option>
-		        		  <option value="天气-雾">雾</option>
-		           </optgroup>  
-		           <optgroup label="路况">
-		                   <option value="路况-市内">市内</option>
-		                   <option value="路况-高速">高速</option>
-		                   <option value="路况-国道">国道</option>
-		        		   <option value="路况-县道">县道</option>
-		             </optgroup>                          
-		        </select>
-		        </div>
-		        
-		        
-		        <div id='wrapper'>
-		        	  <form>
-		        	    <select id="dataselect" class='custom-date' name='dataselect'>
-		        	      <option value='7'>7 Days</option>
-		        	      <option value='30'>30 Days</option>
-		        	      <option selected='selected' value='90'>90 Days</option>
-		        	      <option value='180'>180 Days</option>
-		        	      <option value='365'>365 Days</option>
-		        	      <option value='custom'>Custom</option>
-		        	    </select>
-		        	  </form>
-		        	</div>
-		        <script src="/static/js/index.js"></script>
-		        
-		        <button id="testAjax" type="button">查询</button>
-		    </div>
-		</div>
-		
-		
 		<div class="panel panel-warning">
 		    <div class="panel-heading">
-		        <h3 class="panel-title">车辆行人误检、漏检统计</h3>
-		    </div>
-		    <div class="panel-body">
-		        <div > <table class="table table-bordered" id="MissingWrong"></table></div>
-		    </div>
-		</div>
-		
-		
-		<div class="panel panel-warning">
-		    <div class="panel-heading">
-		        <h3 class="panel-title">LDW误检、漏检统计（与Mobieye对比）</h3>
-		    </div>
-		    <div class="panel-body">
-		        <div ><table class="table table-bordered" id="LDW"></table></div>
-		        <div id="LDWPicture"></div>
-		    </div>
-		</div>
-		
-		<div class="panel panel-warning">
-		    <div class="panel-heading">
-		        <h3 class="panel-title">TTC误检、漏检统计（与Mobieye对比）</h3>
-		    </div>
-		    <div class="panel-body">
-		        <div ><table class="table table-bordered" id="TTC"></table></div>
-		        <div id="TTCPicture"></div>	
-		    </div>
-		</div>
-		
-		<div class="panel panel-warning">
-		    <div class="panel-heading">
-		        <h3 class="panel-title">条目管理</h3>
+		        <h3 class="panel-title">LDW&TTC</h3>
 		    </div>
 		    <div class="panel-body">
 		        <div id="Entry"></div>	
 		    </div>
 		</div>
 		
-		
-		<div class="container">
-		   <div class="row">
-		      <div class="col-xs-6 col-sm-3" ><h3 class="panel-title">条目管理</h3></div>
-		      <div class="col-xs-6 col-sm-3" ><h3 class="panel-title">条目管理</h3></div>      
-		   </div>
-		   <div class="row">
-			   <div class="col-xs-6 col-sm-3" ><h3 class="panel-title">条目管理</h3></div>
-			   <div class="col-xs-6 col-sm-3" ><h3 class="panel-title">条目管理</h3></div>
-		   </div>
+		<div class="panel panel-warning">
+		    <div class="panel-heading">
+		        <h3 class="panel-title">漏检&误检</h3>
+		    </div>
+		    <div class="panel-body">
+		        <div id="missingwrong"></div>	
+		    </div>
 		</div>
+		
+		
+		
 	</body>	
 </html>

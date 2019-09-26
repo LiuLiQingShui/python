@@ -58,6 +58,7 @@
 					   return;
 				   }
 				   
+				   var id = (new Date()).getTime();
 				   
 				   $.ajax({
 				   	type: "POST",  
@@ -65,7 +66,9 @@
 				   	async: false, // 使用同步方式  
 				   	// 1 需要使用JSON.stringify 否则格式为 a=2&b=3&now=14...  
 				   	// 2 需要强制类型转换，否则格式为 {"a":"2","b":"3"}  
-				   	data: JSON.stringify({                    
+				   	data: JSON.stringify({
+						ID:	id,
+						Time:	strs[0]+'.'+strs[1]+'.'+strs[2]+'~'+strs[3]+'.'+strs[4]+'.'+strs[5],
 				   		distance: $("#text1").val(),
 						version: $("#text2").val(),
 						Car_wrong: $("#text3").val(),
@@ -75,7 +78,7 @@
 						problem: $("#text7").val(),
 						Situation: jsondata,
 						Timestamp:[Date.UTC(Number(strs[0]),Number(strs[1])-1,Number(strs[2]),0,0,0),Date.UTC(Number(strs[3]),Number(strs[4])-1,Number(strs[5]),0,0,0)]						
-				   
+						
 				   	}),  
 				   	contentType: "application/json; charset=utf-8",  
 				   	dataType: "json",  
@@ -101,7 +104,8 @@
 							// 1 需要使用JSON.stringify 否则格式为 a=2&b=3&now=14...  
 							// 2 需要强制类型转换，否则格式为 {"a":"2","b":"3"}  
 							data: JSON.stringify({                    
-								situ: jsondata
+								situ: jsondata,
+								version: $("#text8").val(),
 
 							}),  
 							contentType: "application/json; charset=utf-8",  
@@ -196,6 +200,12 @@
 		        
 		        <p></p>
 		        <p></p>
+				<div class="input-group">
+				    <span class="input-group-addon">版本号</span>
+				    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text8">
+				</div>
+				<p></p>
+				<p></p>
 		        <button id="import">上传bin文件</button>
 		        
 		        <h1 id="response"></h1>

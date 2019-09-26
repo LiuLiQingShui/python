@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import pymongo
 
 
-def analyseData(DataFolder,filename,situ):
+def analyseData(DataFolder,filename,situ,version):
     h = re.split('.bin', filename)
     orangeData_0x700 = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x700" + '_testresult.csv'))
     orangeData_0x780 = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x780" + '_testresult.csv'))
@@ -53,6 +53,7 @@ def analyseData(DataFolder,filename,situ):
                        'LDW_specific': (LDW_specific.iloc[:, :].to_numpy()).tolist(),
                        'TTC_specific': (TTC_specific.iloc[:, :].to_numpy()).tolist(),
                        'Situation':situ,
+                       'version':version,
                         }
     print(situ)
     print(saveMongoDBdict)
