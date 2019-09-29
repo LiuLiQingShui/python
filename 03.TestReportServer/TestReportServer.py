@@ -180,7 +180,7 @@ def getOneItem():
     if json_data:
         filename = json_data['filename']
         #print({"Data": GetDataFromServer.getOneItem(filename)})
-        response = jsonify({"Data": GetDataFromServer.getOneItem(filename)})
+        response = jsonify({"Data": GetDataFromServer.getOneItem(str(filename))})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
         #return jsonify({"Data": GetDataFromServer.getOneItem(filename)}),200

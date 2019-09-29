@@ -88,7 +88,7 @@ def getOneItem(filename):
     myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
     mydb = myclient["jimu_TestResult"]
     mycol = mydb["LDW"]
-    myquery = {"OrangeBinData": filename}
+    myquery = {"OrangeBinData": {"$regex":filename}}
     data = mycol.find_one(myquery)
     if not data:
         return {}

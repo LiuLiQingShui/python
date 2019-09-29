@@ -376,10 +376,10 @@
 									_HTML=_HTML+"<tr><td>"+version[i]+"</td><td>"+versiondata.Data.distance+"</td><td>"+versiondata.Data.Car_wrong+' / '+(versiondata.Data.Car_wrong/versiondata.Data.distance * 100).toFixed(1)+"</td><td>"+versiondata.Data.Car_missing+' / '+(versiondata.Data.Car_missing/versiondata.Data.distance * 100).toFixed(1)+"</td><td>"+versiondata.Data.persion_wrong+' / '+(versiondata.Data.persion_wrong/versiondata.Data.distance * 100).toFixed(1)+"</td><td>"+versiondata.Data.persion_missing+' / '+(versiondata.Data.persion_missing/versiondata.Data.distance * 100).toFixed(1)+"</td></tr>";
 									//_HTML_TTC=_HTML_TTC+"<tr><td>"+version[i]+"</td><td>"+versiondata.Data.TTC[1][0]+"</td><td>"+versiondata.Data.TTC[1][1]+"</td><td>"+versiondata.Data.TTC[1][2]+"</td><td>"+((versiondata.Data.TTC[1][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.TTC[1][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.TTC[1][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
 									xAxis_value.push(version[i]);
-									Car_wrong_value.push(versiondata.Data.Car_wrong);
-									Car_missing_value.push(versiondata.Data.Car_missing);
-									persion_wrong_value.push(versiondata.Data.persion_wrong);
-									persion_missing_value.push(versiondata.Data.persion_missing);
+									Car_wrong_value.push(versiondata.Data.Car_wrong/versiondata.Data.distance * 100);
+									Car_missing_value.push(versiondata.Data.Car_missing/versiondata.Data.distance * 100);
+									persion_wrong_value.push(versiondata.Data.persion_wrong/versiondata.Data.distance * 100);
+									persion_missing_value.push(versiondata.Data.persion_missing/versiondata.Data.distance * 100);
 									//var Car_wrong_value=[];
 									//var Car_missing_value=[];
 									//var persion_wrong_value=[];
