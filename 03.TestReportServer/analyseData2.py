@@ -8,7 +8,7 @@ import pymongo
 
 
 def analyseData(DataFolder,filename,situ,version):
-    h = re.split('.bin', filename)
+    h = re.split('.', filename)
     orangeData_0x700 = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x700" + '_testresult.csv'))
     orangeData_0x780 = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x780" + '_testresult.csv'))
     orangeData_CarSpeed = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0xa0" + '_testresult.csv'))

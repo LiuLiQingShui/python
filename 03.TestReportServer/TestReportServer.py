@@ -30,7 +30,7 @@ tasks = [
 
 #UPLOAD_FOLDER = '/path/to/the/uploads'
 UPLOAD_FOLDER = os.path.join(os.getcwd(),'bin')
-ALLOWED_EXTENSIONS = set(['bin'])
+ALLOWED_EXTENSIONS = set(['bin','dat'])
 THREAD_COUNT = 1
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER

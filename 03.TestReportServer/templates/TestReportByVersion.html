@@ -10,6 +10,10 @@
 		<script src="/static/js/bootstrap-select.min.js"></script>
 		<script src="/static/js/i18n/defaults-zh_CN.min.js"></script>
 		<script src="/static/js/configure.js"></script>
+		<script src="/static/js/highcharts.js"></script>
+		<script src="/static/js/modules/series-label.js"></script>
+		<script src="/static/js/modules/exporting.js"></script>
+		<script src="/static/js/modules/export-data.js"></script>
 		<script>
 			var ipAddress = configure["address"];
 			
@@ -73,6 +77,15 @@
 					$("#TTC").empty();
 					var _HTML="";
 					var _HTML_TTC="";
+					var xAxis_value=[];
+					var LDW_right_value=[];
+					var LDW_missing_value=[];
+					var LDW_wrong_value=[];
+					var TTC_right_value=[];
+					var TTC_missing_value=[];
+					var TTC_wrong_value=[];
+					
+					
 					if(jQuery.isEmptyObject(data.version)){
 						  _HTML = _HTML+'<p> 无版本信息 </p>';
 						_HTML_TTC = _HTML_TTC+'<p> 无版本信息 </p>';
@@ -87,6 +100,7 @@
 						_HTML_TTC = _HTML_TTC+ "<thead><tr><th>版本</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
 						var version = data.version.Data;
 						var versiondata = 1;
+						
 						for (var i=0;i<version.length;i++)
 						{			
 							
@@ -99,6 +113,25 @@
 							{
 									_HTML=_HTML+"<tr><td>"+version[i]+"</td><td>"+versiondata.Data.LDW[5][0]+"</td><td>"+versiondata.Data.LDW[5][1]+"</td><td>"+versiondata.Data.LDW[5][2]+"</td><td>"+((versiondata.Data.LDW[5][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.LDW[5][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.LDW[5][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
 									_HTML_TTC=_HTML_TTC+"<tr><td>"+version[i]+"</td><td>"+versiondata.Data.TTC[1][0]+"</td><td>"+versiondata.Data.TTC[1][1]+"</td><td>"+versiondata.Data.TTC[1][2]+"</td><td>"+((versiondata.Data.TTC[1][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.TTC[1][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.TTC[1][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
+									xAxis_value.push(version[i]);
+									//var LDW_right_value=[];
+									//var LDW_missing_value=[];
+									//var LDW_wrong_value=[];
+									//var TTC_right_value=[];
+									//var TTC_missing_value=[];
+									//var TTC_wrong_value=[];
+									// LDW_right_value.push(((versiondata.Data.LDW[5][3] * 10000)/100).toFixed(2));
+									// LDW_missing_value.push(((versiondata.Data.LDW[5][4] * 10000)/100).toFixed(2));
+									// LDW_wrong_value.push(((versiondata.Data.LDW[5][5] * 10000)/100).toFixed(2));
+									// TTC_right_value.push(((versiondata.Data.TTC[1][3] * 10000)/100).toFixed(2));
+									// TTC_missing_value.push(((versiondata.Data.TTC[1][4] * 10000)/100).toFixed(2));
+									// TTC_wrong_value.push(((versiondata.Data.TTC[1][5] * 10000)/100).toFixed(2));
+									LDW_right_value.push(((versiondata.Data.LDW[5][3] * 10000)/100));
+									LDW_missing_value.push(((versiondata.Data.LDW[5][4] * 10000)/100));
+									LDW_wrong_value.push(((versiondata.Data.LDW[5][5] * 10000)/100));
+									TTC_right_value.push(((versiondata.Data.TTC[1][3] * 10000)/100));
+									TTC_missing_value.push(((versiondata.Data.TTC[1][4] * 10000)/100));
+									TTC_wrong_value.push(((versiondata.Data.TTC[1][5] * 10000)/100));
 									
 							}
 						}
@@ -108,6 +141,142 @@
 						_HTML_TTC= _HTML_TTC+'</tbody>';
 						_HTML_TTC= _HTML_TTC+'</div>';	
 					}
+					
+					if (xAxis_value.length>0)
+					{
+						
+					//alert(LDW_right_value);
+					Highcharts.chart('highcharts_trendbyversion_LDW', {
+					
+					    title: {
+					        text: 'LDW误检、漏检统计（与Mobieye对比）'
+					    },
+						
+						xAxis: {
+							 title:{
+							       text:'版本号'
+							   },
+						    categories: xAxis_value
+						},
+					
+					    yAxis: {
+					        title: {
+					            text: '误、漏检率（%）'
+					        }
+					    },
+					    legend: {
+					        layout: 'vertical',
+					        align: 'right',
+					        verticalAlign: 'middle'
+					    },
+					
+						//var Car_wrong_value=[];
+						//var Car_missing_value=[];
+						//var persion_wrong_value=[];
+						//var persion_missing_value=[];
+						//var LDW_right_value=[];
+						//var LDW_missing_value=[];
+						//var LDW_wrong_value=[];
+						//var TTC_right_value=[];
+						//var TTC_missing_value=[];
+						//var TTC_wrong_value=[];
+						
+					    series: [{
+					        name: 'LDW正报率',
+					        data: LDW_right_value
+					    }, {
+					        name: 'LDW漏报率',
+					        data: LDW_missing_value
+					    }, {
+					        name: 'LDW误报率',
+					        data: LDW_wrong_value
+					    }],
+					
+					    responsive: {
+					        rules: [{
+					            condition: {
+					                maxWidth: 500
+					            },
+					            chartOptions: {
+					                legend: {
+					                    layout: 'horizontal',
+					                    align: 'center',
+					                    verticalAlign: 'bottom'
+					                }
+					            }
+					        }]
+					    }
+					
+					});
+					
+					Highcharts.chart('highcharts_trendbyversion_TTC', {
+					
+					    title: {
+					        text: 'TTC误检、漏检统计（与Mobieye对比）'
+					    },
+						
+						xAxis: {
+							 title:{
+							       text:'版本号'
+							   },
+						    categories: xAxis_value
+						},
+					
+					    yAxis: {
+					        title: {
+					            text: '误、漏检率（%）'
+					        }
+					    },
+					    legend: {
+					        layout: 'vertical',
+					        align: 'right',
+					        verticalAlign: 'middle'
+					    },
+					
+						//var Car_wrong_value=[];
+						//var Car_missing_value=[];
+						//var persion_wrong_value=[];
+						//var persion_missing_value=[];
+						//var LDW_right_value=[];
+						//var LDW_missing_value=[];
+						//var LDW_wrong_value=[];
+						//var TTC_right_value=[];
+						//var TTC_missing_value=[];
+						//var TTC_wrong_value=[];
+						
+					    series: [{
+					        name: 'TTC正报率',
+					        data: TTC_right_value,
+							//data: [1,2,3,4]
+					    }, {
+					        name: 'TTC漏报率',
+					        data: TTC_missing_value,
+							//data: [1,2,3,4]
+					    }, {
+					        name: 'TTC误报率',
+					        data: TTC_wrong_value,
+							//data: [1,2,3,4]
+					    }],
+					
+					    responsive: {
+					        rules: [{
+					            condition: {
+					                maxWidth: 500
+					            },
+					            chartOptions: {
+					                legend: {
+					                    layout: 'horizontal',
+					                    align: 'center',
+					                    verticalAlign: 'bottom'
+					                }
+					            }
+					        }]
+					    }
+					
+					});
+					
+					}
+					
 					$("#LDW").append(_HTML);
 					$("#TTC").append(_HTML_TTC);
 					
@@ -175,6 +344,11 @@
 					//$("#TTC").empty();
 					var _HTML="";
 					//var _HTML_TTC="";
+					var xAxis_value=[];
+					var Car_wrong_value=[];
+					var Car_missing_value=[];
+					var persion_wrong_value=[];
+					var persion_missing_value=[];
 					if(jQuery.isEmptyObject(data.version)){
 						  _HTML = _HTML+'<p> 无版本信息 </p>';
 						//_HTML_TTC = _HTML_TTC+'<p> 无版本信息 </p>';
@@ -201,6 +375,15 @@
 							{
 									_HTML=_HTML+"<tr><td>"+version[i]+"</td><td>"+versiondata.Data.distance+"</td><td>"+versiondata.Data.Car_wrong+' / '+(versiondata.Data.Car_wrong/versiondata.Data.distance * 100).toFixed(1)+"</td><td>"+versiondata.Data.Car_missing+' / '+(versiondata.Data.Car_missing/versiondata.Data.distance * 100).toFixed(1)+"</td><td>"+versiondata.Data.persion_wrong+' / '+(versiondata.Data.persion_wrong/versiondata.Data.distance * 100).toFixed(1)+"</td><td>"+versiondata.Data.persion_missing+' / '+(versiondata.Data.persion_missing/versiondata.Data.distance * 100).toFixed(1)+"</td></tr>";
 									//_HTML_TTC=_HTML_TTC+"<tr><td>"+version[i]+"</td><td>"+versiondata.Data.TTC[1][0]+"</td><td>"+versiondata.Data.TTC[1][1]+"</td><td>"+versiondata.Data.TTC[1][2]+"</td><td>"+((versiondata.Data.TTC[1][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.TTC[1][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.TTC[1][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
+									xAxis_value.push(version[i]);
+									Car_wrong_value.push(versiondata.Data.Car_wrong);
+									Car_missing_value.push(versiondata.Data.Car_missing);
+									persion_wrong_value.push(versiondata.Data.persion_wrong);
+									persion_missing_value.push(versiondata.Data.persion_missing);
+									//var Car_wrong_value=[];
+									//var Car_missing_value=[];
+									//var persion_wrong_value=[];
+									//var persion_missing_value=[];
 									
 							}
 						}
@@ -210,6 +393,71 @@
 						//_HTML_TTC= _HTML_TTC+'</tbody>';
 						//_HTML_TTC= _HTML_TTC+'</div>';	
 					}
+					
+					if (xAxis_value.length>0)
+					{
+					Highcharts.chart('highcharts_trendbyversion_MissingWrong', {
+					
+					    title: {
+					        text: '车辆、行人误检漏检趋势图'
+					    },
+						
+						xAxis: {
+							 title:{
+							       text:'版本号'
+							   },
+						    categories: xAxis_value
+						},
+					
+					    yAxis: {
+					        title: {
+					            text: '每百公里误漏检数'
+					        }
+					    },
+					    legend: {
+					        layout: 'vertical',
+					        align: 'right',
+					        verticalAlign: 'middle'
+					    },
+					
+						//var Car_wrong_value=[];
+						//var Car_missing_value=[];
+						//var persion_wrong_value=[];
+						//var persion_missing_value=[];
+						
+					    series: [{
+					        name: '车辆每百公里误检数',
+					        data: Car_wrong_value
+					    }, {
+					        name: '车辆每百公里漏检数',
+					        data: Car_missing_value
+					    }, {
+					        name: '行人每百公里误检数',
+					        data: persion_wrong_value
+					    }, {
+					        name: '行人每百公里漏检数',
+					        data: persion_missing_value
+					    }],
+					
+					    responsive: {
+					        rules: [{
+					            condition: {
+					                maxWidth: 500
+					            },
+					            chartOptions: {
+					                legend: {
+					                    layout: 'horizontal',
+					                    align: 'center',
+					                    verticalAlign: 'bottom'
+					                }
+					            }
+					        }]
+					    }
+					
+					});
+					}
+					
+					
 					$("#MissingWrong").append(_HTML);
 					//$("#TTC").append(_HTML_TTC);
 					
@@ -296,6 +544,10 @@
 		        <h3 class="panel-title">车辆行人误检、漏检统计</h3>
 		    </div>
 		    <div class="panel-body">
+				<div id="highcharts_trendbyversion_MissingWrong" style="min-width: 310px;
+				max-width: 1600px;
+				height: 400px;
+				margin: 0 auto"></div>   
 		        <div > <table class="table table-bordered" id="MissingWrong"></table></div>
 		    </div>
 		</div>
@@ -306,6 +558,10 @@
 		        <h3 class="panel-title">LDW误检、漏检统计（与Mobieye对比）</h3>
 		    </div>
 		    <div class="panel-body">
+				<div id="highcharts_trendbyversion_LDW" style="min-width: 310px;
+				max-width: 1600px;
+				height: 400px;
+				margin: 0 auto"></div>   
 		        <div id="LDW"></div>
 		        <div id="LDWPicture"></div>
 		    </div>
@@ -316,10 +572,16 @@
 		        <h3 class="panel-title">TTC误检、漏检统计（与Mobieye对比）</h3>
 		    </div>
 		    <div class="panel-body">
+				<div id="highcharts_trendbyversion_TTC" style="min-width: 310px;
+				max-width: 1600px;
+				height: 400px;
+				margin: 0 auto"></div>  
 		        <div id="TTC"></div>
 		        <div id="TTCPicture"></div>	
 		    </div>
 		</div>	
+		
+ 
 
 	</body>	
 </html>

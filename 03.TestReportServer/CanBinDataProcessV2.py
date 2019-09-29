@@ -62,7 +62,7 @@ def CanBinDataProcess(DataFolder,filename):
                 data_prase[ID]=(t)
             else:
                 data_prase[ID] = [data_dict]
-    h = re.split('.bin', filename)
+    h = re.split('.', filename)
     for key,value in data_prase.items():
         protocol_select = CanProtocal.get(key)
         protocol_select = np.array(protocol_select)
