@@ -220,6 +220,7 @@ def getDataByTime(starttime,endtime,Situation):
 
 
         if item['Timestamp'][0]>=starttime and item['Timestamp'][0]<=endtime:
+            print(item['OrangeBinData'])
             if count>0:
                 LDW = LDW + (np.array(item['LDW'])).astype(np.float)
                 TTC = TTC + (np.array(item['TTC'])).astype(np.float)
