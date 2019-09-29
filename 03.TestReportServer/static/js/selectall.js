@@ -1,0 +1,1 @@
+$('#selectpicker1').selectpicker('selectAll');

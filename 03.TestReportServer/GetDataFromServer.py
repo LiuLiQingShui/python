@@ -186,7 +186,9 @@ def getDataByTime(starttime,endtime,Situation):
 
     #print(Situation)
     for item in dbdata:
-        if Situation is not None and len(Situation)>0:
+        if Situation==140:
+            1
+        elif len(Situation)>0:
             dict = {}
             # dict['光照'] = 1
             for x in Situation:
@@ -212,6 +214,8 @@ def getDataByTime(starttime,endtime,Situation):
                     continue
             else:
                 continue
+        else:
+            continue
 
 
 
@@ -322,7 +326,10 @@ def getdatabyversion(version,Situation):
 
     #print(Situation)
     for item in dbdata:
-        if Situation is not None and len(Situation)>0:
+        if Situation==140:
+            1
+            #print("AAAA")
+        elif len(Situation)>0:
             dict = {}
             # dict['光照'] = 1
             for x in Situation:
@@ -348,7 +355,8 @@ def getdatabyversion(version,Situation):
                     continue
             else:
                 continue
-
+        else:
+            continue
 
 
         if item['version']==version:
@@ -535,7 +543,9 @@ def getDataByTimemissingwrong(starttime,endtime,Situation):
 
     #print(Situation)
     for item in dbdata:
-        if Situation is not None and len(Situation)>0:
+        if Situation==140:
+            1
+        elif len(Situation)>0:
             dict = {}
             # dict['光照'] = 1
             for x in Situation:
@@ -561,7 +571,8 @@ def getDataByTimemissingwrong(starttime,endtime,Situation):
                     continue
             else:
                 continue
-
+        else:
+            continue
 
 
         if item['Timestamp'][0]>=starttime and item['Timestamp'][0]<=endtime:
@@ -615,7 +626,9 @@ def getdatabyversionmissingwrong(version,Situation):
 
     #print(Situation)
     for item in dbdata:
-        if Situation is not None and len(Situation)>0:
+        if Situation==140:
+            1
+        elif len(Situation)>0:
             dict = {}
             # dict['光照'] = 1
             for x in Situation:
@@ -641,10 +654,12 @@ def getdatabyversionmissingwrong(version,Situation):
                     continue
             else:
                 continue
+        else:
+            continue
 
 
 
-        if item['version'][0]==version:
+        if item['version']==version:
             if count>0:
                 distance = distance + (np.array(item['distance'])).astype(np.float)
                 Car_wrong = Car_wrong + (np.array(item['Car_wrong'])).astype(np.float)

@@ -1,11 +1,12 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
+		<title>测试报告平台</title>
 		<link rel="stylesheet" href="/static/css/style.css" media="screen" type="text/css" />
-		<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">  
+		<link rel="stylesheet" href="/static/css//bootstrap.min.css">  
 		<link href="/static/css/bootstrap-select.min.css" rel="stylesheet" />
-		<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
-		<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>	
+		<script src="/static/js/jquery-3.4.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>	
 		<script src="/static/js/bootstrap-select.min.js"></script>
 		<script src="/static/js/i18n/defaults-zh_CN.min.js"></script>
 		<script src="/static/js/configure.js"></script>
@@ -14,7 +15,7 @@
 			
 			$(document).ready(function () {
 				
-				getSummary_bin(0,100000000000000000);
+				getSummary_bin(140,0,100000000000000000);
 			});
 			
 			
@@ -117,20 +118,14 @@
 								divObj.innerHTML = '<img src=\"'+'data:image/png;base64,'+obj+'\" />';
 								};
 								
-			var getSummary_bin = function(starttime,endtime){
-					var jsondata = $('#selectpicker1').selectpicker('val');
-					if (!$('#selectpicker1').selectpicker('val'))
-					{
-						//$('#selectpicker1').selectpicker('selectAll');
-						jsondata =[];
-					}
+			var getSummary_bin = function(Situation_picked,starttime,endtime){
 				
 					$.ajax({
 									url: ipAddress+"getDataByTime",
 									type: "POST",
 									dataType: "json",
 									async: false, // 使用同步方式  
-									data:JSON.stringify({"starttime":starttime,"endtime":endtime,'Situation':jsondata}),
+									data:JSON.stringify({"starttime":starttime,"endtime":endtime,'Situation':Situation_picked}),
 									contentType: "application/json; charset=utf-8", 
 									success: function (data) {
 										//alert("aaa");
@@ -150,7 +145,7 @@
 									type: "POST",
 									dataType: "json",
 									async: false, // 使用同步方式  
-									data:JSON.stringify({"starttime":starttime,"endtime":endtime,'Situation':jsondata}),
+									data:JSON.stringify({"starttime":starttime,"endtime":endtime,'Situation':Situation_picked}),
 									contentType: "application/json; charset=utf-8", 
 									success: function (data) {
 									successfn_missingwrong(JSON.stringify(data));
@@ -170,10 +165,16 @@
 			
 			$(function(){
 
-					$("#testAjax").click(function(){						
+					$("#testAjax").click(function(){
+						if ($('#selectpicker1').selectpicker('val')=='')
+						{
+							$('#selectpicker1').selectpicker('selectAll');
+						}
+						//$('#selectpicker1').selectpicker('selectAll');
+						var Situation_picked = $('#selectpicker1').selectpicker('val');
 						var options=$("#dataselect option:selected");
 						strs=options.text().split(/[.~]/); //字符分割
-						getSummary_bin(Date.UTC(Number(strs[0]),Number(strs[1])-1,Number(strs[2]),0,0,0),Date.UTC(Number(strs[3]),Number(strs[4])-1,Number(strs[5]),0,0,0));
+						getSummary_bin(Situation_picked,Date.UTC(Number(strs[0]),Number(strs[1])-1,Number(strs[2]),0,0,0),Date.UTC(Number(strs[3]),Number(strs[4])-1,Number(strs[5]),0,0,0));
 					});	
 				}); 
 			
@@ -184,8 +185,10 @@
 	<body>
 
 		<ul class="nav nav-tabs" id='headtable'>
-		  <li  class="active" id="headtable1" ><a href="#">测试结果</a></li>
-		  <li  id="headtable2" ><a href="/uploadbin" >上传测试数据</a></li>
+		  <li  id="headtable1" ><a href="/reportbyversion">测试结果按版本统计</a></li>
+		  <li  class="active" id="headtable2" ><a href="/reportbytime" >测试结果按时间统计</a></li>
+		  <li  id="headtable3" ><a href="/uploadbin" >上传测试数据</a></li>
+		  <li  id="headtable4" ><a href="/managerment">后台管理</a></li>
 		</ul>
 		<h1></h1>
 		<h1></h1>

@@ -7,7 +7,7 @@ from werkzeug import security,utils
 import CanBinDataProcessV2
 import analyseData2
 import GetDataFromServer
-from flask import send_file,render_template
+from flask import send_file,render_template,send_from_directory
 
 from flask_cors import CORS
 app = Flask(__name__)
@@ -118,11 +118,23 @@ def upload_file():
 #     if not request.json:
 #         abort(400)
 #     return jsonify({'task': tasks}),201
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
 
 @app.route('/')
 def query():
     #return send_file("TestReport.html")
-    return render_template("TestReport.html")
+    return render_template("TestReportByVersion.html")
+
+
+@app.route('/reportbytime')
+def reportbytime():
+    #return send_file("TestReport.html")
+    #return render_template("TestReportByVersion.html")
+    return render_template("TestReportByTime.html")
 
 @app.route('/uploadbin')
 def uploadbin():
@@ -167,7 +179,7 @@ def getOneItem():
     json_data = json.loads(data.decode("utf-8"))
     if json_data:
         filename = json_data['filename']
-        print({"Data": GetDataFromServer.getOneItem(filename)})
+        #print({"Data": GetDataFromServer.getOneItem(filename)})
         response = jsonify({"Data": GetDataFromServer.getOneItem(filename)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -180,7 +192,7 @@ def getOneItemmissingwrong():
     json_data = json.loads(data.decode("utf-8"))
     if json_data:
         filename = json_data['ID']
-        print({"Data": GetDataFromServer.getOneItemmissingwrong(filename)})
+        #print({"Data": GetDataFromServer.getOneItemmissingwrong(filename)})
         response = jsonify({"Data": GetDataFromServer.getOneItemmissingwrong(filename)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -222,7 +234,7 @@ def getDataByTime():
         endtime = json_data['endtime']
         Situation = json_data['Situation']
         print(Situation)
-        print({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime),Situation)})
+        #print({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime),Situation)})
         response = jsonify({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime),Situation)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -255,7 +267,7 @@ def getDataByTimemissingwrong():
         endtime = json_data['endtime']
         Situation = json_data['Situation']
         print(Situation)
-        print({"Data": GetDataFromServer.getDataByTimemissingwrong(float(starttime),float(endtime),Situation)})
+        #print({"Data": GetDataFromServer.getDataByTimemissingwrong(float(starttime),float(endtime),Situation)})
         response = jsonify({"Data": GetDataFromServer.getDataByTimemissingwrong(float(starttime),float(endtime),Situation)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -268,7 +280,7 @@ def getdatabyversionmissingwrong():
         version = json_data['version']
         Situation = json_data['Situation']
         print(Situation)
-        print({"Data": GetDataFromServer.getdatabyversionmissingwrong(version,Situation)})
+        #print({"Data": GetDataFromServer.getdatabyversionmissingwrong(version,Situation)})
         response = jsonify({"Data": GetDataFromServer.getdatabyversionmissingwrong(version,Situation)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
