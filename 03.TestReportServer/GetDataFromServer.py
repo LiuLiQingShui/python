@@ -106,6 +106,8 @@ def getOneItem(filename):
     for i in range(len(T)):
         TTC = np.insert(TTC,len(TTC[0,:]), values=T[i], axis=1)
 
+    LDW[np.isinf(LDW)] = 0
+    TTC[np.isinf(TTC)] = 0
     LDW = np.nan_to_num(LDW)  # 替换nan为0.否则json接口查询会出错
     TTC = np.nan_to_num(TTC)
     data['LDW'] = LDW.tolist()
@@ -259,6 +261,9 @@ def getDataByTime(starttime,endtime,Situation):
     for i in range(len(T)):
         TTC = np.insert(TTC,len(TTC[0,:]), values=T[i], axis=1)
 
+
+    LDW[np.isinf(LDW)] = 0
+    TTC[np.isinf(TTC)] = 0
     LDW = np.nan_to_num(LDW)#替换nan为0.否则json接口查询会出错
     TTC = np.nan_to_num(TTC)
     data['LDW'] = LDW.tolist()
@@ -383,6 +388,8 @@ def getdatabyversion(version,Situation):
     for i in range(len(T)):
         TTC = np.insert(TTC,len(TTC[0,:]), values=T[i], axis=1)
 
+    LDW[np.isinf(LDW)] = 0
+    TTC[np.isinf(TTC)] = 0
     LDW = np.nan_to_num(LDW)#替换nan为0.否则json接口查询会出错
     TTC = np.nan_to_num(TTC)
     data['LDW'] = LDW.tolist()

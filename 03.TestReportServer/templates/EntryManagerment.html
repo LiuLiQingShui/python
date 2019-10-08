@@ -106,6 +106,7 @@
 								success: function (data) {		
 								jdata = JSON.stringify(data);
 								var data = JSON.parse(jdata);
+								//alert(data);
 								var _HTML="";
 								if(jQuery.isEmptyObject(data.Data)){  
 								      _HTML = '<p> 选定范围内无LDW、TTC数据 </p>';									
@@ -217,7 +218,8 @@
 								
 								complete:function(){										//请求结束时
 								},									
-								error:function(){										//请求失败时	
+								error:function(){	
+									alert("Error 11");//请求失败时	
 								}				  
 						});				
 				}

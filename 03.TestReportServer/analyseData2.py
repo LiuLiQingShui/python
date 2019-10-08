@@ -31,6 +31,8 @@ def analyseData(DataFolder,filename,situ,version):
             [Data['Right LDW_Jimu'][(Data['Right LDW_Jimu'] > 0) & (Data['Right LDW_Mobileye'] > 0)].count(),Data['Right LDW_Jimu'][(Data['Right LDW_Jimu'] <= 0) & (Data['Right LDW_Mobileye'] > 0)].count(),Data['Right LDW_Jimu'][(Data['Right LDW_Jimu'] > 0) & (Data['Right LDW_Mobileye'] <= 0)].count()]])
     LDW =pd.DataFrame(np.row_stack((LDW,np.row_stack((LDW[0,:]+LDW[ 2,:],LDW[1,:]+LDW[ 3,:],)))),index=['Mobileye LDW左','Jimu LDW左','Mobileye LDW右','Jimu LDW右','Mobileye Total','Jimu Total'],columns=['Right','Missing','Wrong'])
     LDW = LDW.assign(Right_ratio=LDW['Right']/([(LDW['Right'].to_numpy())[k//2*2] for k in range(len(LDW['Right'].to_numpy()))]),Missing_ratio=LDW['Missing']/([(LDW['Right'].to_numpy())[k//2*2] for k in range(len(LDW['Right'].to_numpy()))]),Wrong_ratio=LDW['Wrong']/([(LDW['Right'].to_numpy())[k//2*2] for k in range(len(LDW['Right'].to_numpy()))]))
+
+    Data.fillna(-1,inplace = True)
     LDW_specific = Data
 
     Data =   DataBackup
@@ -43,6 +45,7 @@ def analyseData(DataFolder,filename,situ,version):
             [(Data['TTC_Jimu'][(Data['TTC_Mobileye']>0)&(Data['TTC_Jimu']>0) ]).count(),(Data['TTC_Jimu'][(Data['TTC_Jimu']<=0)&(Data['TTC_Mobileye']>0) ]).count(),Data['TTC_Jimu'][(Data['TTC_Jimu']>0)&(Data['TTC_Mobileye']<=0) ].count()]])
     TTC =pd.DataFrame(TTC,index=['TTC_Mobileye','TTC_Jimu'],columns=['Right','Missing','Wrong'])
     TTC = TTC.assign(Right_ratio=TTC['Right']/([(TTC['Right'].to_numpy())[k//2*2] for k in range(len(TTC['Right'].to_numpy()))]),Missing_ratio=TTC['Missing']/([(TTC['Right'].to_numpy())[k//2*2] for k in range(len(TTC['Right'].to_numpy()))]),Wrong_ratio=TTC['Wrong']/([(TTC['Right'].to_numpy())[k//2*2] for k in range(len(TTC['Right'].to_numpy()))]))
+    Data.fillna(-1,inplace = True)
     TTC_specific = Data
 
     saveMongoDBdict = {'OrangeBinData':filename,
