@@ -397,6 +397,107 @@ def getdatabyversion(version,Situation):
     print(data)
     return data
 
+
+def getdatabyversion_one(version,Situation):
+    myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
+    mydb = myclient["jimu_TestResult"]
+    mycol = mydb["LDW"]
+    dbdata = mycol.find()
+    if not dbdata:
+        return []
+    # valueGeted=[]
+    # for item in data:
+    #     valueGeted.append(item)
+    #     break
+    cst_tz = pytz.timezone('Asia/Shanghai')
+    utc_tz = pytz.timezone('UTC')
+    count = 0
+
+
+
+    #print(Situation)
+    for item in dbdata:
+        if Situation==140:
+            1
+            #print("AAAA")
+        elif len(Situation)>0:
+            dict = {}
+            # dict['光照'] = 1
+            for x in Situation:
+                t = x.split("-")
+                if t[0] not in dict:
+                    dict[t[0]] = [t[1]]
+                else:
+                    attt = dict[t[0]]
+                    attt.append(t[1])
+                    dict[t[0]] = attt
+            if 'Situation' in item:
+                findlaber = 1
+                for key, value in dict.items():
+                    findlaber_sub = 0
+                    for t in value:
+                        if (key + '-' + t) in item['Situation']:
+                            findlaber_sub = 1
+                            break;
+                    if findlaber_sub == 0:
+                        findlaber = 0
+                        break
+                if findlaber==0:
+                    continue
+            else:
+                continue
+        else:
+            continue
+
+
+        if item['version']==version:
+            if count>0:
+                LDW = LDW + (np.array(item['LDW'])).astype(np.float)
+                TTC = TTC + (np.array(item['TTC'])).astype(np.float)
+            else:
+                LDW = (np.array(item['LDW'])).astype(np.float)
+                TTC = (np.array(item['TTC'])).astype(np.float)
+            count = count + 1
+
+    if count==0:
+        return []
+
+    #LDW = (np.array(data['LDW'])).astype(np.float)
+    T = [LDW[:,0]/([LDW[:,0][k//2*2] for k in range(len(LDW[:,0]))]),LDW[:,1]/([LDW[:,0][k//2*2] for k in range(len(LDW[:,0]))]),LDW[:,2]/([LDW[:,0][k//2*2] for k in range(len(LDW[:,0]))])]
+    for i in range(len(T)):
+        LDW = np.insert(LDW,len(LDW[0,:]), values=T[i], axis=1)
+    #TTC = (np.array(data['TTC'])).astype(np.float)
+    T = [TTC[:,0]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))]),TTC[:,1]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))]),TTC[:,2]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))])]
+    for i in range(len(T)):
+        TTC = np.insert(TTC,len(TTC[0,:]), values=T[i], axis=1)
+
+    LDW[np.isinf(LDW)] = 0
+    TTC[np.isinf(TTC)] = 0
+    LDW = np.nan_to_num(LDW)#替换nan为0.否则json接口查询会出错
+    TTC = np.nan_to_num(TTC)
+    #data['LDW'] = LDW.tolist()
+    #data['TTC'] = TTC.tolist()
+    #version
+    #print(data)
+    return [[version], LDW.tolist(),TTC.tolist()]
+
+def getdatabyversionAll(Situation):
+    versionall = getversion('LDW')
+    versionall = versionall['Data']
+    if not versionall:
+        return {}
+    data = []
+    print(versionall)
+    for i in range(len(versionall)):
+        print(versionall[i])
+        versiondata = getdatabyversion_one(versionall[i],Situation)
+        if versiondata:
+            data.append(versiondata)
+    if not data:
+        return {}
+    return {'data':data}
+
+
 def getdatabyversion_bac(version,Situation):
     myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
     mydb = myclient["jimu_TestResult"]
@@ -695,3 +796,101 @@ def getdatabyversionmissingwrong(version,Situation):
         persion_missing = persion_missing.tolist()
     data = {'distance':distance,'Car_wrong':Car_wrong,'Car_missing':Car_missing,'persion_wrong':persion_wrong,'persion_missing':persion_missing}
     return data
+
+def getdatabyversionmissingwrong_one(version,Situation):
+    myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
+    mydb = myclient["jimu_TestResult"]
+    mycol = mydb["MissingWrong"]
+    dbdata = mycol.find()
+    if not dbdata:
+        return []
+    # valueGeted=[]
+    # for item in data:
+    #     valueGeted.append(item)
+    #     break
+    cst_tz = pytz.timezone('Asia/Shanghai')
+    utc_tz = pytz.timezone('UTC')
+    count = 0
+
+
+
+    #print(Situation)
+    for item in dbdata:
+        if Situation==140:
+            1
+        elif len(Situation)>0:
+            dict = {}
+            # dict['光照'] = 1
+            for x in Situation:
+                t = x.split("-")
+                if t[0] not in dict:
+                    dict[t[0]] = [t[1]]
+                else:
+                    attt = dict[t[0]]
+                    attt.append(t[1])
+                    dict[t[0]] = attt
+            if 'Situation' in item:
+                findlaber = 1
+                for key, value in dict.items():
+                    findlaber_sub = 0
+                    for t in value:
+                        if (key + '-' + t) in item['Situation']:
+                            findlaber_sub = 1
+                            break;
+                    if findlaber_sub == 0:
+                        findlaber = 0
+                        break
+                if findlaber==0:
+                    continue
+            else:
+                continue
+        else:
+            continue
+
+
+
+        if item['version']==version:
+            if count>0:
+                distance = distance + (np.array(item['distance'])).astype(np.float)
+                Car_wrong = Car_wrong + (np.array(item['Car_wrong'])).astype(np.float)
+                Car_missing = Car_missing + (np.array(item['Car_missing'])).astype(np.float)
+                persion_wrong = persion_wrong + (np.array(item['persion_wrong'])).astype(np.float)
+                persion_missing = persion_missing + (np.array(item['persion_missing'])).astype(np.float)
+            else:
+                distance = (np.array(item['distance'])).astype(np.float)
+                Car_wrong =  (np.array(item['Car_wrong'])).astype(np.float)
+                Car_missing = (np.array(item['Car_missing'])).astype(np.float)
+                persion_wrong = (np.array(item['persion_wrong'])).astype(np.float)
+                persion_missing =  (np.array(item['persion_missing'])).astype(np.float)
+            count = count + 1
+    if count==0:
+        distance = 0
+        Car_wrong = 0
+        Car_missing = 0
+        persion_wrong = 0
+        persion_missing = 0
+    else:
+        distance = distance.tolist()
+        Car_wrong = Car_wrong.tolist()
+        Car_missing = Car_missing.tolist()
+        persion_wrong = persion_wrong.tolist()
+        persion_missing = persion_missing.tolist()
+    data = {'distance':distance,'Car_wrong':Car_wrong,'Car_missing':Car_missing,'persion_wrong':persion_wrong,'persion_missing':persion_missing}
+    return [version,distance,Car_wrong,Car_missing,persion_wrong,persion_missing]
+
+def getdatabyversionmissingwrongAll(Situation):
+    versionall = getversion('MissingWrong')
+    versionall = versionall['Data']
+    if not versionall:
+        return {}
+    data = []
+    print(versionall)
+    for i in range(len(versionall)):
+        print(versionall[i])
+        versiondata = getdatabyversionmissingwrong_one(versionall[i],Situation)
+        print(versiondata)
+        if versiondata:
+            data.append(versiondata)
+    if not data:
+        return {}
+    return {'data':data}

@@ -1,7 +1,6 @@
-import numpy as np
-b = np.array(3)/np.array(0)
-a = np.infty
-print(a)
-#print(a.tolist())
-b = np.nan_to_num(b)
-print(b.tolist())
+a=["test",1,2,3.0]
+b= [234]
+c = ['dsf']
+d=[a,b,c]
+e=[d,a]
+print(e)

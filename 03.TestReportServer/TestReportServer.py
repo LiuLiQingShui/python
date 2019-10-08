@@ -256,6 +256,31 @@ def getdatabyversion():
         return response
        # return jsonify({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime))}),200
 
+@app.route('/getdatabyversionAll',methods=['get', 'POST'])
+def getdatabyversionAll():
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    if json_data:
+        #version = json_data['version']
+        Situation = json_data['Situation']
+        print(Situation)
+        #print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
+        response = jsonify({"Data": GetDataFromServer.getdatabyversionAll(Situation)})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
+
+@app.route('/getdatabyversionmissingwrongAll',methods=['get', 'POST'])
+def getdatabyversionmissingwrongAll():
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    if json_data:
+        #version = json_data['version']
+        Situation = json_data['Situation']
+        print(Situation)
+        #print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
+        response = jsonify({"Data": GetDataFromServer.getdatabyversionmissingwrongAll(Situation)})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
 
 
 @app.route('/getDataByTimemissingwrong',methods=['get', 'POST'])
