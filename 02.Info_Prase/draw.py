@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib
 import pylab as pl
 import warnings
+import pandas as pd
 
 
 #根据ID选择数据。RadarSelect.csv为对应的ID和帧范围
@@ -216,13 +217,15 @@ def draw(DataFolder,h):
     pl.ylim([distance_min, distance_max])
     pl.savefig(os.path.join(DataFolder, h + '_00.frame.png'))
     pl.close()
-    np.savetxt(os.path.join(DataFolder, h + 'jimudata.csv'), jimudata, delimiter=',')
-    np.savetxt(os.path.join(DataFolder, h + 'radardata.csv'), radardata, delimiter=',')
-    np.savetxt(os.path.join(DataFolder, h + 'ratio.csv'), ratio, delimiter=',')
-    np.savetxt(os.path.join(DataFolder, h + 'speed.csv'), cleanDataLT150, delimiter=',')
-    np.savetxt(os.path.join(DataFolder, h + 'breakpoint_jimudata.csv'), ((np.array(jimudata[breakpoint_jimudata]))[:,0]+1)[:len(breakpoint_jimudata)-1], delimiter=',')
-    np.savetxt(os.path.join(DataFolder, h + 'breakpoint_radar.csv'), ((np.array(radardata[breakpoint_radar]))[:,0]+1)[:len(breakpoint_radar)-1], delimiter=',')
-    np.savetxt(os.path.join(DataFolder, h + 'breakpoint_ratio.csv'), ((np.array(ratio[breakpoint_ratio]))[:,0]+1)[:len(breakpoint_ratio)-1], delimiter=',')
+    np.savetxt(os.path.join(DataFolder, h + '_jimudata.csv'), jimudata, delimiter=',')
+    np.savetxt(os.path.join(DataFolder, h + '_radardata.csv'), radardata, delimiter=',')
+    np.savetxt(os.path.join(DataFolder, h + '_ratio.csv'), ratio, delimiter=',')
+    np.savetxt(os.path.join(DataFolder, h + '_speed.csv'), cleanDataLT150, delimiter=',')
+    SaveData = pd.DataFrame(cleanDataLT150,columns=['frame index','ratio','jimu distance','radar distance','jimu speed','radar speed'])
+    SaveData.to_csv(os.path.join(DataFolder, h + '_Data.csv'),encoding='utf_8_sig', index=False)
+    np.savetxt(os.path.join(DataFolder, h + '_breakpoint_jimudata.csv'), ((np.array(jimudata[breakpoint_jimudata]))[:,0]+1)[:len(breakpoint_jimudata)-1], delimiter=',')
+    np.savetxt(os.path.join(DataFolder, h + '_breakpoint_radar.csv'), ((np.array(radardata[breakpoint_radar]))[:,0]+1)[:len(breakpoint_radar)-1], delimiter=',')
+    np.savetxt(os.path.join(DataFolder, h + '_breakpoint_ratio.csv'), ((np.array(ratio[breakpoint_ratio]))[:,0]+1)[:len(breakpoint_ratio)-1], delimiter=',')
     if len(cleanDataLT150)>0:
         grid1 = pl.GridSpec(1, 2, wspace=0.5, hspace=0.5)
         ax1 = pl.subplot(grid1[0, 0])
