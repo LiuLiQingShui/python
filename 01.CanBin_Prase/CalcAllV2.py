@@ -12,6 +12,17 @@ def CalcAll(DataFolder):
                     LDW = LDW+pd.read_csv(os.path.join(DataFolder,filename))
                 else:
                     LDW = pd.read_csv(os.path.join(DataFolder, filename))
+        for dirname in dirnames:
+            # break
+            subDataFolderL2 = os.path.join(DataFolder, dirname)
+            for parentL2, dirnamesL2, filenamesL2 in os.walk(subDataFolderL2):
+                for filenameL2 in filenamesL2:
+                    if filenamesL2.find('_LDW.csv') >= 0:
+                        if len(LDW) > 0:
+                            LDW = LDW + pd.read_csv(os.path.join(subDataFolderL2, filenamesL2))
+                        else:
+                            LDW = pd.read_csv(os.path.join(subDataFolderL2, filenamesL2))
+
     LDW = pd.DataFrame(LDW[['Right','Missing','Wrong']].to_numpy(),index=['Mobileye LDW左','Jimu LDW左','Mobileye LDW右','Jimu LDW右','Mobileye Total','Jimu Total'],columns=['Right','Missing','Wrong'])
     LDW = LDW.assign(Right_ratio=LDW['Right']/([(LDW['Right'].to_numpy())[k//2*2] for k in range(len(LDW['Right'].to_numpy()))]),Missing_ratio=LDW['Missing']/([(LDW['Right'].to_numpy())[k//2*2] for k in range(len(LDW['Right'].to_numpy()))]),Wrong_ratio=LDW['Wrong']/([(LDW['Right'].to_numpy())[k//2*2] for k in range(len(LDW['Right'].to_numpy()))]))
     plt.close('all')
@@ -33,6 +44,16 @@ def CalcAll(DataFolder):
                     TTC = TTC+pd.read_csv(os.path.join(DataFolder,filename))
                 else:
                     TTC = pd.read_csv(os.path.join(DataFolder, filename))
+        for dirname in dirnames:
+            # break
+            subDataFolderL2 = os.path.join(DataFolder, dirname)
+            for parentL2, dirnamesL2, filenamesL2 in os.walk(subDataFolderL2):
+                for filenameL2 in filenamesL2:
+                    if filenamesL2.find('_TTC.csv') >= 0:
+                        if len(LDW) > 0:
+                            TTC = TTC+pd.read_csv(os.path.join(subDataFolderL2, filenamesL2))
+                        else:
+                            TTC = pd.read_csv(os.path.join(subDataFolderL2, filenamesL2))
     TTC = pd.DataFrame(TTC[['Right','Missing','Wrong']].to_numpy(),index=['TTC_Mobileye','TTC_Jimu'],columns=['Right','Missing','Wrong'])
     TTC = TTC.assign(Right_ratio=TTC['Right']/([(TTC['Right'].to_numpy())[k//2*2] for k in range(len(TTC['Right'].to_numpy()))]),Missing_ratio=TTC['Missing']/([(TTC['Right'].to_numpy())[k//2*2] for k in range(len(TTC['Right'].to_numpy()))]),Wrong_ratio=TTC['Wrong']/([(TTC['Right'].to_numpy())[k//2*2] for k in range(len(TTC['Right'].to_numpy()))]))
     TTC.iloc[:, :3].plot.bar(stacked=True, figsize=(8, 8),title='TTC告警对比分析：Jimu、Mobileye\n' )

@@ -4,14 +4,55 @@ import re
 import os
 import time
 import matplotlib.pyplot as plt
+import math
 
 
 def analyseData(DataFolder,filename):
-    h = re.split('.bin', filename)
+    print(DataFolder,filename)
+    h=re.split('.bin|.dat', filename)
+    if  not os.path.exists(os.path.join(DataFolder, h[0] + '_' + "0xa0" + '_testresult.csv')):
+        print('Error: No Mobileye Data')
+        time.sleep(5)
+        return
     orangeData_0x700 = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x700" + '_testresult.csv'))
     orangeData_0x780 = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x780" + '_testresult.csv'))
-    orangeData_CarSpeed = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0xa0" + '_testresult.csv'))
+    if os.path.exists(os.path.join(DataFolder, h[0] + '_' + "0xa0" + '_testresult.csv')):
+        orangeData_CarSpeed = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0xa0" + '_testresult.csv'))
+        turn = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x23a" + '_testresult.csv'))
+        turn = pd.DataFrame({'timestamp': turn['timestamp'],
+                             'turn': (((turn['right'].to_numpy().astype(int)) << 1) | (
+                                 turn['left'].to_numpy().astype(int)))
+                             })
+        orangeData_CarSpeed = (pd.merge(orangeData_CarSpeed.assign(ms10=orangeData_CarSpeed['timestamp'] // 10),turn.assign(ms10=turn['timestamp'] // 10)[['ms10','turn']],on='ms10', how='left')).drop('ms10', axis=1)
+        orangeData_CarSpeed = orangeData_CarSpeed.fillna(method='pad')
+    elif os.path.exists(os.path.join(DataFolder, h[0] + '_' + "0x68" + '_testresult.csv')):
+        orangeData_CarSpeed = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x68" + '_testresult.csv'))
+        orangeData_CarSpeed = pd.DataFrame({'timestamp':orangeData_CarSpeed['timestamp'],
+                                            'speed': (((orangeData_CarSpeed['speed_h'].to_numpy().astype(int))<<5)|(orangeData_CarSpeed['speed_l'].to_numpy().astype(int)))* 0.05625 * 100,
+                                            })
+        turn = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x2d4" + '_testresult.csv'))
+        turn = pd.DataFrame({'timestamp':turn['timestamp'],
+                                            'turn': (((turn['right'].to_numpy().astype(int))<<1)|(turn['left'].to_numpy().astype(int)))
+                                            })
+        brake = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0xe2" + '_testresult.csv'))
+        brake = pd.DataFrame({'timestamp':brake['timestamp'],
+                                            'brake': np.floor(brake['brake'].to_numpy().astype(int)/2)
+                                            })
+       # print(brake)
+        orangeData_CarSpeed = (pd.merge(orangeData_CarSpeed.assign(ms10=orangeData_CarSpeed['timestamp'] // 20),turn.assign(ms10=turn['timestamp'] // 20)[['ms10','turn']],on='ms10', how='left')).drop('ms10', axis=1)
+        #print(orangeData_CarSpeed)
+        orangeData_CarSpeed = (pd.merge(orangeData_CarSpeed.assign(ms10=orangeData_CarSpeed['timestamp'] // 20),brake.assign(ms10=brake['timestamp'] // 20)[['ms10','brake']],on='ms10', how='left')).drop('ms10', axis=1)
+        orangeData_CarSpeed = orangeData_CarSpeed.fillna(method='pad')
+    else:
+        print('Info: No car speed found. filled it with zero')
+        orangeData_CarSpeed = orangeData_0x780['timestamp']
+        orangeData_CarSpeed = pd.DataFrame({'timestamp':orangeData_CarSpeed,
+                                            'speed':-1,
+                                            'turn': -1,
+                                            'brake': -1
+        })
 
+    orangeData_CarSpeed.to_csv(os.path.join(DataFolder, h[0] + '_CarInformation.csv'), encoding='utf_8_sig', index=False)
     print(orangeData_0x780.dtypes)
     Data = pd.merge(orangeData_0x700[['timestamp','Left LDW','Right LDW','fcw_on']],
                     orangeData_0x780[['timestamp', 'Left LDW', 'Right LDW', 'FCW Level']],
