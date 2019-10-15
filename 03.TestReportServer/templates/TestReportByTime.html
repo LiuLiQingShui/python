@@ -43,7 +43,7 @@
 			var successfn_missingwrong = function(jdata) {
 								var data = JSON.parse(jdata)								
 								$("#MissingWrong").empty();
-								var _HTML="<thead><tr><th>公里数</th><th>车辆错报</th><th>车辆漏报</th><th>行人错报</th><th>行人漏报</th></tr></thead><tbody>";
+								var _HTML="<thead><tr><th>公里数</th><th>车辆错检</th><th>车辆漏检</th><th>行人错检</th><th>行人漏检</th></tr></thead><tbody>";
 								_HTML=_HTML+"<tr><td>"+data.Data.distance+"</td><td>"+data.Data.Car_wrong+"</td><td>"+data.Data.Car_missing+"</td><td>"+data.Data.persion_wrong+"</td><td>"+data.Data.persion_missing+"</td></tr>"+ "</tbody>";
 								$("#MissingWrong").append(_HTML);		
 								};				
@@ -255,7 +255,7 @@
 		
 		<div class="panel panel-warning">
 		    <div class="panel-heading">
-		        <h3 class="panel-title">LDW误检、漏检统计（与Mobieye对比）</h3>
+		        <h3 class="panel-title">LDW误报、漏报统计（与Mobieye对比）</h3>
 		    </div>
 		    <div class="panel-body">
 		        <div ><table class="table table-bordered" id="LDW"></table></div>
@@ -265,7 +265,7 @@
 		
 		<div class="panel panel-warning">
 		    <div class="panel-heading">
-		        <h3 class="panel-title">TTC误检、漏检统计（与Mobieye对比）</h3>
+		        <h3 class="panel-title">TTC误报、漏报统计（与Mobieye对比）</h3>
 		    </div>
 		    <div class="panel-body">
 		        <div ><table class="table table-bordered" id="TTC"></table></div>

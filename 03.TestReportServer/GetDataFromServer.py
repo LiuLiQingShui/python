@@ -310,6 +310,7 @@ def getdatabyversionmissingwrongAll(Situation):
 
     df[['distance', 'Car_wrong', 'Car_missing', 'persion_wrong', 'persion_missing']] = df[['distance', 'Car_wrong', 'Car_missing', 'persion_wrong', 'persion_missing']].astype(float)
     df = df.groupby(df['version']).agg( {'version': np.min, 'distance': np.sum, 'Car_wrong': np.sum, 'Car_missing': np.sum, 'persion_wrong': np.sum,  'persion_missing': np.sum})
+
     Data = (np.array(df)).tolist()
     print(Data)
     timesend = time.time()
