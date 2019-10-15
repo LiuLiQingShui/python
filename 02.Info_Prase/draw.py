@@ -153,7 +153,7 @@ def draw(DataFolder,h):
                 if radardata[tt][0] > 0 and radardata[tt][3] > 0 :
                     ratio.append([jimudata[k][0], (jimudata[k][3] - radardata[tt][3] / 100) / (radardata[tt][3] / 100)*100])
                     if radardata[tt][3]<distance_max*100 and radardata[tt][3]>distance_min*100:
-                        cleanDataLT150.append([jimudata[k][0], (jimudata[k][3] - radardata[tt][3] / 100) / (radardata[tt][3] / 100)* 100,jimudata[k][3],  radardata[tt][3] / 100,jimudata[k][4], radardata[tt][4]])
+                        cleanDataLT150.append([jimudata[k][0], (jimudata[k][3] - radardata[tt][3] / 100) / (radardata[tt][3] / 100)* 100,jimudata[k][3],  radardata[tt][3] / 100,jimudata[k][4], radardata[tt][4],jimudata[k][2], radardata[tt][2]/100])
                 break
     ratio = np.array(ratio)
     breakpoint_jimudata = []
@@ -221,7 +221,7 @@ def draw(DataFolder,h):
     np.savetxt(os.path.join(DataFolder, h + '_radardata.csv'), radardata, delimiter=',')
     np.savetxt(os.path.join(DataFolder, h + '_ratio.csv'), ratio, delimiter=',')
     np.savetxt(os.path.join(DataFolder, h + '_speed.csv'), cleanDataLT150, delimiter=',')
-    SaveData = pd.DataFrame(cleanDataLT150,columns=['frame index','ratio','jimu distance','radar distance','jimu speed','radar speed'])
+    SaveData = pd.DataFrame(cleanDataLT150,columns=['frame index','ratio','jimu distance y','radar distance y','jimu speed','radar speed','jimu distance x','radar distance x'])
     SaveData.to_csv(os.path.join(DataFolder, h + '_Data.csv'),encoding='utf_8_sig', index=False)
     np.savetxt(os.path.join(DataFolder, h + '_breakpoint_jimudata.csv'), ((np.array(jimudata[breakpoint_jimudata]))[:,0]+1)[:len(breakpoint_jimudata)-1], delimiter=',')
     np.savetxt(os.path.join(DataFolder, h + '_breakpoint_radar.csv'), ((np.array(radardata[breakpoint_radar]))[:,0]+1)[:len(breakpoint_radar)-1], delimiter=',')
