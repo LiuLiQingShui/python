@@ -12,11 +12,14 @@
 		<script src="/static/js/configure.js"></script>
 		<script>
 			var ipAddress = configure["address"];
+			var situationoption = situationselectpicker['situation'];
+			
+				
 						
 			$(document).ready(function () {
 				getEntry(0,0);
 				getEntry_missingwrong(0,0);
-			});
+				});
 			
 			var getEntry = function(startnumber,endnumber){
 					$.ajax({
@@ -52,10 +55,13 @@
 								var _HTML= '';
 								if (obj.length>0)
 								{
-									_HTML= _HTML + '<div class="panel-group" id="accordion">';									
+									
+									_HTML= _HTML + '<div class="panel-group" id="accordion">';
+		
 									_HTML= _HTML + '<div class="container">';									 															        
 									for (var i=0;i<obj.length;i++)
 									{ 										
+
 										_HTML= _HTML + '<div class="row">';
 										_HTML= _HTML +  '<div class="col-xs-11 col-sm-11" >';										
 										_HTML= _HTML + [
@@ -79,7 +85,11 @@
 										].join('\n');
 										
 										_HTML= _HTML +'</div>';										
-										 _HTML= _HTML +'<div class="col-xs-1 col-sm-1" ><button type="button" onclick="deleteoneitem('+obj[i][0].split('.')[0]+');" class="btn btn-danger">delete</button></div>  ';
+										 _HTML= _HTML +'<div class="col-xs-1 col-sm-1" >\
+										 <button type="button" onclick="deleteoneitem('+obj[i][0].split('.')[0]+');" class="btn btn-danger">delete</button>\
+										 </div>  ';
+										 
+														 
 										_HTML= _HTML +'</div>';										
 										}								 
 								
@@ -112,108 +122,206 @@
 								      _HTML = '<p> 选定范围内无LDW、TTC数据 </p>';									
 								}  
 								else
-								{									
-									var obj = data.Data.Situation									
-									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
-									_HTML = _HTML+ "<thead><tr><th>测试版本</th><th>测试场景</th></tr></thead><tbody>";									
-									_HTML=_HTML+"<tr><td>"+data.Data.version+"</td><td>";
-									if (obj.length>0)
-																{
-																	
-																	for (var i=0;i<obj.length;i++)
-																	{ 
-																	
+								{	
+
+
+									if('Situation' in data.Data)
+									{
+										var obj = data.Data.Situation
+										_HTML= _HTML+'<div ><p>ID:       '+e+'</p></div><h1></h1>';	
+										_HTML= _HTML+'<div ><table class="table table-bordered" >';									
+										_HTML = _HTML+ "<thead><tr><th>测试版本</th><th>测试场景</th></tr></thead><tbody>";									
+										_HTML=_HTML+"<tr><td>"+data.Data.version+"</td><td>";
+										if (obj.length>0)
+																	{
 																		
-																		_HTML=_HTML+obj[i]+" ";
-																	}								
+																		for (var i=0;i<obj.length;i++)
+																		{ 
 																		
-																}
-									_HTML = _HTML + "</td></tr></tbody>";								
-									_HTML= _HTML+'</div>';												
+																			
+																			_HTML=_HTML+obj[i]+" ";
+																		}								
+																			
+																	}
+										_HTML = _HTML + "</td></tr></tbody>";								
+										_HTML= _HTML+'</div>';												
+										
+									}
 									
-									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
-									_HTML=_HTML+"<thead><tr><th>LDW</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
-									var obj = data.Data.LDW								
-									for (var i=0;i<obj.length;i++)
-									{ 
-										switch (i) 
+
+									if('LDW' in data.Data)
+									{
+										_HTML= _HTML+'<div ><table class="table table-bordered" >';
+										_HTML=_HTML+"<thead><tr><th>LDW</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
+										var obj = data.Data.LDW								
+										for (var i=0;i<obj.length;i++)
 										{ 
-										  case 0:_HTML=_HTML+"<tr><td>"+"Mobileye 左";
-										  break; 
-										  case 1:_HTML=_HTML+"<tr><td>"+"Jimu 左";
-										  break; 
-										  case 2:_HTML=_HTML+"<tr><td>"+"Mobileye 右";
-										  break; 
-										  case 3:_HTML=_HTML+"<tr><td>"+"Jimu 右";
-										  break; 
-										  case 4:_HTML=_HTML+"<tr><td>"+"Mobileye 总";
-										  break; 
-										  case 5:_HTML=_HTML+"<tr><td>"+"Jimu 总";
-										  break; 
-										}
+											switch (i) 
+											{ 
+											  case 0:_HTML=_HTML+"<tr><td>"+"Mobileye 左";
+											  break; 
+											  case 1:_HTML=_HTML+"<tr><td>"+"Jimu 左";
+											  break; 
+											  case 2:_HTML=_HTML+"<tr><td>"+"Mobileye 右";
+											  break; 
+											  case 3:_HTML=_HTML+"<tr><td>"+"Jimu 右";
+											  break; 
+											  case 4:_HTML=_HTML+"<tr><td>"+"Mobileye 总";
+											  break; 
+											  case 5:_HTML=_HTML+"<tr><td>"+"Jimu 总";
+											  break; 
+											}
+											
+											_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
+										}								
+										_HTML = _HTML + "</tbody>";									
+										_HTML= _HTML+'</div>';
 										
-										_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
-									}								
-									_HTML = _HTML + "</tbody>";									
-									_HTML= _HTML+'</div>';
-									
-									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
-									_HTML = _HTML+ "<thead><tr><th>TTC</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
-									var obj = data.Data.TTC								
-									for (var i=0;i<obj.length;i++)
-									{ 
-										switch (i) 
-										{  
-										  case 0:_HTML=_HTML+"<tr><td>"+"Mobileye 总";
-										  break; 
-										  case 1:_HTML=_HTML+"<tr><td>"+"Jimu 总";
-										  break; 
-										}
 										
-										_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
-									}								
-									_HTML = _HTML + "</tbody>";									
-									_HTML= _HTML+'</div>';								
-									
-									var obj = data.Data.LDW_specific										
-									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
-									_HTML = _HTML+ "<thead><tr><th>时间</th><th>timestamp</th><th>Left LDW_Mobileye</th><th>Right LDW_Mobileye</th><th>Left LDW_Jimu</th><th>Right LDW_Jimu</th><th>speed</th></tr></thead><tbody>";
-									if (obj.length>0)
-																{
-																	for (var i=0;i<obj.length;i++)
-																	{ 
-																	
+										_HTML= _HTML+'<div ><table class="table table-bordered" >';									
+										_HTML = _HTML+ "<thead><tr><th>TTC</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
+										var obj = data.Data.TTC								
+										for (var i=0;i<obj.length;i++)
+										{ 
+											switch (i) 
+											{  
+											  case 0:_HTML=_HTML+"<tr><td>"+"Mobileye 总";
+											  break; 
+											  case 1:_HTML=_HTML+"<tr><td>"+"Jimu 总";
+											  break; 
+											}
+											
+											_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
+										}								
+										_HTML = _HTML + "</tbody>";									
+										_HTML= _HTML+'</div>';								
+										
+										var obj = data.Data.LDW_specific										
+										_HTML= _HTML+'<div ><table class="table table-bordered" >';									
+										_HTML = _HTML+ "<thead><tr><th>时间</th><th>timestamp</th><th>Left LDW_Mobileye</th><th>Right LDW_Mobileye</th><th>Left LDW_Jimu</th><th>Right LDW_Jimu</th><th>speed</th></tr></thead><tbody>";
+										if (obj.length>0)
+																	{
+																		for (var i=0;i<obj.length;i++)
+																		{ 
 																		
-																		_HTML=_HTML+"<tr><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+obj[i][3]  + "</td><td>"+obj[i][4] +"</td><td>"+obj[i][5]+ "</td><td>"+obj[i][6]+ "</td></tr>";
-																	}								
-																	_HTML = _HTML + "</tbody>";	
-																}
+																			
+																			_HTML=_HTML+"<tr><td>"+new Date(obj[i][0])+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+obj[i][3]  + "</td><td>"+obj[i][4] +"</td><td>"+obj[i][5]+ "</td><td>"+obj[i][6]+ "</td></tr>";
+																		}								
+																		_HTML = _HTML + "</tbody>";	
+																	}
+																		
+										_HTML= _HTML+'</div>';	
+										
+										
+										
+										var obj = data.Data.TTC_specific									
+										_HTML= _HTML+'<div ><table class="table table-bordered" >';									
+										_HTML = _HTML+ "<thead><tr><th>时间</th><th>timestamp</th><th>TTC_Mobileye</th><th>TTC_Jimu</th><th>speed</th></tr></thead><tbody>";
+										if (obj.length>0)
+																	{
+																		for (var i=0;i<obj.length;i++)
+																		{ 
+																		
+																			
+																			_HTML=_HTML+"<tr><td>"+new Date(obj[i][0])+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+obj[i][3]  + "</td><td>"+obj[i][4] + "</td></tr>";
+																		}								
+																		_HTML = _HTML + "</tbody>";	
+																	}																	
+										_HTML= _HTML+'</div>';
+									}
+									
+									
+									if('TTC_manul' in data.Data)
+									{
+										_HTML= _HTML+'<div ><table class="table table-bordered" >';
+										_HTML = _HTML+ "<thead><tr><th>人工标注的TTC信息</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
+										var obj = data.Data.TTC_manul								
+										for (var i=0;i<obj.length;i++)
+										{ 
+											switch (i) 
+											{  
+											  case 0:_HTML=_HTML+"<tr><td>"+"人工标注 总";
+											  break; 
+											  case 1:_HTML=_HTML+"<tr><td>"+"Jimu 总";
+											  break; 
+											}
+											
+											_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
+										}								
+										_HTML = _HTML + "</tbody>";									
+										_HTML= _HTML+'</div>';	
+											
+											
+											
+											
+										var obj = data.Data.TTC_manul_specific
+										_HTML= _HTML+'<div ><table class="table table-bordered" >';									
+										_HTML = _HTML+ "<thead><tr><th>时间</th><th>timestamp</th><th>人工标注</th><th>TTC_Jimu</th></tr></thead><tbody>";
+										if (obj.length>0)
+																	{
+																		for (var i=0;i<obj.length;i++)
+																		{ 
+																		
+																			
+																			_HTML=_HTML+"<tr><td>"+new Date(obj[i][0])+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+obj[i][3]   + "</td></tr>";
+																		}								
+																		_HTML = _HTML + "</tbody>";	
+																	}																	
+										_HTML= _HTML+'</div>';	
+										
+									}
+									
+									
+									if('jimu_LDW_specific' in data.Data)
+									{
+										var obj = data.Data.jimu_LDW_specific
+										_HTML= _HTML+'<div ><table class="table table-bordered" >';									
+										_HTML = _HTML+ "<thead><tr><th>时间</th><th>timestamp</th><th>Left LDW</th><th>Right LDW</th></tr></thead><tbody>";
+										if (obj.length>0)
+																	{
+																		for (var i=0;i<obj.length;i++)
+																		{ 
+																		
+																			
+																			_HTML=_HTML+"<tr><td>"+new Date(obj[i][0])+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+obj[i][3]   + "</td></tr>";
+																		}								
+																		_HTML = _HTML + "</tbody>";	
+																	}																	
+										_HTML= _HTML+'</div>';
+										
+										var obj = data.Data.jimu_TTC_specific
+										_HTML= _HTML+'<div ><table class="table table-bordered" >';									
+										_HTML = _HTML+ "<thead><tr><th>时间</th><th>timestamp</th><th>TTC</th></tr></thead><tbody>";
+										if (obj.length>0)
+																	{
+																		for (var i=0;i<obj.length;i++)
+																		{ 
+																		
+																			
+																			_HTML=_HTML+"<tr><td>"+new Date(obj[i][0])+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]  + "</td></tr>";
+																		}								
+																		_HTML = _HTML + "</tbody>";	
+																	}																	
+										_HTML= _HTML+'</div>';
+
+									}
+																		
 								
-									_HTML= _HTML+'</div>';	
-									
-									var obj = data.Data.TTC_specific									
-									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
-									_HTML = _HTML+ "<thead><tr><th>时间</th><th>timestamp</th><th>TTC_Mobileye</th><th>TTC_Jimu</th><th>speed</th></tr></thead><tbody>";
-									if (obj.length>0)
-																{
-																	for (var i=0;i<obj.length;i++)
-																	{ 
-																	
 																		
-																		_HTML=_HTML+"<tr><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+obj[i][3]  + "</td><td>"+obj[i][4] + "</td></tr>";
-																	}								
-																	_HTML = _HTML + "</tbody>";	
-																}																	
-									_HTML= _HTML+'</div>';									
 								}
+
 								
+
 								
 								$("#"+id).empty();
 								var _HTML_ = ['<div class="panel-body">',
 												                _HTML,
 												            '</div>',
 												].join('\n');
-								$("#"+id).append(_HTML_);								
+
+								$("#"+id).append(_HTML_);
+	
+								
 								},																
 								
 								complete:function(){										//请求结束时
@@ -232,7 +340,7 @@
 								type: "POST",
 								dataType: "json",
 								async: false, // 使用同步方式  
-								data:JSON.stringify({"filename":id+'.bin'}),
+								data:JSON.stringify({"filename":id}),
 								contentType: "application/json; charset=utf-8",	
 															
 								success: function (data) {								
@@ -340,24 +448,39 @@
 								}  
 								else
 								{																	
-									_HTML= _HTML+'<div ><table class="table table-bordered" >';									
-									_HTML = _HTML+ "<thead><tr><th>时间</th><th>测试版本</th><th>测试场景</th><th>公里数</th><th>车误检</th><th>车漏检</th><th>行人误检</th><th>行人漏检</th><th>问题描述</th></tr></thead><tbody>";
-									var obj = data.Data.Situation
-									Situation_str='';
-									if (obj.length>0)
-										{
-											
-											for (var i=0;i<obj.length;i++)
-											{ 
-											
+									
+									_HTML= _HTML+'<div ><p>ID:       '+e+'</p></div><h1></h1>';	
+									
+									if('Car_wrong' in data.Data)
+									{
+										_HTML= _HTML+'<div ><table class="table table-bordered" >';
+										_HTML = _HTML+ "<thead><tr><th>时间</th><th>测试版本</th><th>测试场景</th><th>公里数</th><th>车误检</th><th>车漏检</th><th>行人误检</th><th>行人漏检</th><th>问题描述</th></tr></thead><tbody>";
+										var obj = data.Data.Situation
+										Situation_str='';
+										if (obj.length>0)
+											{
 												
-												Situation_str=Situation_str+obj[i]+" ";
-											}								
+												for (var i=0;i<obj.length;i++)
+												{ 
 												
-										}
-									var obj = data.Data;		
-									_HTML=_HTML+"<tr><td>"+data.Data.Time+"</td><td>"+data.Data.version+ "</td><td>"+Situation_str+"</td><td>"+data.Data.distance+"</td><td>"+data.Data.Car_wrong  + "</td><td>"+data.Data.Car_missing +"</td><td>"+data.Data.persion_wrong  + "</td><td>"+data.Data.persion_missing+"</td><td>"+data.Data.problem+ "</td></tr></tbody>";
-									_HTML= _HTML+'</div>';	
+													
+													Situation_str=Situation_str+obj[i]+" ";
+												}								
+													
+											}
+										var obj = data.Data;		
+										_HTML=_HTML+"<tr><td>"+data.Data.Time+"</td><td>"+data.Data.version+ "</td><td>"+Situation_str+"</td><td>"+data.Data.distance+"</td><td>"+(data.Data.Car_wrong?data.Data.Car_wrong:'未统计')  + "</td><td>"+(data.Data.Car_missing?data.Data.Car_missing:'未统计') +"</td><td>"+(data.Data.persion_wrong?data.Data.persion_wrong:'未统计')  + "</td><td>"+(data.Data.persion_missing?data.Data.persion_missing:'未统计')+"</td><td>"+data.Data.problem+ "</td></tr></tbody>";
+										_HTML= _HTML+'</div>';
+									}
+									
+									if('mobileyeCar_wrong' in data.Data)
+									{
+										_HTML= _HTML+'<div ><table class="table table-bordered" >';
+										_HTML = _HTML+ "<thead><tr><th>mobileye测试版本</th><th>车误检</th><th>车漏检</th><th>行人误检</th><th>行人漏检</th><th>问题描述</th></tr></thead><tbody>";	
+										_HTML=_HTML+"<tr><td>"+data.Data.mobileyeversion+"</td><td>"+(data.Data.mobileyeCar_wrong?data.Data.mobileyeCar_wrong:'未统计')  + "</td><td>"+(data.Data.mobileyeCar_missing?data.Data.mobileyeCar_missing:'未统计') +"</td><td>"+(data.Data.mobileyepersion_wrong?data.Data.mobileyepersion_wrong:'未统计')  + "</td><td>"+(data.Data.mobileyepersion_missing?data.Data.mobileyepersion_missing:'未统计')+"</td><td>"+(data.Data.mobileyeproblem)+ "</td></tr></tbody>";
+										_HTML= _HTML+'</div>';
+									}
+										
 																		
 								}
 								
@@ -399,6 +522,15 @@
 								}				  
 						});				
 				}
+				
+			var update = function() {
+				if ($('#selectpicker1').selectpicker('val')=='')
+				{
+					$('#selectpicker1').selectpicker('selectAll');
+				}
+				var jsondata = $('#selectpicker1').selectpicker('val');
+				alert(jsondata);
+				}
 					
 		</script>
 	</head>
@@ -413,8 +545,7 @@
 		</ul>
 		<h1></h1>
 		<h1></h1>
-		
-		<div class="panel panel-warning">
+			<div class="panel panel-warning">
 		    <div class="panel-heading">
 		        <h3 class="panel-title">LDW&TTC</h3>
 		    </div>
@@ -431,8 +562,6 @@
 		        <div id="missingwrong"></div>	
 		    </div>
 		</div>
-		
-		
 		
 	</body>	
 </html>

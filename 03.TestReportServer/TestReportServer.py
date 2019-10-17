@@ -86,6 +86,73 @@ def missingwrong():
     mycol.insert_one(saveMongoDBdict)
     return jsonify({"status": True})
 
+
+@app.route('/updateSituation',methods=['POST'])
+def updateSituation():
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    print(json_data)
+    ID = json_data['ID']
+    Situation = json_data['Situation']
+    myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
+    mydb = myclient["jimu_TestResult"]
+
+    mycol_LDW = mydb["LDW"]
+    myquery = {"OrangeBinData": ID+'.bin'}
+    newvalues = {"$set": {"Situation": Situation}}
+    mycol_LDW.update_many(myquery, newvalues)
+
+    myquery = {"OrangeBinData": ID + '.dat'}
+    mycol_LDW.update_many(myquery, newvalues)
+
+    mycol_MissingWrong = mydb["MissingWrong"]
+    myquery = {"ID": int(ID)}
+    mycol_MissingWrong.update_many(myquery, newvalues)
+
+    return jsonify({"status": True})
+
+
+@app.route('/updateVersion',methods=['POST'])
+def updateVersion():
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    print(json_data)
+    ID = json_data['ID']
+    version = json_data['version']
+    myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
+    mydb = myclient["jimu_TestResult"]
+
+    mycol_LDW = mydb["LDW"]
+    myquery = {"OrangeBinData": ID+'.bin'}
+    newvalues = {"$set": {"version": version}}
+    mycol_LDW.update_many(myquery, newvalues)
+
+    myquery = {"OrangeBinData": ID + '.dat'}
+    mycol_LDW.update_many(myquery, newvalues)
+
+    mycol_MissingWrong = mydb["MissingWrong"]
+    myquery = {"ID": int(ID)}
+    mycol_MissingWrong.update_many(myquery, newvalues)
+
+    return jsonify({"status": True})
+
+@app.route('/uploadTTC',methods=['POST'])
+def uploadTTC():
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    print(json_data)
+    GetDataFromServer.uploadTTC(json_data)
+    return jsonify({"status": True})
+
+@app.route('/delectTTC_manul',methods=['POST'])
+def delectTTC_manul():
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    print(json_data)
+    GetDataFromServer.delectTTC_manul(json_data)
+    return jsonify({"status": True})
+
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     # print("AAAAAA")
@@ -241,6 +308,21 @@ def getDataByTime():
        # return jsonify({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime))}),200
 
 
+@app.route('/getDataByTime_TTC_manul',methods=['get', 'POST'])
+def getDataByTime_TTC_manul():
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    if json_data:
+        starttime = json_data['starttime']
+        endtime = json_data['endtime']
+        Situation = json_data['Situation']
+        print(Situation)
+        #print({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime),Situation)})
+        response = jsonify({"Data": GetDataFromServer.getDataByTime_TTC_manul(float(starttime),float(endtime),Situation)})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
+
+
 
 @app.route('/getdatabyversion',methods=['get', 'POST'])
 def getdatabyversion():
@@ -266,6 +348,20 @@ def getdatabyversionAll():
         print(Situation)
         #print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
         response = jsonify({"Data": GetDataFromServer.getdatabyversionAll(Situation)})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
+
+
+@app.route('/getdatabyversionAll_TTC_manual',methods=['get', 'POST'])
+def getdatabyversionAll_TTC_manual():
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+    if json_data:
+        #version = json_data['version']
+        Situation = json_data['Situation']
+        print(Situation)
+        #print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
+        response = jsonify({"Data": GetDataFromServer.getdatabyversionAll_TTC_manual(Situation)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
 

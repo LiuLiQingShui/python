@@ -77,7 +77,7 @@ def deleteoneitem(filename):
     myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
     mydb = myclient["jimu_TestResult"]
     mycol = mydb["LDW"]
-    myquery = {"OrangeBinData": filename}
+    myquery = {"OrangeBinData": {"$regex":str(filename)}}
     mycol.delete_one(myquery)
     return {}
 
@@ -100,22 +100,37 @@ def getOneItem(filename):
     if not data:
         return {}
     data.pop("_id")
-    LDW = (np.array(data['LDW'])).astype(np.float)
-    T = [LDW[:,0]/([LDW[:,0][k//2*2] for k in range(len(LDW[:,0]))]),LDW[:,1]/([LDW[:,0][k//2*2] for k in range(len(LDW[:,0]))]),LDW[:,2]/([LDW[:,0][k//2*2] for k in range(len(LDW[:,0]))])]
-    for i in range(len(T)):
-        LDW = np.insert(LDW,len(LDW[0,:]), values=T[i], axis=1)
-    TTC = (np.array(data['TTC'])).astype(np.float)
-    T = [TTC[:,0]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))]),TTC[:,1]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))]),TTC[:,2]/([TTC[:,0][k//2*2] for k in range(len(TTC[:,0]))])]
-    for i in range(len(T)):
-        TTC = np.insert(TTC,len(TTC[0,:]), values=T[i], axis=1)
-    LDW[np.isinf(LDW)] = 0
-    TTC[np.isinf(TTC)] = 0
-    LDW = np.nan_to_num(LDW)
-    TTC = np.nan_to_num(TTC)
-    data['LDW'] = LDW.tolist()
-    data['TTC'] = TTC.tolist()
-    print(data)
+    if 'LDW' in data:
+        LDW = (np.array(data['LDW'])).astype(np.float)
+        T = [LDW[:, 0] / ([LDW[:, 0][k // 2 * 2] for k in range(len(LDW[:, 0]))]),
+             LDW[:, 1] / ([LDW[:, 0][k // 2 * 2] for k in range(len(LDW[:, 0]))]),
+             LDW[:, 2] / ([LDW[:, 0][k // 2 * 2] for k in range(len(LDW[:, 0]))])]
+        for i in range(len(T)):
+            LDW = np.insert(LDW, len(LDW[0, :]), values=T[i], axis=1)
+        TTC = (np.array(data['TTC'])).astype(np.float)
+        T = [TTC[:, 0] / ([TTC[:, 0][k // 2 * 2] for k in range(len(TTC[:, 0]))]),
+             TTC[:, 1] / ([TTC[:, 0][k // 2 * 2] for k in range(len(TTC[:, 0]))]),
+             TTC[:, 2] / ([TTC[:, 0][k // 2 * 2] for k in range(len(TTC[:, 0]))])]
+        for i in range(len(T)):
+            TTC = np.insert(TTC, len(TTC[0, :]), values=T[i], axis=1)
+        LDW[np.isinf(LDW)] = 0
+        TTC[np.isinf(TTC)] = 0
+        LDW = np.nan_to_num(LDW)
+        TTC = np.nan_to_num(TTC)
+        data['LDW'] = LDW.tolist()
+        data['TTC'] = TTC.tolist()
+    if 'TTC_manul' in data:
+        TTC_manul = (np.array(data['TTC_manul'])).astype(np.float)
+        T = [TTC_manul[:, 0] / ([TTC_manul[:, 0][k // 2 * 2] for k in range(len(TTC_manul[:, 0]))]),
+             TTC_manul[:, 1] / ([TTC_manul[:, 0][k // 2 * 2] for k in range(len(TTC_manul[:, 0]))]),
+             TTC_manul[:, 2] / ([TTC_manul[:, 0][k // 2 * 2] for k in range(len(TTC_manul[:, 0]))])]
+        for i in range(len(T)):
+            TTC_manul = np.insert(TTC_manul, len(TTC_manul[0, :]), values=T[i], axis=1)
+        TTC_manul[np.isinf(TTC_manul)] = 0
+        TTC_manul = np.nan_to_num(TTC_manul)
+        data['TTC_manul'] = TTC_manul.tolist()
 
+    print(data)
     return data
 
 
@@ -141,7 +156,7 @@ def getDataByTime(starttime,endtime,Situation):
     mydb = myclient["jimu_TestResult"]
     mycol = mydb["LDW"]
 
-    df = pd.DataFrame(list(mycol.find()))
+    df = pd.DataFrame(list(mycol.find({"LDW": {'$exists':True}})))
     df['Situation'] = pd.Series(list(map(jointliststr, (df['Situation']).tolist())))
 
     if Situation != 140:
@@ -208,6 +223,68 @@ def getDataByTime(starttime,endtime,Situation):
 
 
 
+def getDataByTime_TTC_manul(starttime,endtime,Situation):
+    timestart = time.time()
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_row', None)
+    np.set_printoptions(threshold=100000)
+    myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
+    mydb = myclient["jimu_TestResult"]
+    mycol = mydb["LDW"]
+
+    df = pd.DataFrame(list(mycol.find({"TTC_manul": {'$exists':True}})))
+
+    df['Situation'] = pd.Series(list(map(jointliststr, (df['Situation']).tolist())))
+
+    if Situation != 140:
+        pd_Situation = pd.DataFrame({"Situation": Situation})
+        pd_Situation["BigClass"] = pd_Situation["Situation"].apply(splitstr)
+        conditions = list(pd_Situation.groupby(pd_Situation['BigClass']).apply(lambda x: sumstr(x["Situation"])))
+        for i in range(len(conditions)):
+            df = df[df['Situation'].str.contains(conditions[i])]
+    # print(df)
+
+    df = df.assign(Timestart=np.array(df['Timestamp'].tolist())[:, 0], Timeend=np.array(df['Timestamp'].tolist())[:, 1])
+    df = df[(df['Timestart'] >= starttime) & (df['Timeend'] <= endtime)].assign(selectlaber='yes')
+
+
+   # LDW = df.groupby(df['selectlaber']).apply(lambda x: sumLDWTTC(x["LDW"]))
+    TTC_manul = df.groupby(df['selectlaber']).apply(lambda x: sumLDWTTC(x["TTC_manul"]))
+
+    print(TTC_manul)
+
+    #LDW = LDW.tolist()[0]
+    TTC_manul = TTC_manul.tolist()[0]
+
+    data={}
+    data['LDW'] = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
+    data['TTC_manul'] = TTC_manul
+
+    TTC_manul = pd.DataFrame(TTC_manul,
+                       index=['TTC_manual','TTC_Jimu'], columns=['Right', 'Missing', 'Wrong','Right_ratio','Missing_ratio','Wrong_ratio'])
+
+    TTC_manul.iloc[:, :3].plot.bar(stacked=True, figsize=(8, 8),
+                             title='TTC告警对比分析：与手工标注的正确结果进行对比\n'  )
+    [(plt.text(k * 2 + 1, (TTC_manul.iloc[1::2, :3].to_numpy())[k, 0], '%d' % (TTC_manul.iloc[1::2, :3].to_numpy())[k, 0],
+               ha='center', va='top'),
+      plt.text(k * 2 + 1, (TTC_manul.iloc[1::2, :3].to_numpy())[k, :2].sum(), '%d' % (TTC_manul.iloc[1::2, :3].to_numpy())[k, 1],
+               ha='center', va='top'),
+      plt.text(k * 2 + 1, (TTC_manul.iloc[1::2, :3].to_numpy())[k, :3].sum(), '%d' % (TTC_manul.iloc[1::2, :3].to_numpy())[k, 2],
+               ha='center', va='top')) for k in range(len(TTC_manul.iloc[1::2, 2].to_numpy()))]
+    [(plt.text(k * 2, (TTC_manul.iloc[0::2, :3].to_numpy())[k, 0], '%d' % (TTC_manul.iloc[0::2, :3].to_numpy())[k, 0], ha='center',
+               va='top')) for k in range(len(TTC_manul.iloc[0::2, 2].to_numpy()))]
+    plt.xticks(rotation=30)
+    plt.savefig('TTC_manul.png')
+    plt.close()
+    image = imageToStr('TTC_manul.png')
+    data['TTC_manul_bar'] = image
+
+    return data
+
+
+
+
+
 def getdatabyversionAll(Situation):
     timestart = time.time()
     pd.set_option('display.max_columns', None)
@@ -217,7 +294,7 @@ def getdatabyversionAll(Situation):
     mydb = myclient["jimu_TestResult"]
     mycol = mydb["LDW"]
 
-    df = pd.DataFrame(list(mycol.find()))
+    df = pd.DataFrame(list(mycol.find({"LDW": {'$exists':True}})))
     df['Situation'] = pd.Series(list(map(jointliststr, (df['Situation']).tolist())))
 
     if Situation != 140:
@@ -246,6 +323,46 @@ def getdatabyversionAll(Situation):
 
 
 
+def getdatabyversionAll_TTC_manual(Situation):
+    timestart = time.time()
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_row', None)
+    np.set_printoptions(threshold=100000)
+    myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
+    mydb = myclient["jimu_TestResult"]
+    mycol = mydb["LDW"]
+
+    df = pd.DataFrame(list(mycol.find({"TTC_manul": {'$exists':True}})))
+
+    if len(df)==0:
+        return {}
+
+    df['Situation'] = pd.Series(list(map(jointliststr, (df['Situation']).tolist())))
+
+    if Situation != 140:
+        pd_Situation = pd.DataFrame({"Situation": Situation})
+        pd_Situation["BigClass"] = pd_Situation["Situation"].apply(splitstr)
+        conditions = list(pd_Situation.groupby(pd_Situation['BigClass']).apply(lambda x: sumstr(x["Situation"])))
+        for i in range(len(conditions)):
+            df = df[df['Situation'].str.contains(conditions[i])]
+    #print(df)
+
+
+    #LDW = df.groupby(df['version']).apply(lambda x:sumLDWTTC(x["LDW"]))
+    TTC_manul = df.groupby(df['version']).apply(lambda x:sumLDWTTC(x["TTC_manul"]))
+    version = TTC_manul.index
+    #LDW = (pd.DataFrame.to_numpy( LDW)).tolist()
+    TTC_manul = (pd.DataFrame.to_numpy( TTC_manul)).tolist()
+    version = (pd.DataFrame.to_numpy(version)).tolist()
+
+    Data = []
+    LDW=[[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
+    for i in range(len(version)):
+        Data.append([version[i],LDW,TTC_manul[i]])
+    #print(Data)
+    timesend = time.time()
+    print(timesend - timestart)
+    return {'data': Data}
 
 
 #
@@ -319,3 +436,66 @@ def getdatabyversionmissingwrongAll(Situation):
     return {'data': Data}
 
 
+def uploadTTC(json_data):
+    ID = json_data['ID']
+    myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
+    mydb = myclient["jimu_TestResult"]
+    mycol = mydb["LDW"]
+
+    appdex=['.bin','.dat']
+    ID_full=[]
+    for item in appdex:
+        data = mycol.find_one({"OrangeBinData":ID+item })
+        if data:
+            ID_full=ID+item
+            break
+    if not ID_full:
+        return {}
+    timestamp_TTC = json_data['timestamp_TTC']
+    TTC_manul = pd.DataFrame({"timestamp":timestamp_TTC,'TTC':1})
+    if 'jimu_TTC_specific' in data:
+        TTC_ADAS = pd.DataFrame(data['jimu_TTC_specific'],columns=['Date','timestamp','TTC_Jimu'])
+    else:
+        TTC_ADAS = pd.DataFrame(data['TTC_specific'],columns=['Date', 'timestamp', 'TTC_Mobileye', 'TTC_Jimu', 'speed'])
+    print(TTC_manul)
+
+    if  len(TTC_manul)==0 and len(TTC_ADAS)==0:
+        myquery = {"OrangeBinData": ID_full}
+        mycol.update_one(myquery, {'$set': {"TTC_manul":[[0,0,0],[0,0,0]], "TTC_manul_specific": []}}, upsert=False)
+        return
+
+
+    Data = pd.merge(TTC_manul[['timestamp','TTC']],
+                    TTC_ADAS[['timestamp', 'TTC_Jimu']],
+                    on='timestamp',how='outer')
+
+    Data = Data[(Data['TTC']>0) | (Data['TTC_Jimu']>0)].groupby((Data['timestamp']//3000)).agg({'timestamp':np.min, 'TTC':np.sum,'TTC_Jimu':np.sum})
+    Data.insert(0, '时间',pd.to_datetime(Data['timestamp'].to_numpy() // 1000, unit='s', utc=True).tz_convert('Asia/Shanghai'))
+
+    TTC = np.array([[Data['TTC'][Data['TTC'] > 0].count(), 0, 0],
+                    [(Data['TTC_Jimu'][(Data['TTC'] > 0) & (Data['TTC_Jimu'] > 0)]).count(),
+                     (Data['TTC_Jimu'][(Data['TTC_Jimu'] <= 0) & (Data['TTC'] > 0)]).count(),
+                     Data['TTC_Jimu'][(Data['TTC_Jimu'] > 0) & (Data['TTC'] <= 0)].count()]])
+    TTC = pd.DataFrame(TTC, index=['TTC', 'TTC_Jimu'], columns=['Right', 'Missing', 'Wrong'])
+    TTC = TTC.assign(Right_ratio=TTC['Right'] / (
+    [(TTC['Right'].to_numpy())[k // 2 * 2] for k in range(len(TTC['Right'].to_numpy()))]),
+                     Missing_ratio=TTC['Missing'] / (
+                     [(TTC['Right'].to_numpy())[k // 2 * 2] for k in range(len(TTC['Right'].to_numpy()))]),
+                     Wrong_ratio=TTC['Wrong'] / (
+                     [(TTC['Right'].to_numpy())[k // 2 * 2] for k in range(len(TTC['Right'].to_numpy()))]))
+    Data.fillna(0, inplace=True)
+    TTC_manul = TTC
+    TTC_manul_specific = Data
+    myquery = {"OrangeBinData": ID_full}
+    #newvalues = {"$set": saveMongoDBdict}
+    mycol.update_one(myquery, {'$set': {"TTC_manul":TTC_manul.iloc[:,:3].to_numpy().tolist(),"TTC_manul_specific":TTC_manul_specific.to_numpy().tolist()}}, upsert=False)
+
+
+def delectTTC_manul(json_data):
+    ID = json_data['ID']
+    myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
+    mydb = myclient["jimu_TestResult"]
+    mycol = mydb["LDW"]
+
+    data = mycol.find_one({"OrangeBinData":{"$regex":ID}})#{post_text: {$regex: "runoob"}}
+    mycol.update_one({"OrangeBinData":{"$regex":ID}}, {'$unset': {"TTC_manul": 1,"TTC_manul_specific":1}})

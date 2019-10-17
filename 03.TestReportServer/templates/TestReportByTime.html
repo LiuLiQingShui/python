@@ -14,7 +14,9 @@
 			var ipAddress = configure["address"];
 			
 			$(document).ready(function () {
-				
+				var situationoption = situationselectpicker['situation'];
+				$("#selectpicker1").empty();
+				$("#selectpicker1").append(situationoption);
 				getSummary_bin(140,0,100000000000000000);
 			});
 			
@@ -32,6 +34,15 @@
 				var divObj = document.getElementById("LDWPicture");
 				divObj.innerHTML = '<p> LDW、TTC数据查询失败 </p>';
 				
+				}	
+				
+			var failedfn_TTC_manul = function() {
+				//$("#LDW").empty();
+				//$("#LDWPicture").empty();
+				$("#TTC_manul").empty();
+				$("#TTCPicture_manul").empty();
+				var divObj = document.getElementById("TTCPicture_manul");
+				divObj.innerHTML = '<p> 手工标注的TTC正确数据查询失败 </p>';		
 				}	
 							
 			var failedfn_missingwrong = function() {
@@ -87,6 +98,7 @@
 									_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
 								}								
 								_HTML = _HTML + "</tbody>";
+								
 								$("#LDW").append(_HTML);
 								
 								
@@ -116,7 +128,89 @@
 								var obj = data.Data.TTC_bar;
 								var divObj = document.getElementById("TTCPicture");
 								divObj.innerHTML = '<img src=\"'+'data:image/png;base64,'+obj+'\" />';
+								
+								//var divObj = document.getElementById("Test");
+								//divObj.innerHTML =  '<div><select ></select></div>'
+								//divObj.innerHTML =  'aaaa'
+								
 								};
+			
+			var successfn_TTC_manul = function(jdata) {
+								var data = JSON.parse(jdata);
+								//alert(data);
+								//$("#LDW").empty();
+								//$("#LDWPicture").empty();
+								$("#TTC_manul").empty();
+								$("#TTCPicture_manul").empty();
+								
+								if(jQuery.isEmptyObject(data.Data)){  
+								      var divObj = document.getElementById("LDWPicture_manul");
+								      divObj.innerHTML = '<p> 选定范围内无手工标注的TTC数据 </p>';  
+									  return;
+									  //alert("NNN")
+								}  
+								
+								var _HTML="<thead><tr><th>LDW</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
+								var obj = data.Data.LDW								
+								for (var i=0;i<obj.length;i++)
+								{ 
+									switch (i) 
+									{ 
+									  case 0:_HTML=_HTML+"<tr><td>"+"Mobileye 左";
+									  break; 
+									  case 1:_HTML=_HTML+"<tr><td>"+"Jimu 左";
+									  break; 
+									  case 2:_HTML=_HTML+"<tr><td>"+"Mobileye 右";
+									  break; 
+									  case 3:_HTML=_HTML+"<tr><td>"+"Jimu 右";
+									  break; 
+									  case 4:_HTML=_HTML+"<tr><td>"+"Mobileye 总";
+									  break; 
+									  case 5:_HTML=_HTML+"<tr><td>"+"Jimu 总";
+									  break; 
+									}
+									
+									_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
+								}								
+								_HTML = _HTML + "</tbody>";
+								
+								//$("#LDW").append(_HTML);
+								
+								
+								//var obj = data.Data.LDW_bar;
+								//var divObj = document.getElementById("LDWPicture");
+								//divObj.innerHTML = '<img src=\"'+'data:image/png;base64,'+obj+'\" />'
+								
+								
+								var _HTML="<thead><tr><th>TTC</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
+								var obj = data.Data.TTC_manul								
+								for (var i=0;i<obj.length;i++)
+								{ 
+									switch (i) 
+									{  
+									  case 0:_HTML=_HTML+"<tr><td>"+"手工标注的正确数据 总";
+									  break; 
+									  case 1:_HTML=_HTML+"<tr><td>"+"Jimu 总";
+									  break; 
+									}
+									
+									_HTML=_HTML+"</td><td>"+obj[i][0]+"</td><td>"+obj[i][1]+"</td><td>"+obj[i][2]+"</td><td>"+((obj[i][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((obj[i][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
+								}								
+								_HTML = _HTML + "</tbody>";
+								$("#TTC_manul").append(_HTML);								
+								
+								
+								var obj = data.Data.TTC_manul_bar;
+								var divObj = document.getElementById("TTCPicture_manul");
+								divObj.innerHTML = '<img src=\"'+'data:image/png;base64,'+obj+'\" />';
+								
+								//var divObj = document.getElementById("Test");
+								//divObj.innerHTML =  '<div><select ></select></div>'
+								//divObj.innerHTML =  'aaaa'
+								
+								};
+			
+			
 								
 			var getSummary_bin = function(Situation_picked,starttime,endtime){
 				
@@ -137,6 +231,27 @@
 									error:function(){	
 										//alert("bbb");//请求失败时
 										failedfn();
+									}				  
+							});	
+							
+							
+					$.ajax({
+									url: ipAddress+"getDataByTime_TTC_manul",
+									type: "POST",
+									dataType: "json",
+									async: false, // 使用同步方式  
+									data:JSON.stringify({"starttime":starttime,"endtime":endtime,'Situation':Situation_picked}),
+									contentType: "application/json; charset=utf-8", 
+									success: function (data) {
+										//alert("aaa");
+									successfn_TTC_manul(JSON.stringify(data));
+									},									
+									complete:function(){	
+										//alert("ccc");//请求结束时
+									},									
+									error:function(){	
+										//alert("bbb");//请求失败时
+										failedfn_TTC_manul();
 									}				  
 							});	
 																
@@ -270,6 +385,17 @@
 		    <div class="panel-body">
 		        <div ><table class="table table-bordered" id="TTC"></table></div>
 		        <div id="TTCPicture"></div>	
+		    </div>
+		</div>
+		
+		
+		<div class="panel panel-warning">
+		    <div class="panel-heading">
+		        <h3 class="panel-title">TTC误报、漏报统计（与手工标注的正确结果进行对比）</h3>
+		    </div>
+		    <div class="panel-body">
+		        <div ><table class="table table-bordered" id="TTC_manul"></table></div>
+		        <div id="TTCPicture_manul"></div>	
 		    </div>
 		</div>
 

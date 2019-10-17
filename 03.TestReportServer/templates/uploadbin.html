@@ -13,7 +13,43 @@
 		<script>
 			var ipAddress = configure["address"];
 			
+			$(document).ready(function () {
+				var situationoption = situationselectpicker['situation'];
+				$("#selectpicker1").empty();
+				$("#selectpicker1").append(situationoption);
+				$("#selectpicker2").empty();
+				$("#selectpicker2").append(situationoption);
+				$("#selectpicker_update").empty();
+				$("#selectpicker_update").append(situationoption);
+				
+				//alert(situationoption)
+			});
+			
+			
 			function checkInt(n,max,id){
+				if(n=='')
+				{
+					return 0;
+				}
+			    var regex = /^\d+$/;
+			    if(regex.test(n)){
+			       if( n>=0){
+			          //alert("这是小于"+max+"的正整数！！")
+					  return 0;
+			       }
+			    }else{
+			       
+				   
+				   //alert(document.getElementById(id).value)
+				   document.getElementById(id).value = ""
+				   return 1;
+				   //$("#"+id).setAttribute('value',0);
+				   //document.getElementById("#"+id).setAttribute('value',"");
+				   //$("#"+id).
+			    }
+			}
+			
+			function checkInt1(n,max,id){
 			    var regex = /^\d+$/;
 			    if(regex.test(n)){
 			       if( n>=0){
@@ -56,22 +92,33 @@
 				   
 				   var options=$("#dataselect option:selected");
 				   	strs=options.text().split(/[.~]/); //字符分割	   	
-				   var res1 = checkInt(document.getElementById('text1').value,100,'text1');
+				   var res1 = checkInt1(document.getElementById('text1').value,100,'text1');
+				   if(res1)
+				   {
+				   					   alert("公里数非法输入：非整数");
+				   					   return;
+				   }
+				   
 				   var res3 = checkInt(document.getElementById('text3').value,100,'text3');
 				   var res4 = checkInt(document.getElementById('text4').value,100,'text4');
 				   var res5 = checkInt(document.getElementById('text5').value,100,'text5');
 				   var res6 = checkInt(document.getElementById('text6').value,100,'text6');
+				   var mobileyeres3 = checkInt(document.getElementById('mobileyetext3').value,100,'mobileyetext3');
+				   var mobileyeres4 = checkInt(document.getElementById('mobileyetext4').value,100,'mobileyetext4');
+				   var mobileyeres5 = checkInt(document.getElementById('mobileyetext5').value,100,'mobileyetext5');
+				   var mobileyeres6 = checkInt(document.getElementById('mobileyetext6').value,100,'mobileyetext6');
+				
 				   //||checkInt(this.value,100,'text3')||checkInt(this.value,100,'text4')||checkInt(this.value,100,'text5')||checkInt(this.value,100,'text6');
-				   if(res1||res6||res3||res4||res5)
+				   if(res6||res3||res4||res5||mobileyeres3||mobileyeres4||mobileyeres5||mobileyeres6)
 				   {
-					   alert("非法输入：非整数");
+					   alert("非法输入：请输入整数或者直接不输入留空白（没统计的情况）");
 					   return;
 				   }
 				   
 				   var res2 = checkVersion(document.getElementById('text2').value);
 				   if(res2)
 				   {
-				   					   alert("版本号未输入");
+				   					   alert("Jimu版本号未输入");
 				   					   return;
 				   }
 				   
@@ -94,6 +141,12 @@
 						persion_wrong: $("#text5").val(),
 						persion_missing: $("#text6").val(),
 						problem: $("#text7").val(),
+						mobileyeversion: $("#mobileyetext2").val(),
+						mobileyeCar_wrong: $("#mobileyetext3").val(),
+						mobileyeCar_missing: $("#mobileyetext4").val(),
+						mobileyepersion_wrong: $("#mobileyetext5").val(),
+						mobileyepersion_missing: $("#mobileyetext6").val(),
+						mobileyeproblem: $("#mobileyetext7").val(),
 						Situation: jsondata,
 						Timestamp:[Date.UTC(Number(strs[0]),Number(strs[1])-1,Number(strs[2]),0,0,0),Date.UTC(Number(strs[3]),Number(strs[4])-1,Number(strs[5]),0,0,0)]						
 						
@@ -177,7 +230,162 @@
 			}
 			}
 			
-
+			
+			var updateSituation = function() {
+				
+				var jsondata = $('#selectpicker_update').selectpicker('val');
+				
+				//alert(jsondata);
+				
+	   	
+				
+				var res2 = checkVersion(document.getElementById('ID').value);
+				if(res2)
+				{
+									   alert("ID号未输入");
+									   return;
+				}
+				
+				$.ajax({
+				   	type: "POST",  
+				   	url: ipAddress+'updateSituation',  
+				   	async: false, // 使用同步方式  
+				   	data: JSON.stringify({
+				   		ID:$("#ID").val(),
+						Situation: jsondata,						
+				   	}),  
+				   	contentType: "application/json; charset=utf-8",  
+				   	dataType: "json",  
+				   	success: function(data) {  },
+				   
+				   });			
+				}
+				
+				
+				
+				
+				var updateVersion = function() {				
+					   	
+					
+					var res2 = checkVersion(document.getElementById('ID').value);
+					if(res2)
+					{
+										   alert("ID号未输入");
+										   return;
+					}
+					
+					var res3 = checkVersion(document.getElementById('version_update').value);
+					if(res3)
+					{
+										   alert("版本号未输入");
+										   return;
+					}
+					
+					$.ajax({
+					   	type: "POST",  
+					   	url: ipAddress+'updateVersion',  
+					   	async: false, // 使用同步方式  
+					   	data: JSON.stringify({
+					   		ID:$("#ID").val(),
+							version: $("#version_update").val(),					
+					   	}),  
+					   	contentType: "application/json; charset=utf-8",  
+					   	dataType: "json",  
+					   	success: function(data) {  },
+					   
+					   });			
+					}
+			
+			var uploadTTC = function() {				
+					
+					var res2 = checkVersion(document.getElementById('ID_TTC').value);
+					if(res2)
+					{
+										   alert("ID号未输入");
+										   return;
+					}
+					
+					// var res3 = checkVersion(document.getElementById('TTC_information').value);
+					// if(res3)
+					// {
+					// 					   alert("TTC信息未输入");
+					// 					   return;
+					// }
+					
+					var stringTime = $("#TTC_information").val();
+					//var timestamp2 = Date.parse(new Date(stringTime));
+					//stringTime = '2019 02:55:25,2019 03:55:25,'
+					strs=stringTime.split(','); //字符分割	
+					//alert(strs)
+					var timestamp_TTC=[];
+					for (var i=0;i<strs.length;i++)
+					{ 			
+						//alert(strs[i])
+						//alert(Date.parse(new Date(strs[i])))
+						if(isNaN(Date.parse(new Date(strs[i]))) )
+						{
+							if(i!=(strs.length-1))
+							{
+								alert('输入日期格式错误，请重新输入')
+								return;
+							}
+						}
+						else
+						{
+							if((Date.parse(new Date(strs[i]))<1539142169000) ||(Date.parse(new Date(strs[i]))>1602300572000) ) 
+							{
+								alert('输入日期格式错误，请重新输入')
+								return;
+							}
+							
+							timestamp_TTC.push(Date.parse(new Date(strs[i])))
+						}
+						
+					}
+					
+					//alert(timestamp_TTC)
+					$.ajax({
+					   	type: "POST",  
+					   	url: ipAddress+'uploadTTC',  
+					   	async: false, // 使用同步方式  
+					   	data: JSON.stringify({
+					   		ID:$("#ID_TTC").val(),
+							timestamp_TTC:timestamp_TTC,					
+					   	}),  
+					   	contentType: "application/json; charset=utf-8",  
+					   	dataType: "json",  
+					   	success: function(data) {  },
+					   
+					   });			
+					}
+					
+					
+				
+				
+			var delectTTC_manul = function() {
+					
+					var res2 = checkVersion(document.getElementById('ID_TTC').value);
+					if(res2)
+					{
+										   alert("ID号未输入");
+										   return;
+					}
+										
+					$.ajax({
+					   	type: "POST",  
+					   	url: ipAddress+'delectTTC_manul',  
+					   	async: false, // 使用同步方式  
+					   	data: JSON.stringify({
+					   		ID:$("#ID_TTC").val(),					
+					   	}),  
+					   	contentType: "application/json; charset=utf-8",  
+					   	dataType: "json",  
+					   	success: function(data) {  },
+					   
+					   });			
+					}
+					
+			
 		</script>
 	</head>
 	
@@ -205,26 +413,7 @@
 		        <p></p>
 		        <div id='sitiationselect'>
 		        <select class="form-control selectpicker" data-live-search="true" multiple data-actions-box="true" title="场景选择" id="selectpicker1">
-		        <optgroup label="光照">
-		                <option value="光照-白天">白天</option>
-		                <option value="光照-傍晚">傍晚</option>
-		                <option value="光照-黑夜">黑夜</option>
-		         </optgroup>   
-		          <optgroup label="天气">
-		                  <option value="天气-晴">晴</option>
-		                  <option value="天气-雨">雨</option>
-		                  <option value="天气-雪">雪</option>
-		        		  <option value="天气-阴">阴</option>
-		        		  <option value="天气-沙尘暴">沙尘暴</option>
-		        		  <option value="天气-雾">雾</option>
-		           </optgroup>  
-		           <optgroup label="路况">
-		                   <option value="路况-市内">市内</option>
-						   <option value="路况-环线">环线</option>
-		                   <option value="路况-高速">高速</option>
-		                   <option value="路况-国道">国道</option>
-		        		   <option value="路况-县道">县道</option>
-		             </optgroup>                          
+                         
 		        </select>
 		        </div>
 		        
@@ -243,7 +432,45 @@
 		</div>
 
 		
-				
+		
+		<div class="panel panel-info">
+		    <div class="panel-heading">
+		        <h3 class="panel-title">上传手工标注的TTC告警信息</h3>
+		    </div>
+		    <div class="panel-body">
+				<div class="container">
+					<h1></h1>
+					<div class="row">
+					   <div class="col-xs-4 col-sm-4">						  
+						  <div class="input-group">
+							  <span class="input-group-addon">ID</span>
+							  <input type="text" class="form-control" placeholder="Twitterhandle" id ="ID_TTC">
+						  </div>
+						</div>
+						<div class="col-xs-2 col-sm-2">
+							<button type="button" onclick="delectTTC_manul();" class="btn btn-danger">删除手工标注的TTC告警信息</button>
+						</div> 
+					</div>
+					<h1></h1>
+					<p>2019-10-10 10:48:47,2019-10-10 11:29:29,2019-10-10 11:29:32,</p>
+					<div class="row">
+				      <div class="col-xs-10 col-sm-10">
+							<div class="input-group">				
+								<span class="input-group-addon">参照上面格式输入告警发生时间</span>
+								<input type="text" class="form-control" placeholder="Twitterhandle" id ="TTC_information">
+							</div>
+				   		</div>			  
+						<div class="col-xs-2 col-sm-2">
+				   			<button type="button" onclick="uploadTTC();" class="btn btn-warning">上传TTC告警信息</button>
+				   		</div> 
+				   </div>
+					<h1></h1>
+		    </div>
+		</div>
+		
+		
+		
+		
 				
 				
 				<div class="panel panel-info">
@@ -321,8 +548,80 @@
 				        		    <input type="text" class="form-control" placeholder="Twitterhandle" id ="text7">
 				        		</div>				
 				        		<h1></h1>
+								<div class="input-group">
+								    <span class="input-group-addon">mobileye版本号</span>
+								    <input type="text" class="form-control" placeholder="Twitterhandle" id ="mobileyetext2">
+								</div>
+								<div class="input-group">
+								    <span class="input-group-addon">mobileye车辆误检</span>
+								    <input type="text" class="form-control" placeholder="Twitterhandle" id ="mobileyetext3" >
+								</div>
+								<div class="input-group">
+								    <span class="input-group-addon">mobileye车辆漏检</span>
+								    <input type="text" class="form-control" placeholder="Twitterhandle" id ="mobileyetext4" >
+								</div>
+								<div class="input-group">
+								    <span class="input-group-addon">mobileye行人误检</span>
+								    <input type="text" class="form-control" placeholder="Twitterhandle" id ="mobileyetext5" >
+								</div>
+								<div class="input-group">
+								    <span class="input-group-addon">mobileye行人漏检</span>
+								    <input type="text" class="form-control" placeholder="Twitterhandle" id ="mobileyetext6" >
+								</div>
+								<div class="input-group">
+								    <span class="input-group-addon">mobileye问题描述</span>
+								    <input type="text" class="form-control" placeholder="Twitterhandle" id ="mobileyetext7" >
+								</div>
+								<h1></h1>
 				        		<button id="import_missingwrong">上传误漏检数据</button>
 				    </div>
 				</div>
+				
+				
+				
+		<div class="panel panel-info">
+		    <div class="panel-heading">
+		        <h3 class="panel-title">更新版本号、测试场景</h3>
+		    </div>
+		    <div class="panel-body">
+				<div class="container">
+				   <div class="row">
+				      <div class="col-xs-8 col-sm-8">						  
+						  <div class="input-group">
+						      <span class="input-group-addon">ID</span>
+						      <input type="text" class="form-control" placeholder="Twitterhandle" id ="ID">
+						  </div>
+					  </div>
+					</div>
+					<h1></h1>
+					<div class="row">
+				      <div class="col-xs-8 col-sm-8">
+						  <div id='sitiationselect_update'>
+						  <select class="form-control selectpicker" data-live-search="true" multiple data-actions-box="true" title="场景选择" id="selectpicker_update">
+						  </select>
+						  </div>
+					  </div>
+					   <div class="col-xs-2 col-sm-2">
+							<button type="button" onclick="updateSituation();" class="btn btn-warning">更新场景</button>
+					   </div> 
+				   </div>
+				   <h1></h1>
+					<div class="row">
+				      <div class="col-xs-8 col-sm-8">
+							<div class="input-group">
+								<span class="input-group-addon">版本号</span>
+								<input type="text" class="form-control" placeholder="Twitterhandle" id ="version_update">
+							</div>
+				   		</div>			  
+						<div class="col-xs-2 col-sm-2">
+				   			<button type="button" onclick="updateVersion();" class="btn btn-warning">更新版本</button>
+				   		</div> 
+				   </div>
+
+		    </div>
+		</div>
+		
+		
+		
 	</body>	
 </html>
