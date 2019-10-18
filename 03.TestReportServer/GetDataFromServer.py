@@ -414,7 +414,7 @@ def getdatabyversionmissingwrongAll(Situation):
     mydb = myclient["jimu_TestResult"]
     mycol = mydb["MissingWrong"]
 
-    df = pd.DataFrame(list(mycol.find()))
+    df = pd.DataFrame(list(mycol.find({"Car_wrong": {'$exists':True}})))
     df['Situation'] = pd.Series(list(map(jointliststr, (df['Situation']).tolist())))
 
     if Situation != 140:
@@ -423,15 +423,40 @@ def getdatabyversionmissingwrongAll(Situation):
         conditions = list(pd_Situation.groupby(pd_Situation['BigClass']).apply(lambda x: sumstr(x["Situation"])))
         for i in range(len(conditions)):
             df = df[ df['Situation'].str.contains(conditions[i])]
-    #print(df)
 
-    df[['distance', 'Car_wrong', 'Car_missing', 'persion_wrong', 'persion_missing']] = df[['distance', 'Car_wrong', 'Car_missing', 'persion_wrong', 'persion_missing']].astype(float)
-    df = df.groupby(df['version']).agg( {'version': np.min, 'distance': np.sum, 'Car_wrong': np.sum, 'Car_missing': np.sum, 'persion_wrong': np.sum,  'persion_missing': np.sum})
+    df_base = df[['version','distance']]
+    df_base[['distance']] = df_base[['distance']].astype(float)
+    df_base =  df_base.groupby(df_base['version']).agg({'version': np.min, 'distance': np.sum})
+    df_base.index.name = None
+    #print(df_base)
 
-    Data = (np.array(df)).tolist()
-    print(Data)
+    statlist=['Car_wrong', 'Car_missing', 'persion_wrong', 'persion_missing','mobileyeCar_wrong', 'mobileyeCar_missing', 'mobileyepersion_wrong', 'mobileyepersion_missing']
+    #statlist=['Car_wrong']
+
+    for item in statlist:
+        NONE_VIN = (df[item].isnull()) | (df[item].apply(lambda x: (x=='')))
+        #df_null = df[NONE_VIN]
+        df_select = df[~NONE_VIN]
+        df_singleData = df_select[['version', 'distance',item]]
+        df_singleData[['distance',item]] = df_singleData[['distance',item]].astype(float)
+        df_singleData = df_singleData.groupby(df_singleData['version']).agg({'version': np.min, 'distance': np.sum,item:np.sum})
+        df_singleData.index.name = None
+        df_singleData = df_singleData.rename({'distance': 'distance' + item}, axis='columns')
+        #print(df_singleData)
+        df_base = (pd.merge(df_base, df_singleData, on='version',how='left'))
+
+    df_base.fillna(-1, inplace=True)
+
+
+    # df[['distance', 'Car_wrong', 'Car_missing', 'persion_wrong', 'persion_missing']] = df[['distance', 'Car_wrong', 'Car_missing', 'persion_wrong', 'persion_missing']].astype(float)
+    # df = df.groupby(df['version']).agg( {'version': np.min, 'distance': np.sum, 'Car_wrong': np.sum, 'Car_missing': np.sum, 'persion_wrong': np.sum,  'persion_missing': np.sum})
+    #
+    # Data = (np.array(df)).tolist()
+    # print(Data)
     timesend = time.time()
 
+    Data = df_base.to_numpy().tolist()
+    print(Data)
     print(timesend - timestart)
     return {'data': Data}
 

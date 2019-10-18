@@ -135,13 +135,13 @@
 						ID:	id,
 						Time:	strs[0]+'.'+strs[1]+'.'+strs[2]+'~'+strs[3]+'.'+strs[4]+'.'+strs[5],
 				   		distance: $("#text1").val(),
-						version: $("#text2").val(),
+						version: $("#text2").val().trim(),
 						Car_wrong: $("#text3").val(),
 						Car_missing: $("#text4").val(),
 						persion_wrong: $("#text5").val(),
 						persion_missing: $("#text6").val(),
 						problem: $("#text7").val(),
-						mobileyeversion: $("#mobileyetext2").val(),
+						mobileyeversion: $("#mobileyetext2").val().trim(),
 						mobileyeCar_wrong: $("#mobileyetext3").val(),
 						mobileyeCar_missing: $("#mobileyetext4").val(),
 						mobileyepersion_wrong: $("#mobileyetext5").val(),
@@ -185,7 +185,7 @@
 							// 2 需要强制类型转换，否则格式为 {"a":"2","b":"3"}  
 							data: JSON.stringify({                    
 								situ: jsondata,
-								version: $("#text8").val(),
+								version: $("#text8").val().trim(),
 
 							}),  
 							contentType: "application/json; charset=utf-8",  
@@ -287,7 +287,7 @@
 					   	async: false, // 使用同步方式  
 					   	data: JSON.stringify({
 					   		ID:$("#ID").val(),
-							version: $("#version_update").val(),					
+							version: $("#version_update").val().trim(),					
 					   	}),  
 					   	contentType: "application/json; charset=utf-8",  
 					   	dataType: "json",  
@@ -393,7 +393,6 @@
 		
 		<ul class="nav nav-tabs" id='headtable'>
 		  <li  id="headtable1" ><a href="/reportbyversion">测试结果按版本统计</a></li>
-		  <li   id="headtable2" ><a href="/reportbytime" >测试结果按时间统计</a></li>
 		  <li  class="active" id="headtable3" ><a href="/uploadbin" >上传测试数据</a></li>
 		  <li  id="headtable4" ><a href="/managerment">后台管理</a></li>
 		</ul>

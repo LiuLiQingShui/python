@@ -180,7 +180,11 @@
 							 title:{
 							       text:'版本号'
 							   },
-						    categories: xAxis_value
+						    categories: xAxis_value,
+							labels: {
+							
+							                 rotation : 90
+							        }
 						},
 					
 					    yAxis: {
@@ -243,7 +247,11 @@
 							 title:{
 							       text:'版本号'
 							   },
-						    categories: xAxis_value
+						    categories: xAxis_value,
+							labels: {
+							
+							                 rotation : 90
+							        }
 						},
 					
 					    yAxis: {
@@ -391,7 +399,11 @@
 							 title:{
 							       text:'版本号'
 							   },
-						    categories: xAxis_value
+						    categories: xAxis_value,
+							labels: {
+							
+							                 rotation : 90
+							        }
 						},
 					
 					    yAxis: {
@@ -495,19 +507,42 @@
 					var Car_missing_value=[];
 					var persion_wrong_value=[];
 					var persion_missing_value=[];
+					var mobileye_Car_wrong_value=[];
+					var mobileye_Car_missing_value=[];
+					var mobileye_persion_wrong_value=[];
+					var mobileye_persion_missing_value=[];
+					
 					if(jQuery.isEmptyObject(data.Data)){
 						  _HTML = _HTML+'<p> 无版本数据 </p>';
 						//_HTML_TTC = _HTML_TTC+'<p> 无版本信息 </p>';
 					}  
 					else
 					{									
-						
-						_HTML= _HTML+'<div ><table class="table table-bordered" >';	
-						_HTML = _HTML+ "<thead><tr><th>版本</th><th>公里总数</th><th>车辆误检总数 / 平均每百公里误检数</th><th>车辆漏检总数 / 平均每百公里漏检数</th><th>行人误检总数 / 平均每百公里误检数</th><th>行人漏检总数 / 平均每百公里漏检数</th></tr></thead><tbody>";
-						
-						//_HTML_TTC= _HTML_TTC+'<div ><table class="table table-bordered" >';
-						//_HTML_TTC = _HTML_TTC+ "<thead><tr><th>版本</th><th>正报</th><th>漏报</th><th>误报</th><th>正报率</th><th>漏报率</th><th>误报率</th></tr></thead><tbody>";
-						
+						//<table class="table table-bordered" >\
+						_HTML= _HTML+'<div >\
+										<table class="table table-bordered">\
+											<thead>\
+												<tr>\
+													<th rowspan="2" colspan="1" >版本</th>\
+													<th rowspan="2" colspan="1">公里总数</th>\
+													<th colspan="2">车辆误检总数 /人工统计的视频公里数 / 平均每百公里误检数</th>\
+													<th colspan="2">车辆漏检总数 /人工统计的视频公里数 / 平均每百公里漏检数</th>\
+													<th colspan="2">行人误检总数 /人工统计的视频公里数 / 平均每百公里误检数</th>\
+													<th colspan="2">行人漏检总数 /人工统计的视频公里数 / 平均每百公里漏检数</th>\
+												</tr>\
+												<tr>\
+													<th colspan="1">Jimu</th>\
+													<th colspan="1">mobileye</th>\
+													<th colspan="1">Jimu</th>\
+													<th colspan="1">mobileye</th>\
+													<th colspan="1">Jimu</th>\
+													<th colspan="1">mobileye</th>\
+													<th colspan="1">Jimu</th>\
+													<th colspan="1">mobileye</th>\
+												</tr>\
+											</thead>\
+											<tbody>';
+
 						var versiondata = 1;
 						
 						for (var i=0;i<data.Data.data.length;i++)
@@ -522,13 +557,32 @@
 							{
 									//_HTML=_HTML+"<tr><td>"+versiondata[0][0]+"
 												
-									_HTML=_HTML+"<tr><td>"+versiondata[0]+"</td><td>"+versiondata[1]+"</td><td>"+versiondata[2]+' / '+(versiondata[2]/versiondata[1] * 100).toFixed(1)+"</td><td>"+versiondata[3]+' / '+(versiondata[3]/versiondata[1] * 100).toFixed(1)+"</td><td>"+versiondata[4]+' / '+(versiondata[4]/versiondata[1] * 100).toFixed(1)+"</td><td>"+versiondata[5]+' / '+(versiondata[5]/versiondata[1] * 100).toFixed(1)+"</td></tr>";
+									_HTML=_HTML+	'<tr>\
+														<td>'+versiondata[0]+'</td>\
+														<td>'+versiondata[1]+'</td>\
+														<td>'+((versiondata[3]==-1)?'未统计':(versiondata[3]+' / '+versiondata[2]+' / '+(versiondata[3]/versiondata[2] * 100).toFixed(1)))+'</td>\
+														<td>'+((versiondata[11]==-1)?'未统计':(versiondata[11]+' / '+versiondata[10]+' / '+(versiondata[11]/versiondata[10] * 100).toFixed(1)))+'</td>\
+														<td>'+((versiondata[5]==-1)?'未统计':(versiondata[5]+' / '+versiondata[4]+' / '+(versiondata[5]/versiondata[4] * 100).toFixed(1)))+'</td>\
+														<td>'+((versiondata[13]==-1)?'未统计':(versiondata[13]+' / '+versiondata[12]+' / '+(versiondata[13]/versiondata[12] * 100).toFixed(1)))+'</td>\
+														<td>'+((versiondata[7]==-1)?'未统计':(versiondata[7]+' / '+versiondata[6]+' / '+(versiondata[7]/versiondata[6] * 100).toFixed(1)))+'</td>\
+														<td>'+((versiondata[15]==-1)?'未统计':(versiondata[15]+' / '+versiondata[14]+' / '+(versiondata[15]/versiondata[14] * 100).toFixed(1)))+'</td>\
+														<td>'+((versiondata[9]==-1)?'未统计':(versiondata[9]+' / '+versiondata[8]+' / '+(versiondata[9]/versiondata[8] * 100).toFixed(1)))+'</td>\
+														<td>'+((versiondata[17]==-1)?'未统计':(versiondata[17]+' / '+versiondata[16]+' / '+(versiondata[17]/versiondata[16] * 100).toFixed(1)))+'</td>\
+													</tr>';
 									//_HTML_TTC=_HTML_TTC+"<tr><td>"+version[i]+"</td><td>"+versiondata.Data.TTC[1][0]+"</td><td>"+versiondata.Data.TTC[1][1]+"</td><td>"+versiondata.Data.TTC[1][2]+"</td><td>"+((versiondata.Data.TTC[1][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.TTC[1][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.TTC[1][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
 									xAxis_value.push(versiondata[0]);
-									Car_wrong_value.push(versiondata[2]/versiondata[1] * 100);
-									Car_missing_value.push(versiondata[3]/versiondata[1] * 100);
-									persion_wrong_value.push(versiondata[4]/versiondata[1] * 100);
-									persion_missing_value.push(versiondata[5]/versiondata[1] * 100);
+
+									Car_wrong_value.push((versiondata[3]==-1)?null:(versiondata[3]/versiondata[2] * 100));
+									mobileye_Car_wrong_value.push((versiondata[11]==-1)?null:(versiondata[11]/versiondata[10] * 100));
+									Car_missing_value.push((versiondata[5]==-1)?null:(versiondata[5]/versiondata[4] * 100));
+									mobileye_Car_missing_value.push((versiondata[13]==-1)?null:(versiondata[13]/versiondata[12] * 100));
+									persion_wrong_value.push((versiondata[7]==-1)?null:(versiondata[7]/versiondata[6] * 100));
+									mobileye_persion_wrong_value.push((versiondata[15]==-1)?null:(versiondata[15]/versiondata[14] * 100))
+									persion_missing_value.push((versiondata[9]==-1)?null:(versiondata[9]/versiondata[8] * 100));
+									mobileye_persion_missing_value.push((versiondata[17]==-1)?null:(versiondata[17]/versiondata[16] * 100))
+
+									//alert(Car_wrong_value)
+									
 									//var Car_wrong_value=[];
 									//var Car_missing_value=[];
 									//var persion_wrong_value=[];
@@ -536,31 +590,40 @@
 									
 							}
 						}
-						_HTML= _HTML+'</tbody>';
-						_HTML= _HTML+'</div>';	
+						_HTML= _HTML+'</tbody>\
+											</div>';
+						//_HTML= _HTML+'\</table>\
+										//</div>';	
 											
 						//_HTML_TTC= _HTML_TTC+'</tbody>';
 						//_HTML_TTC= _HTML_TTC+'</div>';	
 					}
-					
+					//xAxis_value=['a','b','c','a','b','c','a','b','c','a','b'];
+					//Car_wrong_value=[1,2,1,1,2,1,1,2,1,1,2];
+					//alert(xAxis_value.length)
+					//alert(Car_wrong_value)
 					if (xAxis_value.length>0)
 					{
-					Highcharts.chart('highcharts_trendbyversion_MissingWrong', {
+					Highcharts.chart('highcharts_trendbyversion_CarWrong', {
 					
 					    title: {
-					        text: '车辆、行人误检漏检趋势图'
+					        text: '车辆误检趋势图 jimu与mobileye对比'
 					    },
 						
 						xAxis: {
 							 title:{
 							       text:'版本号'
 							   },
-						    categories: xAxis_value
+						    categories: xAxis_value,
+							labels: {
+							
+							                 rotation : 90
+							        }
 						},
 					
 					    yAxis: {
 					        title: {
-					            text: '每百公里误漏检数'
+					            text: '每百公里误检数'
 					        }
 					    },
 					    legend: {
@@ -568,25 +631,25 @@
 					        align: 'right',
 					        verticalAlign: 'middle'
 					    },
-					
-						//var Car_wrong_value=[];
-						//var Car_missing_value=[];
-						//var persion_wrong_value=[];
-						//var persion_missing_value=[];
 						
 					    series: [{
-					        name: '车辆每百公里误检数',
-					        data: Car_wrong_value
-					    }, {
-					        name: '车辆每百公里漏检数',
-					        data: Car_missing_value
-					    }, {
-					        name: '行人每百公里误检数',
-					        data: persion_wrong_value
-					    }, {
-					        name: '行人每百公里漏检数',
-					        data: persion_missing_value
-					    }],
+					        name: 'jimu',
+					        data: Car_wrong_value,
+					    },
+						{
+					       name: 'mobileye',
+					       data: mobileye_Car_wrong_value
+					    },
+						],
+						
+						// var Car_wrong_value=[];
+						// var Car_missing_value=[];
+						// var persion_wrong_value=[];
+						// var persion_missing_value=[];
+						// var mobileye_Car_wrong_value=[];
+						// var mobileye_Car_missing_value=[];
+						// var mobileye_persion_wrong_value=[];
+						// var mobileye_persion_missing_value=[];
 					
 					    responsive: {
 					        rules: [{
@@ -604,6 +667,207 @@
 					    }
 					
 					});
+					
+					Highcharts.chart('highcharts_trendbyversion_CarMissing', {
+					
+					    title: {
+					        text: '车辆漏检趋势图 jimu与mobileye对比'
+					    },
+						
+						xAxis: {
+							 title:{
+							       text:'版本号'
+							   },
+						    categories: xAxis_value,
+							labels: {
+							
+							                 rotation : 90
+							        }
+						},
+					
+					    yAxis: {
+					        title: {
+					            text: '每百公里漏检数'
+					        }
+					    },
+					    legend: {
+					        layout: 'vertical',
+					        align: 'right',
+					        verticalAlign: 'middle'
+					    },
+						
+					    series: [{
+					        name: 'jimu',
+					        data: Car_missing_value,
+					    },
+						{
+					       name: 'mobileye',
+					       data: mobileye_Car_missing_value
+					    },
+						],
+					
+					
+					// var Car_wrong_value=[];
+					// var Car_missing_value=[];
+					// var persion_wrong_value=[];
+					// var persion_missing_value=[];
+					// var mobileye_Car_wrong_value=[];
+					// var mobileye_Car_missing_value=[];
+					// var mobileye_persion_wrong_value=[];
+					// var mobileye_persion_missing_value=[];
+					
+					    responsive: {
+					        rules: [{
+					            condition: {
+					                maxWidth: 500
+					            },
+					            chartOptions: {
+					                legend: {
+					                    layout: 'horizontal',
+					                    align: 'center',
+					                    verticalAlign: 'bottom'
+					                }
+					            }
+					        }]
+					    }
+					
+					});
+					
+					
+					Highcharts.chart('highcharts_trendbyversion_PersonWrong', {
+					
+					    title: {
+					        text: '行人误检趋势图 jimu与mobileye对比'
+					    },
+						
+						xAxis: {
+							 title:{
+							       text:'版本号'
+							   },
+						    categories: xAxis_value,
+							labels: {
+							
+							                 rotation : 90
+							        }
+						},
+					
+					    yAxis: {
+					        title: {
+					            text: '每百公里误检数'
+					        }
+					    },
+					    legend: {
+					        layout: 'vertical',
+					        align: 'right',
+					        verticalAlign: 'middle'
+					    },
+						
+					    series: [{
+					        name: 'jimu',
+					        data: persion_wrong_value,
+					    },
+						{
+					       name: 'mobileye',
+					       data: mobileye_persion_wrong_value
+					    },
+						],
+						
+						// var Car_wrong_value=[];
+						// var Car_missing_value=[];
+						// var persion_wrong_value=[];
+						// var persion_missing_value=[];
+						// var mobileye_Car_wrong_value=[];
+						// var mobileye_Car_missing_value=[];
+						// var mobileye_persion_wrong_value=[];
+						// var mobileye_persion_missing_value=[];
+					
+					    responsive: {
+					        rules: [{
+					            condition: {
+					                maxWidth: 500
+					            },
+					            chartOptions: {
+					                legend: {
+					                    layout: 'horizontal',
+					                    align: 'center',
+					                    verticalAlign: 'bottom'
+					                }
+					            }
+					        }]
+					    }
+					
+					});
+					
+					
+					
+					
+					Highcharts.chart('highcharts_trendbyversion_PersonMissing', {
+					
+					    title: {
+					        text: '行人漏检趋势图 jimu与mobileye对比'
+					    },
+						
+						xAxis: {
+							 title:{
+							       text:'版本号'
+							   },
+						    categories: xAxis_value,
+							labels: {
+							
+							                 rotation : 90
+							        }
+						},
+					
+					    yAxis: {
+					        title: {
+					            text: '每百公里漏检数'
+					        }
+					    },
+					    legend: {
+					        layout: 'vertical',
+					        align: 'right',
+					        verticalAlign: 'middle'
+					    },
+						
+					    series: [{
+					        name: 'jimu',
+					        data: persion_missing_value,
+					    },
+						{
+					       name: 'mobileye',
+					       data: mobileye_persion_missing_value
+					    },
+						],
+					
+					
+					// var Car_wrong_value=[];
+					// var Car_missing_value=[];
+					// var persion_wrong_value=[];
+					// var persion_missing_value=[];
+					// var mobileye_Car_wrong_value=[];
+					// var mobileye_Car_missing_value=[];
+					// var mobileye_persion_wrong_value=[];
+					// var mobileye_persion_missing_value=[];
+					
+					    responsive: {
+					        rules: [{
+					            condition: {
+					                maxWidth: 500
+					            },
+					            chartOptions: {
+					                legend: {
+					                    layout: 'horizontal',
+					                    align: 'center',
+					                    verticalAlign: 'bottom'
+					                }
+					            }
+					        }]
+					    }
+					
+					});
+					
+					
+					
 					}
 					
 					
@@ -622,7 +886,6 @@
 
 		<ul class="nav nav-tabs" id='headtable'>
 		  <li  class="active" id="headtable1" ><a href="/reportbyversion">测试结果按版本统计</a></li>
-		  <li  id="headtable2" ><a href="/reportbytime" >测试结果按时间统计</a></li>
 		  <li  id="headtable3" ><a href="/uploadbin" >上传测试数据</a></li>
 		  <li  id="headtable4" ><a href="/managerment">后台管理</a></li>
 		</ul>
@@ -669,10 +932,22 @@
 		        <h3 class="panel-title">车辆行人误检、漏检统计</h3>
 		    </div>
 		    <div class="panel-body">
-				<div id="highcharts_trendbyversion_MissingWrong" style="min-width: 310px;
+				<div id="highcharts_trendbyversion_CarWrong" style="min-width: 310px;
 				max-width: 1600px;
 				height: 400px;
-				margin: 0 auto"></div>   
+				margin: 0 auto"></div>
+				<div id="highcharts_trendbyversion_CarMissing" style="min-width: 310px;
+				max-width: 1600px;
+				height: 400px;
+				margin: 0 auto"></div>
+				 <div id="highcharts_trendbyversion_PersonWrong" style="min-width: 310px;
+				 max-width: 1600px;
+				 height: 400px;
+				 margin: 0 auto"></div>
+				 <div id="highcharts_trendbyversion_PersonMissing" style="min-width: 310px;
+				 max-width: 1600px;
+				 height: 400px;
+				 margin: 0 auto"></div>
 		        <div > <table class="table table-bordered" id="MissingWrong"></table></div>
 		    </div>
 		</div>
