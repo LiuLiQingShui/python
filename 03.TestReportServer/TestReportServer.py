@@ -4,7 +4,7 @@ import pymongo
 import threading
 from flask import Flask,jsonify,request,abort
 from werkzeug import security,utils
-import CanBinDataProcessV2
+import CanBinDataProcessV3
 import analyseData2
 import GetDataFromServer
 from flask import send_file,render_template,send_from_directory
@@ -51,7 +51,7 @@ class myThread (threading.Thread):   #继承父类threading.Thread
         self.situ = situ
         self.version = version
     def run(self):                   #把要执行的代码写到run函数里面 线程在创建后会直接运行run函数
-        CanBinDataProcessV2.CanBinDataProcess(self.DataFolder, self.filename)
+        CanBinDataProcessV3.CanBinDataProcess(self.DataFolder, self.filename)
         analyseData2.analyseData(self.DataFolder, self.filename,self.situ,self.version)
 
 
