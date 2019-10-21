@@ -1,26 +1,42 @@
-import os
+import bitstring
+import struct
+import time
+import t_getAdasCanProtocol
+import json
 import re
-import CalcAllV2
-import CanBinDataProcessV2
-import analyseData2
+import os
+import numpy as np
+import pandas as pd
+import t_getAdasCanProtocol
 
 
-DataFolder = os.path.join(os.getcwd(),'Data')
-#DataFolder = os.path.join(r'F:/test/1')
-#DataFolder = os.path.join(r'F:/00.python/01.CanBinPrase/dist/AdasCanDataPrase - 副本 - 副本 (3)/backup')
+pro = t_getAdasCanProtocol.getAdasCanProtocol('ADAS CAN protocol.csv')
 
-if not os.path.exists(DataFolder):
-    os.makedirs(DataFolder)
+#print(pro)
+#print(pro.keys())
+#print(pro.values())
+print(pro['0x700'])
 
-FindLaber = '.bin'
+fmt=pro['0x700'][2]
+#print(fmt)
+for i in range(len(fmt)):
+    fmtspilt = re.split(':', fmt[i])
+    #print(fmtspilt)
 
-for parent, dirnames, filenames in os.walk(DataFolder):
-    for filename in filenames:
-        if filename.find(FindLaber) >= 0:
-            h = re.split(FindLaber, filename)
-            CanBinDataProcessV2.CanBinDataProcess(DataFolder,filename)
-            analyseData2.analyseData(DataFolder,filename)
 
-#CalcAllV2.CalcAll(DataFolder)
-print("\n\n")
-print("ALL bins have been parsed!")
+print(int('0x0000000009000000',16))
+
+s = bitstring.ConstBitStream('0x0000000009000000')
+print(s.read('uintbe:16'))
+print(s.read('uintbe:16'))
+print(s.read('uintle:32'))
+
+
+
+s = bitstring.ConstBitStream('0x0000000900000000')
+print(s.read('uintbe:32'))
+print(s.read('uintbe:16'))
+print(s.read('uintbe:16'))
+
+s = bitstring.ConstBitStream('0x0820000101800000')
+print(s.readlist(['uint:3', 'uint:13', 'uint:1', 'uint:7', 'uint:1', 'uint:7', 'uint:1', 'uint:1', 'uint:1', 'uint:1', 'uint:12', 'uint:3', 'uint:5', 'uint:2', 'uint:1', 'uint:5']))

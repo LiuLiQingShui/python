@@ -55,7 +55,8 @@ def CanBinDataProcess(DataFolder,filename):
         #print(b1[2:])
         Oringe.append([dt_now,b1[0],ID, ''.join([(('%#04x ' % k)[2:].upper()) for k in b1[2:]])])
         #print([dt_now,b1[0],ID, ''.join([(('%#04x ' % k)[2:].upper()) for k in b1[2:]])])
-        if CanProtocal.get(ID):
+        #if CanProtocal.get(ID):
+        if False:
             protocol_select = CanProtocal.get(ID)
             testdata = bitstring.BitArray('')
             for j in range(9, 1, -1):
@@ -130,7 +131,8 @@ def CanBinDataProcess(DataFolder,filename):
                     dt_linemobileye = dt_now
                 count_linemobileye= count_linemobileye + 1
         else:
-            notinclude.append(ID)
+            1
+            #notinclude.append(ID)
 
     h=re.split('.bin|.dat', filename)
     for key,value in data_prase.items():

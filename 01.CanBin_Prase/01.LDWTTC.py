@@ -1,7 +1,7 @@
 import os
 import re
 import CalcAllV2
-import CanBinDataProcessV3
+import CanBinDataProcessV2
 import analyseData2
 
 
@@ -18,8 +18,8 @@ for FindLaber in findLaber:
         for filename in filenames:
             if filename.find(FindLaber) >= 0:
                 h = re.split(FindLaber, filename)
-                CanBinDataProcessV3.CanBinDataProcess(DataFolder, filename)
-                #analyseData2.analyseData(DataFolder,filename)
+                #CanBinDataProcessV2.CanBinDataProcess(DataFolder, filename)
+                analyseData2.analyseData(DataFolder,filename)
         for dirname in dirnames:
             # break
             subDataFolderL2 = os.path.join(DataFolder, dirname)
@@ -27,7 +27,8 @@ for FindLaber in findLaber:
                 for filenameL2 in filenamesL2:
                     if filenamesL2.find(FindLaber) >= 0:
                         h = re.split(FindLaber, filenamesL2)
-                        CanBinDataProcessV3.CanBinDataProcess(subDataFolderL2, filenamesL2)
+                        #CanBinDataProcessV2.CanBinDataProcess(subDataFolderL2, filenamesL2)
+                        analyseData2.analyseData(subDataFolderL2, filenamesL2)
 
 
 #CalcAllV2.CalcAll(DataFolder)

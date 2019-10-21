@@ -10,12 +10,21 @@ import math
 def analyseData(DataFolder,filename):
     print(DataFolder,filename)
     h=re.split('.bin|.dat', filename)
-    if  not os.path.exists(os.path.join(DataFolder, h[0] + '_' + "0xa0" + '_testresult.csv')):
-        print('Error: No Mobileye Data')
-        time.sleep(5)
-        return
-    orangeData_0x700 = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x700" + '_testresult.csv'))
+
     orangeData_0x780 = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x780" + '_testresult.csv'))
+
+    Data_jimu_LDW = orangeData_0x780[['timestamp', 'Left LDW', 'Right LDW']]
+    Data_jimu_LDW = Data_jimu_LDW[(Data_jimu_LDW['Left LDW']>0) | (Data_jimu_LDW['Right LDW']>0)].groupby((Data_jimu_LDW['timestamp']//3000)).agg({'timestamp':np.min, 'Left LDW':np.sum,'Right LDW':np.sum})
+    Data_jimu_LDW.insert(0, '时间',pd.to_datetime(Data_jimu_LDW['timestamp'].to_numpy() // 1000, unit='s', utc=True).tz_convert('Asia/Shanghai'))
+    Data_jimu_LDW.to_csv(os.path.join(DataFolder, h[0] + '_Jimu_LDW_specific.csv'), encoding='utf_8_sig', index=False)
+
+    Data_jimu_TTC = orangeData_0x780[['timestamp', 'FCW Level']]
+    Data_jimu_TTC = Data_jimu_TTC.rename({ 'FCW Level':'TTC_Jimu'}, axis='columns')
+    Data_jimu_TTC = Data_jimu_TTC[(Data_jimu_TTC['TTC_Jimu']>0)].groupby((Data_jimu_TTC['timestamp']//3000)).agg({'timestamp':np.min, 'TTC_Jimu':np.sum})
+    Data_jimu_TTC.insert(0, '时间',pd.to_datetime(Data_jimu_TTC['timestamp'].to_numpy() // 1000, unit='s', utc=True).tz_convert('Asia/Shanghai'))
+    Data_jimu_TTC.to_csv(os.path.join(DataFolder, h[0] + '_Jimu_TTC_specific.csv'), encoding='utf_8_sig', index=False)
+
+
     if os.path.exists(os.path.join(DataFolder, h[0] + '_' + "0xa0" + '_testresult.csv')):
         orangeData_CarSpeed = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0xa0" + '_testresult.csv'))
         turn = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x23a" + '_testresult.csv'))
@@ -51,9 +60,20 @@ def analyseData(DataFolder,filename):
                                             'turn': -1,
                                             'brake': -1
         })
+    orangeData_CarSpeed.to_csv(os.path.join(DataFolder, h[0] + '_CarInformation.csv'), encoding='utf_8_sig',index=False)
 
-    orangeData_CarSpeed.to_csv(os.path.join(DataFolder, h[0] + '_CarInformation.csv'), encoding='utf_8_sig', index=False)
-    print(orangeData_0x780.dtypes)
+    orangeData_CarSpeed = orangeData_CarSpeed.assign(ms10=orangeData_CarSpeed['timestamp'] // 10)[['ms10', 'speed']]
+    orangeData_CarSpeed = orangeData_CarSpeed.groupby(orangeData_CarSpeed['ms10']).agg({'ms10':np.min, 'speed':np.max})
+    orangeData_CarSpeed.index.name = None
+
+
+    if  not os.path.exists(os.path.join(DataFolder, h[0] + '_' + "0x700" + '_testresult.csv')):
+        print('Error: No Mobileye Data')
+        time.sleep(5)
+        return
+    orangeData_0x700 = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x700" + '_testresult.csv'))
+
+
     Data = pd.merge(orangeData_0x700[['timestamp','Left LDW','Right LDW','fcw_on']],
                     orangeData_0x780[['timestamp', 'Left LDW', 'Right LDW', 'FCW Level']],
                     on='timestamp',how='outer')
@@ -62,7 +82,7 @@ def analyseData(DataFolder,filename):
     DataBackup = Data
 
     Data = Data[(Data['Left LDW_Mobileye']>0) | (Data['Right LDW_Mobileye']>0) |(Data['Left LDW_Jimu']>0 )|(Data['Right LDW_Jimu']>0) ].groupby((Data['timestamp']//3000)).agg({'timestamp':np.min, 'Left LDW_Mobileye':np.sum,'Right LDW_Mobileye':np.sum,'Left LDW_Jimu':np.sum,'Right LDW_Jimu':np.sum})
-    Data = (pd.merge(Data.assign(ms10=Data['timestamp']//10),orangeData_CarSpeed.assign(ms10=orangeData_CarSpeed['timestamp']//10)[['ms10','speed']],on='ms10',how='left')).drop('ms10',axis=1)
+    Data = (pd.merge(Data.assign(ms10=Data['timestamp']//10),orangeData_CarSpeed,on='ms10',how='left')).drop('ms10',axis=1)
     Data = (Data.groupby((Data['timestamp']-1500)//3000).agg({'timestamp':np.min, 'Left LDW_Mobileye':np.sum,'Right LDW_Mobileye':np.sum,'Left LDW_Jimu':np.sum,'Right LDW_Jimu':np.sum,'speed':np.min}))
     Data.insert(0,'时间',pd.to_datetime(Data['timestamp'].to_numpy()//1000,unit='s',utc=True).tz_convert('Asia/Shanghai'))
     LDW = np.array([[Data['Left LDW_Mobileye'][Data['Left LDW_Mobileye']>0].count(),0,0],
@@ -82,10 +102,9 @@ def analyseData(DataFolder,filename):
     Data.to_csv(os.path.join(DataFolder, h[0] + '_LDW_specific.csv'),encoding='utf_8_sig',index=False)
     LDW.to_csv(os.path.join(DataFolder, h[0] + '_LDW.csv'), encoding='utf_8_sig')
 
-    Data =   DataBackup
-    print(Data.dtypes)
+    Data  =   DataBackup
     Data = Data[(Data['TTC_Mobileye']>0) | (Data['TTC_Jimu']>0)].groupby((Data['timestamp']//3000)).agg({'timestamp':np.min, 'TTC_Mobileye':np.sum,'TTC_Jimu':np.sum,})
-    Data = (pd.merge(Data.assign(ms10=Data['timestamp']//10),orangeData_CarSpeed.assign(ms10=orangeData_CarSpeed['timestamp']//10)[['ms10','speed']],on='ms10',how='left')).drop('ms10',axis=1)
+    Data = (pd.merge(Data.assign(ms10=Data['timestamp']//10),orangeData_CarSpeed,on='ms10',how='left')).drop('ms10',axis=1)
     Data = (Data.groupby((Data['timestamp']-1500)//3000).agg({'timestamp':np.min, 'TTC_Mobileye':np.sum,'TTC_Jimu':np.sum,'speed':np.min}))
     Data.insert(0,'时间',pd.to_datetime(Data['timestamp'].to_numpy()//1000,unit='s',utc=True).tz_convert('Asia/Shanghai'))
     TTC = np.array([[Data['TTC_Mobileye'][Data['TTC_Mobileye']>0].count(),0,0],
