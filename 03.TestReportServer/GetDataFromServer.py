@@ -8,6 +8,10 @@ import pymongo
 import base64
 import time
 import pytz
+import json
+import datetime
+
+
 
 def jointliststr(c):
     return ' '.join(c)
@@ -524,3 +528,4 @@ def delectTTC_manul(json_data):
 
     data = mycol.find_one({"OrangeBinData":{"$regex":ID}})#{post_text: {$regex: "runoob"}}
     mycol.update_one({"OrangeBinData":{"$regex":ID}}, {'$unset': {"TTC_manul": 1,"TTC_manul_specific":1}})
+

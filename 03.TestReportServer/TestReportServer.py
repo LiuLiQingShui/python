@@ -8,9 +8,25 @@ import CanBinDataProcessV3
 import analyseData2
 import GetDataFromServer
 from flask import send_file,render_template,send_from_directory
-
 from flask_cors import CORS
+from flask_apscheduler import APScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+import backupDatabase
+
 app = Flask(__name__)
+
+scheduler = APScheduler()
+scheduler.init_app(app)
+interval = IntervalTrigger(
+        hours=6,  # 每天执行一次
+        start_date='2019-4-20 09:00:00',
+        end_date='2099-8-19 06:00:00',
+        timezone='Asia/Shanghai')
+scheduler.add_job(id='account_sync_job', func=backupDatabase.backupDatabase, trigger=interval)
+scheduler.start()
+
+
+
 CORS(app, supports_credentials=True)
 CORS(app, resources=r'/*')
 tasks = [
