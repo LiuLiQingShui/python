@@ -6,6 +6,10 @@ TestResult = pd.read_csv("TestCase.csv")
 alarm = pd.read_csv("alarm.csv")
 fps = pd.read_csv("fps.csv")
 
+print(TestResult.dtypes)
+print(alarm.dtypes)
+print(fps.dtypes)
+
 error = alarm[alarm['frameindex']<0]
 errorData = TestResult[TestResult['Videoname'].isin(error['Videoname'].tolist())]
 TestResult=TestResult[~TestResult['Videoname'].isin(error['Videoname'].tolist())]
@@ -18,9 +22,14 @@ for k in range(len(TestResult)):
     temp = alarm[(alarm['Videoname']==TestResult.iloc[k,0]) &(alarm['mode']==TestResult.iloc[k,1])&(alarm['frameindex']>=TestResult.iloc[k,2])&(alarm['frameindex']<=TestResult.iloc[k,3])]
     #print(temp)
     res = 'Fail'
-    if len(temp)==1:
-        if temp.iloc[0,3]==TestResult.iloc[k,4]:
+    if TestResult.iloc[k,4]>0:
+        if len(temp) == 1:
+            if temp.iloc[0, 3] == TestResult.iloc[k, 4]:
+                res = 'Pass'
+    elif TestResult.iloc[k,4]==0:
+        if len(temp) == 0:
             res = 'Pass'
+
     result.append(res)
     texttemp  = []
     for ttt in range(len(temp)):
