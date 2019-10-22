@@ -47,7 +47,6 @@ def CanBinDataProcess(DataFolder,filename):
     Data_prase = {}
     h = re.split('.bin|.dat', filename)
     for item in Protocal_ID:
-        print(item)
         oneData = Data[item]
         if len(oneData) > 0:
             Data_prase[item]=[]
@@ -70,11 +69,12 @@ def CanBinDataProcess(DataFolder,filename):
                         fmt[i] = 'uintle:' + fmtspilt[1]
             title = CanProtocal[item][0][::-1]
             timestamp = []
+            print(item,fmt)
             for i in range(len(oneData)):
                 ConstBitStreamdata = bitstring.ConstBitStream(oneData[i][1])
                 Data_prase[item].append(ConstBitStreamdata.unpack(fmt))
                 timestamp.append(oneData[i][0])
-            Data_prase[item] = (np.array(Data_prase[item]))*(protocol[:,5].flatten())+(protocol[:,2].flatten())
+            Data_prase[item] = (np.array(Data_prase[item]))*(protocol[:,5].flatten()[::-1])+(protocol[:,2].flatten()[::-1])
             df = pd.DataFrame(Data_prase[item],columns=title)
             dt_now = dt_base * 1000 + np.array(timestamp)
             #dt_now = dt_base * 1000 + timestamp
