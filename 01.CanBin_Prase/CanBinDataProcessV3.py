@@ -68,14 +68,16 @@ def CanBinDataProcess(DataFolder,filename):
                     if fmtspilt[0]=='uintbe':
                         fmt[i] = 'uintle:' + fmtspilt[1]
             title = CanProtocal[item][0][::-1]
+            selectname = CanProtocal[item][3]
             timestamp = []
-            print(item,fmt)
+            print(item)
             for i in range(len(oneData)):
                 ConstBitStreamdata = bitstring.ConstBitStream(oneData[i][1])
                 Data_prase[item].append(ConstBitStreamdata.unpack(fmt))
                 timestamp.append(oneData[i][0])
             Data_prase[item] = (np.array(Data_prase[item]))*(protocol[:,5].flatten()[::-1])+(protocol[:,2].flatten()[::-1])
             df = pd.DataFrame(Data_prase[item],columns=title)
+            df= df[selectname]
             dt_now = dt_base * 1000 + np.array(timestamp)
             #dt_now = dt_base * 1000 + timestamp
             df.insert(0, 'timestamp', dt_now)
