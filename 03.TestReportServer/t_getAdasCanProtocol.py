@@ -17,7 +17,7 @@ def getAdasCanProtocol(filename):
                 if len(dict)>3:
                     Protocal = (np.array(dict[2:(len(dict))]))[:,:8]
                     selectname = Protocal[:,:1]
-                    selectname=selectname.reshape(len(selectname))
+                    selectname=list(selectname.reshape(len(selectname)))
                     #print(Protocal, selectname)
 
                     fullname=[]
@@ -49,7 +49,7 @@ def getAdasCanProtocol(filename):
                                 #print(Protocal[i + 1, 1:7])
                                 fmt.append(Protocal[i + 1, 7] + ":" + Protocal[i + 1, 2])
                     data = np.array(data).astype(float)
-                    Protocal = [fullname,data,fmt]
+                    Protocal = [fullname,data,fmt,selectname]
                     CanProtocal[dict[0][1]]=Protocal
                     if dict[0][1]=='0x7b0':
                         temp = ['0x7b1','0x7b2','0x7b3','0x7b4','0x7b5','0x7b6','0x7b7','0x7b8','0x7b9','0x7ba','0x7bb','0x7bc','0x7bd','0x7be','0x7bf']
