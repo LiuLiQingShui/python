@@ -8,6 +8,8 @@ import draw
 DataFolder = os.path.join(os.getcwd(),'Data')
 #DataFolder= r'F:/100.client/01.processInfo_20190820/Data'
 
+
+
 if not os.path.exists(DataFolder):
     os.makedirs(DataFolder)
 

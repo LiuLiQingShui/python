@@ -105,6 +105,8 @@ def prasePacket(TypeHeader,packet):
 
 #解析info文件内的数据
 def praseInfo(DataFolder,filename,h):
+
+    timestart = time.time()
     UsbData_Path = os.path.join(DataFolder, filename)
     #print(UsbData_Path)
     print("Start Processing : ",UsbData_Path)
@@ -207,6 +209,8 @@ def praseInfo(DataFolder,filename,h):
                 fw.write(str(result[j][1]))
                 fw.write("  ")
             fw.write("\n")
+    timeend = time.time()
+    print("Using Time:",timeend-timestart)
     print("Process finished !")
     print("\n")
 
