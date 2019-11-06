@@ -1,0 +1,4 @@
+TypeHeader,Variable Names,format
+lane_t,lane_id lane_exit lane_type lane_quality top_x top_y bottom_x bottom_y,U8 U8 U8 U8 U16 U16 U16 U16 
+TTrackObject,objId label used3d center warn_flag prob v_dist h_dist v_speed h_speed width height warn_time box.x box.y box.width box.height rear.x rear.y rear.width rear.height side1.x side1.y side2.x side2.y side3.x side3.y side4.x side4.y,S32 S32 S32 S32 S32 float float float float float float float float S32 S32 S32 S32 S32 S32 S32 S32 S32 S32 S32 S32 S32 S32 S32 S32
+radar_obj_t,obj_id radar_type obj_type obj_position obj_x obj_y obj_rcs obj_angle ttc_time hmw_time obj_y_vrel,U8 U8 U8 U8 S16 U16 U16 S16 U8 U8 S16

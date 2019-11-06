@@ -2,27 +2,31 @@ import pandas as pd
 import numpy as np
 from io import StringIO,BytesIO
 import time
+import datetime
 
 
-tsdf = pd.DataFrame(np.random.randn(1000, 3),
-                  index=pd.date_range('1/1/2000', periods=1000),
-                   columns=['A', 'B', 'C'])
-print(tsdf)
+import pytz
 
 
-tsdf['D']=[1]*250+[2]*250+[3]*250+[4]*250
-#tsdf.iloc[::2] = np.nan
-print(tsdf)
-grouped = tsdf.groupby(tsdf["D"]%4)
-print(grouped.describe())
-print(grouped.sum())
+df2 = pd.DataFrame({'a': ['one', 'one', 'two', 'two', 'two', 'three', 'four'],
+                   'b': ['x', 'y', 'x', 'y', 'x', 'x', 'x'],
+                  'c': np.random.randn(7)})
 
-print(grouped.agg({'C': np.sum,
-            }))
-print(grouped.agg({ 'D': np.min}))
+print(df2)
+print(df2.duplicated('a'))
 
-print(grouped.agg(
-     min_height=('C', np.sum),
-    max_height=('D', 'max'),
- ))
+xxx = df2['c']
+print(xxx)
 
+xxx = xxx.where(~df2.duplicated('a',keep='first'), np.nan)
+print(xxx)
+
+
+sss = pd.Series(np.array([1,1,2,2,2,3,3,4,4,5,6,7,8,8,9,9,10,1,1,2,2,3,3]))
+print(sss)
+roll = sss.rolling(window=2).mean()
+print(roll)
+print(sss==roll)
+print(sss[~(sss==roll)])
+
+print('20191025171049.info'.split('.'))
