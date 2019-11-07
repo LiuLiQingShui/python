@@ -1,0 +1,6 @@
+Jimu object id,Jimu start frame,Jimu end frame,Radar object id,Radar start frame,Radar end frame,static test,static start frame,static end frame,stats range,distance
+0,30364,33054,60,30364,31143,A,30376,30466,min,15
+,,,49,31215,32447,B,30668,31000,max,180
+,,,44,32488,33054,C,31203,31576,,
+,,,,,,D,31900,32200,,
+,,,,,,E,32600,32900,,

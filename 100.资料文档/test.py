@@ -8,25 +8,29 @@ import datetime
 import pytz
 
 
-df2 = pd.DataFrame({'a': ['one', 'one', 'two', 'two', 'two', 'three', 'four'],
-                   'b': ['x', 'y', 'x', 'y', 'x', 'x', 'x'],
-                  'c': np.random.randn(7)})
+import matplotlib.pyplot as plt
 
-print(df2)
-print(df2.duplicated('a'))
-
-xxx = df2['c']
-print(xxx)
-
-xxx = xxx.where(~df2.duplicated('a',keep='first'), np.nan)
-print(xxx)
+from pandas.api.types import CategoricalDtype
 
 
-sss = pd.Series(np.array([1,1,2,2,2,3,3,4,4,5,6,7,8,8,9,9,10,1,1,2,2,3,3]))
-print(sss)
-roll = sss.rolling(window=2).mean()
-print(roll)
-print(sss==roll)
-print(sss[~(sss==roll)])
 
-print('20191025171049.info'.split('.'))
+s = pd.qcut(range(5), 4)
+print(type(s))
+print(s)
+print(s[1])
+s = pd.qcut(range(5), 3, labels=["good", "medium", "bad"])
+print(s)
+print(s[1])
+s = pd.qcut(range(5), 4, labels=False)
+print(s)
+print(s[1])
+
+
+
+
+
+s = pd.Series([1,2,3,4,5,6,7,8,9,10])
+bins = pd.IntervalIndex.from_tuples([(1,2),(3,4),(8,9)], closed='both')
+StaticStageCategories = pd.cut(s, bins,
+                               labels=['stage 1', 'stage 2', 'stage 3','stage 1', 'stage 2', 'stage 3','stage 1', 'stage 2', 'stage 3','stage 1'])
+print(StaticStageCategories)

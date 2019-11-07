@@ -64,7 +64,6 @@ def getProtocol():
 def praseInfo(DataFolder,filename):
     print('--------------------------------------------------------------------------------------')
     print('Start paring',os.path.join(DataFolder,filename))
-    print('--------------------------------------------------------------------------------------')
     protocol = getProtocol()
     rawDatadict = {}
     for key in protocol.keys():
@@ -142,7 +141,6 @@ def praseInfo(DataFolder,filename):
             df.to_csv(os.path.join(DataFolder,fileID+"_"+key+".csv"), index=False, encoding='utf_8_sig')
 
     timeend = time.time()
-    print('--------------------------------------------------------------------------------------')
     print('paring finished')
     print("Using time:", timeend - timestart)
-    print('--------------------------------------------------------------------------------------')
+

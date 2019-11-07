@@ -452,6 +452,9 @@ df = pd.DataFrame({'A': list('abca'), 'B': list('bccd')}, dtype="category")
 df_cat = df.astype('category')
 
 from pandas.api.types import CategoricalDtype
+bins = pd.IntervalIndex.from_tuples([(0, 1), (2, 3), (4, 5)])
+pd.cut([0, 0.5, 1.5, 2.5, 4.5], bins)
+
 s = pd.Series(["a", "b", "c", "a"])
 cat_type = CategoricalDtype(categories=["b", "c", "d"],ordered=True)
 s_cat = s.astype(cat_type)
