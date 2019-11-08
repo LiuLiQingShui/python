@@ -80,10 +80,10 @@ def allowed_file(filename):
 @app.route('/getsituiation',methods=['POST'])
 def getsituiation():
     data = request.get_data()
-    #print(data)
+    ##print(data)
     json_data = json.loads(data.decode("utf-8"))
-    #print(json_data)
-    print(json_data["situ"])
+    ##print(json_data)
+    #print(json_data["situ"])
     #situ = json_data["situ"]
     G.situ = json_data["situ"]
     G.version = json_data["version"]
@@ -95,7 +95,7 @@ def missingwrong():
     data = request.get_data()
     json_data = json.loads(data.decode("utf-8"))
     saveMongoDBdict = json_data
-    print(saveMongoDBdict)
+    #print(saveMongoDBdict)
     myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
     mydb = myclient["jimu_TestResult"]
     mycol = mydb["MissingWrong"]
@@ -107,7 +107,7 @@ def missingwrong():
 def updateSituation():
     data = request.get_data()
     json_data = json.loads(data.decode("utf-8"))
-    print(json_data)
+    #print(json_data)
     ID = json_data['ID']
     Situation = json_data['Situation']
     myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
@@ -132,7 +132,7 @@ def updateSituation():
 def updateVersion():
     data = request.get_data()
     json_data = json.loads(data.decode("utf-8"))
-    print(json_data)
+    #print(json_data)
     ID = json_data['ID']
     version = json_data['version']
     myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
@@ -156,7 +156,7 @@ def updateVersion():
 def uploadTTC():
     data = request.get_data()
     json_data = json.loads(data.decode("utf-8"))
-    print(json_data)
+    #print(json_data)
     GetDataFromServer.uploadTTC(json_data)
     return jsonify({"status": True})
 
@@ -164,17 +164,17 @@ def uploadTTC():
 def delectTTC_manul():
     data = request.get_data()
     json_data = json.loads(data.decode("utf-8"))
-    print(json_data)
+    #print(json_data)
     GetDataFromServer.delectTTC_manul(json_data)
     return jsonify({"status": True})
 
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
-    # print("AAAAAA")
-    # print(request.method)
+    # #print("AAAAAA")
+    # #print(request.method)
     # if request.method == 'OPTIONS':
-    #     print("DDDDDDDDDDD")
+    #     #print("DDDDDDDDDDD")
     #     res = Flask.make_response()
     #     res.headers['Access-Control-Allow-Origin'] = '*'
     #     res.headers['Access-Control-Allow-Methods'] = 'POST，GET,OPTIONS'
@@ -185,7 +185,7 @@ def upload_file():
             file = request.files[key]
             if file and allowed_file(file.filename):
                 filename = utils.secure_filename(file.filename)
-                print(filename)
+                #print(filename)
                 savefilepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(savefilepath)
                 thread1 = myThread(THREAD_COUNT, app.config['UPLOAD_FOLDER'], filename,G.situ,G.version)
@@ -262,7 +262,7 @@ def getOneItem():
     json_data = json.loads(data.decode("utf-8"))
     if json_data:
         filename = json_data['filename']
-        #print({"Data": GetDataFromServer.getOneItem(filename)})
+        ##print({"Data": GetDataFromServer.getOneItem(filename)})
         response = jsonify({"Data": GetDataFromServer.getOneItem(str(filename))})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -275,7 +275,7 @@ def getOneItemmissingwrong():
     json_data = json.loads(data.decode("utf-8"))
     if json_data:
         filename = json_data['ID']
-        #print({"Data": GetDataFromServer.getOneItemmissingwrong(filename)})
+        ##print({"Data": GetDataFromServer.getOneItemmissingwrong(filename)})
         response = jsonify({"Data": GetDataFromServer.getOneItemmissingwrong(filename)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -288,7 +288,7 @@ def deleteoneitem():
     json_data = json.loads(data.decode("utf-8"))
     if json_data:
         filename = json_data['filename']
-        #print({"Data": GetDataFromServer.getOneItem(filename)})
+        ##print({"Data": GetDataFromServer.getOneItem(filename)})
         response = jsonify({"Data": GetDataFromServer.deleteoneitem(filename)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -301,7 +301,7 @@ def deleteoneitemmissingwrong():
     json_data = json.loads(data.decode("utf-8"))
     if json_data:
         filename = json_data['ID']
-        #print({"Data": GetDataFromServer.getOneItem(filename)})
+        ##print({"Data": GetDataFromServer.getOneItem(filename)})
         response = jsonify({"Data": GetDataFromServer.deleteoneitemmissingwrong(filename)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -316,8 +316,8 @@ def getDataByTime():
         starttime = json_data['starttime']
         endtime = json_data['endtime']
         Situation = json_data['Situation']
-        print(Situation)
-        #print({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime),Situation)})
+        #print(Situation)
+        ##print({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime),Situation)})
         response = jsonify({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime),Situation)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -332,8 +332,8 @@ def getDataByTime_TTC_manul():
         starttime = json_data['starttime']
         endtime = json_data['endtime']
         Situation = json_data['Situation']
-        print(Situation)
-        #print({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime),Situation)})
+        #print(Situation)
+        ##print({"Data": GetDataFromServer.getDataByTime(float(starttime),float(endtime),Situation)})
         response = jsonify({"Data": GetDataFromServer.getDataByTime_TTC_manul(float(starttime),float(endtime),Situation)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -347,8 +347,8 @@ def getdatabyversion():
     if json_data:
         version = json_data['version']
         Situation = json_data['Situation']
-        print(Situation)
-        #print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
+        #print(Situation)
+        ##print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
         response = jsonify({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -361,9 +361,11 @@ def getdatabyversionAll():
     if json_data:
         #version = json_data['version']
         Situation = json_data['Situation']
-        print(Situation)
-        #print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
-        response = jsonify({"Data": GetDataFromServer.getdatabyversionAll(Situation)})
+        starttime = json_data['starttime']
+        endtime = json_data['endtime']
+        #print(Situation,starttime,endtime)
+        ##print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
+        response = jsonify({"Data": GetDataFromServer.getdatabyversionAll(Situation,starttime,endtime)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
 
@@ -375,9 +377,11 @@ def getdatabyversionAll_TTC_manual():
     if json_data:
         #version = json_data['version']
         Situation = json_data['Situation']
-        print(Situation)
-        #print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
-        response = jsonify({"Data": GetDataFromServer.getdatabyversionAll_TTC_manual(Situation)})
+        starttime = json_data['starttime']
+        endtime = json_data['endtime']
+        #print(Situation,starttime,endtime)
+        ##print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
+        response = jsonify({"Data": GetDataFromServer.getdatabyversionAll_TTC_manual(Situation,starttime,endtime)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
 
@@ -388,9 +392,11 @@ def getdatabyversionmissingwrongAll():
     if json_data:
         #version = json_data['version']
         Situation = json_data['Situation']
-        print(Situation)
-        #print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
-        response = jsonify({"Data": GetDataFromServer.getdatabyversionmissingwrongAll(Situation)})
+        starttime = json_data['starttime']
+        endtime = json_data['endtime']
+        #print(Situation,starttime,endtime)
+        ##print({"Data": GetDataFromServer.getdatabyversion(version,Situation)})
+        response = jsonify({"Data": GetDataFromServer.getdatabyversionmissingwrongAll(Situation,starttime,endtime)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
 
@@ -403,8 +409,8 @@ def getDataByTimemissingwrong():
         starttime = json_data['starttime']
         endtime = json_data['endtime']
         Situation = json_data['Situation']
-        print(Situation)
-        #print({"Data": GetDataFromServer.getDataByTimemissingwrong(float(starttime),float(endtime),Situation)})
+        #print(Situation)
+        ##print({"Data": GetDataFromServer.getDataByTimemissingwrong(float(starttime),float(endtime),Situation)})
         response = jsonify({"Data": GetDataFromServer.getDataByTimemissingwrong(float(starttime),float(endtime),Situation)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -416,8 +422,8 @@ def getdatabyversionmissingwrong():
     if json_data:
         version = json_data['version']
         Situation = json_data['Situation']
-        print(Situation)
-        #print({"Data": GetDataFromServer.getdatabyversionmissingwrong(version,Situation)})
+        #print(Situation)
+        ##print({"Data": GetDataFromServer.getdatabyversionmissingwrong(version,Situation)})
         response = jsonify({"Data": GetDataFromServer.getdatabyversionmissingwrong(version,Situation)})
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
@@ -428,7 +434,7 @@ def getdatabyversionmissingwrong():
 def index():
     data=request.get_json(force=True)
     if data:
-        print(data)
+        #print(data)
         return jsonify({"status": True})
     else:
         return jsonify({"status": False})
@@ -436,4 +442,4 @@ def index():
 
 if __name__ =='__main__':
     #app.run(debug=True)
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0',port=5000)

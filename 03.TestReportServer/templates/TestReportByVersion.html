@@ -18,40 +18,41 @@
 			var ipAddress = configure["address"];
 			
 			$(document).ready(function () {
-				//$('#selectpicker1').selectpicker('selectAll');
-				//getSummary_bin(0,100000000000000000);
-				//alert(1);
 				var situationoption = situationselectpicker['situation'];
 				$("#selectpicker1").empty();
 				$("#selectpicker1").append(situationoption);
-				getSummary_LDWTTC(140);
-				getSummary_missingwrong(140);
+				getSummary_LDWTTC(140,-1,-1);
+				getSummary_missingwrong(140,-1,-1);
 			});
 						
 			
 			$(function(){
 
 					$("#testAjax").click(function(){
-						//alert($('#selectpicker1').selectpicker('val'))
-						if ($('#selectpicker1').selectpicker('val')=='')
+						/*if ($('#selectpicker1').selectpicker('val')=='')
 						{
 							$('#selectpicker1').selectpicker('selectAll');
-						}
-						//$('#selectpicker1').selectpicker('selectAll');
-						var jsondata = $('#selectpicker1').selectpicker('val');
-						getSummary_LDWTTC(jsondata);
-						getSummary_missingwrong(jsondata);
+						}*/
+						var Situation = $('#selectpicker1').selectpicker('val');
+						
+						var options=$("#dataselect option:selected");
+						var strs=options.text().split(/[.~]/); //字符分割
+						var starttime = Date.UTC(Number(strs[0]),Number(strs[1])-1,Number(strs[2]),0,0,0);
+						var endtime = Date.UTC(Number(strs[3]),Number(strs[4])-1,Number(strs[5]),0,0,0);
+						
+						getSummary_LDWTTC(Situation,starttime,endtime);
+						getSummary_missingwrong(Situation,starttime,endtime);
 					});	
 				}); 
 			
-			var getSummary_LDWTTC = function(Situation){
+			var getSummary_LDWTTC = function(Situation,starttime,endtime){
 				
 				$.ajax({
 								url: ipAddress+"getdatabyversionAll",
 								type: "POST",
 								dataType: "json",
 								async: false, // 使用同步方式  
-								data:JSON.stringify({"Situation":Situation}),
+								data:JSON.stringify({"Situation":Situation,"starttime":starttime,"endtime":endtime}),
 								contentType: "application/json; charset=utf-8", 
 								success: function (data) {
 									var data = JSON.parse(JSON.stringify(data));
@@ -65,8 +66,6 @@
 									var _HTML="";
 									 _HTML = _HTML+'<p> 查询失败 </p>';
 									 $("#LDW").append(_HTML);
-									//alert("查询失败");//请求失败时
-									//failed_getEntry();
 								}				  
 						});	
 						
@@ -75,7 +74,7 @@
 								type: "POST",
 								dataType: "json",
 								async: false, // 使用同步方式  
-								data:JSON.stringify({"Situation":Situation}),
+								data:JSON.stringify({"Situation":Situation,"starttime":starttime,"endtime":endtime}),
 								contentType: "application/json; charset=utf-8", 
 								success: function (data) {
 									var data = JSON.parse(JSON.stringify(data));
@@ -89,8 +88,6 @@
 									var _HTML="";
 									 _HTML = _HTML+'<p> 查询失败 </p>';
 									 $("#TTC_manual").append(_HTML);
-									//alert("查询失败");//请求失败时
-									//failed_getEntry();
 								}				  
 						});	
 				
@@ -113,6 +110,11 @@
 					if(jQuery.isEmptyObject(data.Data)){
 						  _HTML = _HTML+'<p> 无版本数据 </p>';
 						_HTML_TTC = _HTML_TTC+'<p> 无版本数据 </p>';
+						$("#highcharts_trendbyversion_LDW").empty();
+						$("#highcharts_trendbyversion_TTC").empty();
+						$("#highcharts_trendbyversion_LDW").append("查询条件下，无数据。请重新选择条件");
+						$("#highcharts_trendbyversion_TTC").append("查询条件下，无数据。请重新选择条件");
+						
 					}  
 					else
 					{									
@@ -138,18 +140,6 @@
 									_HTML=_HTML+"<tr><td>"+versiondata[0]+"</td><td>"+versiondata[1][5][0]+"</td><td>"+versiondata[1][5][1]+"</td><td>"+versiondata[1][5][2]+"</td><td>"+((versiondata[1][5][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata[1][5][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata[1][5][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
 									_HTML_TTC=_HTML_TTC+"<tr><td>"+versiondata[0]+"</td><td>"+versiondata[2][1][0]+"</td><td>"+versiondata[2][1][1]+"</td><td>"+versiondata[2][1][2]+"</td><td>"+((versiondata[2][1][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata[2][1][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata[2][1][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
 									xAxis_value.push(versiondata[0]);
-									//var LDW_right_value=[];
-									//var LDW_missing_value=[];
-									//var LDW_wrong_value=[];
-									//var TTC_right_value=[];
-									//var TTC_missing_value=[];
-									//var TTC_wrong_value=[];
-									// LDW_right_value.push(((versiondata.Data.LDW[5][3] * 10000)/100).toFixed(2));
-									// LDW_missing_value.push(((versiondata.Data.LDW[5][4] * 10000)/100).toFixed(2));
-									// LDW_wrong_value.push(((versiondata.Data.LDW[5][5] * 10000)/100).toFixed(2));
-									// TTC_right_value.push(((versiondata.Data.TTC[1][3] * 10000)/100).toFixed(2));
-									// TTC_missing_value.push(((versiondata.Data.TTC[1][4] * 10000)/100).toFixed(2));
-									// TTC_wrong_value.push(((versiondata.Data.TTC[1][5] * 10000)/100).toFixed(2));
 									LDW_right_value.push(((versiondata[1][5][3] * 10000)/100));
 									LDW_missing_value.push(((versiondata[1][5][4] * 10000)/100));
 									LDW_wrong_value.push(((versiondata[1][5][5] * 10000)/100));
@@ -168,8 +158,7 @@
 					
 					if (xAxis_value.length>0)
 					{
-						
-					//alert(LDW_right_value);
+
 					Highcharts.chart('highcharts_trendbyversion_LDW', {
 					
 					    title: {
@@ -197,17 +186,6 @@
 					        align: 'right',
 					        verticalAlign: 'middle'
 					    },
-					
-						//var Car_wrong_value=[];
-						//var Car_missing_value=[];
-						//var persion_wrong_value=[];
-						//var persion_missing_value=[];
-						//var LDW_right_value=[];
-						//var LDW_missing_value=[];
-						//var LDW_wrong_value=[];
-						//var TTC_right_value=[];
-						//var TTC_missing_value=[];
-						//var TTC_wrong_value=[];
 						
 					    series: [{
 					        name: 'LDW正报率',
@@ -264,17 +242,6 @@
 					        align: 'right',
 					        verticalAlign: 'middle'
 					    },
-					
-						//var Car_wrong_value=[];
-						//var Car_missing_value=[];
-						//var persion_wrong_value=[];
-						//var persion_missing_value=[];
-						//var LDW_right_value=[];
-						//var LDW_missing_value=[];
-						//var LDW_wrong_value=[];
-						//var TTC_right_value=[];
-						//var TTC_missing_value=[];
-						//var TTC_wrong_value=[];
 						
 					    series: [{
 					        name: 'TTC正报率',
@@ -316,7 +283,6 @@
 			
 			
 			var getSummary_LDWTTC_success_TTC_manual = function(data){
-					//$("#LDW").empty();
 					$("#TTC_manual").empty();
 					var _HTML="";
 					var _HTML_TTC="";
@@ -326,12 +292,13 @@
 					var LDW_wrong_value=[];
 					var TTC_right_value=[];
 					var TTC_missing_value=[];
-					var TTC_wrong_value=[];
-					
+					var TTC_wrong_value=[];					
 					
 					if(jQuery.isEmptyObject(data.Data)){
 						  _HTML = _HTML+'<p> 无版本数据 </p>';
 						_HTML_TTC = _HTML_TTC+'<p> 无版本数据 </p>';
+						$("#highcharts_trendbyversion_TTC_manual").empty();
+						$("#highcharts_trendbyversion_TTC_manual").append("查询条件下，无数据。请重新选择条件");
 					}  
 					else
 					{									
@@ -345,9 +312,7 @@
 						var versiondata = 1;
 						
 						for (var i=0;i<data.Data.data.length;i++)
-						{			
-							
-							
+						{		
 							versiondata = data.Data.data[i];
 							if(jQuery.isEmptyObject(versiondata)){
 								
@@ -357,18 +322,6 @@
 									_HTML=_HTML+"<tr><td>"+versiondata[0]+"</td><td>"+versiondata[1][5][0]+"</td><td>"+versiondata[1][5][1]+"</td><td>"+versiondata[1][5][2]+"</td><td>"+((versiondata[1][5][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata[1][5][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata[1][5][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
 									_HTML_TTC=_HTML_TTC+"<tr><td>"+versiondata[0]+"</td><td>"+versiondata[2][1][0]+"</td><td>"+versiondata[2][1][1]+"</td><td>"+versiondata[2][1][2]+"</td><td>"+((versiondata[2][1][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata[2][1][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata[2][1][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
 									xAxis_value.push(versiondata[0]);
-									//var LDW_right_value=[];
-									//var LDW_missing_value=[];
-									//var LDW_wrong_value=[];
-									//var TTC_right_value=[];
-									//var TTC_missing_value=[];
-									//var TTC_wrong_value=[];
-									// LDW_right_value.push(((versiondata.Data.LDW[5][3] * 10000)/100).toFixed(2));
-									// LDW_missing_value.push(((versiondata.Data.LDW[5][4] * 10000)/100).toFixed(2));
-									// LDW_wrong_value.push(((versiondata.Data.LDW[5][5] * 10000)/100).toFixed(2));
-									// TTC_right_value.push(((versiondata.Data.TTC[1][3] * 10000)/100).toFixed(2));
-									// TTC_missing_value.push(((versiondata.Data.TTC[1][4] * 10000)/100).toFixed(2));
-									// TTC_wrong_value.push(((versiondata.Data.TTC[1][5] * 10000)/100).toFixed(2));
 									LDW_right_value.push(((versiondata[1][5][3] * 10000)/100));
 									LDW_missing_value.push(((versiondata[1][5][4] * 10000)/100));
 									LDW_wrong_value.push(((versiondata[1][5][5] * 10000)/100));
@@ -416,30 +369,16 @@
 					        align: 'right',
 					        verticalAlign: 'middle'
 					    },
-					
-						//var Car_wrong_value=[];
-						//var Car_missing_value=[];
-						//var persion_wrong_value=[];
-						//var persion_missing_value=[];
-						//var LDW_right_value=[];
-						//var LDW_missing_value=[];
-						//var LDW_wrong_value=[];
-						//var TTC_right_value=[];
-						//var TTC_missing_value=[];
-						//var TTC_wrong_value=[];
-						
+
 					    series: [{
 					        name: 'TTC正报率',
 					        data: TTC_right_value,
-							//data: [1,2,3,4]
 					    }, {
 					        name: 'TTC漏报率',
 					        data: TTC_missing_value,
-							//data: [1,2,3,4]
 					    }, {
 					        name: 'TTC误报率',
 					        data: TTC_wrong_value,
-							//data: [1,2,3,4]
 					    }],
 					
 					    responsive: {
@@ -457,30 +396,25 @@
 					        }]
 					    }
 					
-					});
-					
+					});					
 					}
-					//$("#LDW").append(_HTML);
 					$("#TTC_manual").append(_HTML_TTC);
 					
 				}
 			
 			
 			
-			var getSummary_missingwrong = function(Situation){
+			var getSummary_missingwrong = function(Situation,starttime,endtime){
 				$.ajax({
 								url: ipAddress+"getdatabyversionmissingwrongAll",
 								type: "POST",
 								dataType: "json",
 								async: false, // 使用同步方式  
-								data:JSON.stringify({"Situation":Situation}),
+								data:JSON.stringify({"Situation":Situation,"starttime":starttime,"endtime":endtime}),
 								contentType: "application/json; charset=utf-8", 
 								success: function (data) {
 									var data = JSON.parse(JSON.stringify(data));
 									getSummary_missingwrong_success(data);
-									//version = data.version.Data;
-									//alert("getSummary_missingwrong success");
-								//success_getEntry(JSON.stringify(data));
 								},									
 								complete:function(){	
 									//alert("ccc");//请求结束时
@@ -490,18 +424,13 @@
 									var _HTML="";
 									 _HTML = _HTML+'<p> 查询失败 </p>';
 									 $("#MissingWrong").append(_HTML);
-									//alert("查询失败");//请求失败时
-									//failed_getEntry();
-									//alert("getSummary_missingwrong error");
 								}				  
 						});	
 				}
 				
 			var getSummary_missingwrong_success = function(data){
 					$("#MissingWrong").empty();
-					//$("#TTC").empty();
 					var _HTML="";
-					//var _HTML_TTC="";
 					var xAxis_value=[];
 					var Car_wrong_value=[];
 					var Car_missing_value=[];
@@ -514,11 +443,17 @@
 					
 					if(jQuery.isEmptyObject(data.Data)){
 						  _HTML = _HTML+'<p> 无版本数据 </p>';
-						//_HTML_TTC = _HTML_TTC+'<p> 无版本信息 </p>';
+						  $("#highcharts_trendbyversion_CarWrong").empty();
+						  $("#highcharts_trendbyversion_CarMissing").empty();
+						  $("#highcharts_trendbyversion_PersonWrong").empty();
+						  $("#highcharts_trendbyversion_PersonMissing").empty();
+						  $("#highcharts_trendbyversion_CarWrong").append("查询条件下，无数据。请重新选择条件");
+						  $("#highcharts_trendbyversion_CarMissing").append("查询条件下，无数据。请重新选择条件");
+						  $("#highcharts_trendbyversion_PersonWrong").append("查询条件下，无数据。请重新选择条件");
+						  $("#highcharts_trendbyversion_PersonMissing").append("查询条件下，无数据。请重新选择条件");
 					}  
 					else
 					{									
-						//<table class="table table-bordered" >\
 						_HTML= _HTML+'<div >\
 										<table class="table table-bordered">\
 											<thead>\
@@ -542,21 +477,16 @@
 												</tr>\
 											</thead>\
 											<tbody>';
-
 						var versiondata = 1;
 						
 						for (var i=0;i<data.Data.data.length;i++)
 						{			
-							
-							
 							versiondata = data.Data.data[i];
 							if(jQuery.isEmptyObject(versiondata)){
 								
 							} 
 							else
-							{
-									//_HTML=_HTML+"<tr><td>"+versiondata[0][0]+"
-												
+							{		
 									_HTML=_HTML+	'<tr>\
 														<td>'+versiondata[0]+'</td>\
 														<td>'+versiondata[1]+'</td>\
@@ -569,7 +499,6 @@
 														<td>'+((versiondata[9]==-1)?'未统计':(versiondata[9]+' / '+versiondata[8]+' / '+(versiondata[9]/versiondata[8] * 100).toFixed(1)))+'</td>\
 														<td>'+((versiondata[17]==-1)?'未统计':(versiondata[17]+' / '+versiondata[16]+' / '+(versiondata[17]/versiondata[16] * 100).toFixed(1)))+'</td>\
 													</tr>';
-									//_HTML_TTC=_HTML_TTC+"<tr><td>"+version[i]+"</td><td>"+versiondata.Data.TTC[1][0]+"</td><td>"+versiondata.Data.TTC[1][1]+"</td><td>"+versiondata.Data.TTC[1][2]+"</td><td>"+((versiondata.Data.TTC[1][3] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.TTC[1][4] * 10000)/100).toFixed(2) + "%"+"</td><td>"+((versiondata.Data.TTC[1][5] * 10000)/100).toFixed(2) + "%"+"</td></tr>";
 									xAxis_value.push(versiondata[0]);
 
 									Car_wrong_value.push((versiondata[3]==-1)?null:(versiondata[3]/versiondata[2] * 100));
@@ -579,29 +508,12 @@
 									persion_wrong_value.push((versiondata[7]==-1)?null:(versiondata[7]/versiondata[6] * 100));
 									mobileye_persion_wrong_value.push((versiondata[15]==-1)?null:(versiondata[15]/versiondata[14] * 100))
 									persion_missing_value.push((versiondata[9]==-1)?null:(versiondata[9]/versiondata[8] * 100));
-									mobileye_persion_missing_value.push((versiondata[17]==-1)?null:(versiondata[17]/versiondata[16] * 100))
-
-									//alert(Car_wrong_value)
-									
-									//var Car_wrong_value=[];
-									//var Car_missing_value=[];
-									//var persion_wrong_value=[];
-									//var persion_missing_value=[];
-									
+									mobileye_persion_missing_value.push((versiondata[17]==-1)?null:(versiondata[17]/versiondata[16] * 100))	
 							}
 						}
 						_HTML= _HTML+'</tbody>\
-											</div>';
-						//_HTML= _HTML+'\</table>\
-										//</div>';	
-											
-						//_HTML_TTC= _HTML_TTC+'</tbody>';
-						//_HTML_TTC= _HTML_TTC+'</div>';	
+											</div>';	
 					}
-					//xAxis_value=['a','b','c','a','b','c','a','b','c','a','b'];
-					//Car_wrong_value=[1,2,1,1,2,1,1,2,1,1,2];
-					//alert(xAxis_value.length)
-					//alert(Car_wrong_value)
 					if (xAxis_value.length>0)
 					{
 					Highcharts.chart('highcharts_trendbyversion_CarWrong', {
@@ -641,15 +553,6 @@
 					       data: mobileye_Car_wrong_value
 					    },
 						],
-						
-						// var Car_wrong_value=[];
-						// var Car_missing_value=[];
-						// var persion_wrong_value=[];
-						// var persion_missing_value=[];
-						// var mobileye_Car_wrong_value=[];
-						// var mobileye_Car_missing_value=[];
-						// var mobileye_persion_wrong_value=[];
-						// var mobileye_persion_missing_value=[];
 					
 					    responsive: {
 					        rules: [{
@@ -706,16 +609,6 @@
 					    },
 						],
 					
-					
-					// var Car_wrong_value=[];
-					// var Car_missing_value=[];
-					// var persion_wrong_value=[];
-					// var persion_missing_value=[];
-					// var mobileye_Car_wrong_value=[];
-					// var mobileye_Car_missing_value=[];
-					// var mobileye_persion_wrong_value=[];
-					// var mobileye_persion_missing_value=[];
-					
 					    responsive: {
 					        rules: [{
 					            condition: {
@@ -771,15 +664,6 @@
 					       data: mobileye_persion_wrong_value
 					    },
 						],
-						
-						// var Car_wrong_value=[];
-						// var Car_missing_value=[];
-						// var persion_wrong_value=[];
-						// var persion_missing_value=[];
-						// var mobileye_Car_wrong_value=[];
-						// var mobileye_Car_missing_value=[];
-						// var mobileye_persion_wrong_value=[];
-						// var mobileye_persion_missing_value=[];
 					
 					    responsive: {
 					        rules: [{
@@ -839,16 +723,6 @@
 					    },
 						],
 					
-					
-					// var Car_wrong_value=[];
-					// var Car_missing_value=[];
-					// var persion_wrong_value=[];
-					// var persion_missing_value=[];
-					// var mobileye_Car_wrong_value=[];
-					// var mobileye_Car_missing_value=[];
-					// var mobileye_persion_wrong_value=[];
-					// var mobileye_persion_missing_value=[];
-					
 					    responsive: {
 					        rules: [{
 					            condition: {
@@ -862,28 +736,15 @@
 					                }
 					            }
 					        }]
-					    }
-					
-					});
-					
-					
-					
+					    }					
+					});						
 					}
-					
-					
-					$("#MissingWrong").append(_HTML);
-					//$("#TTC").append(_HTML_TTC);
-					
+					$("#MissingWrong").append(_HTML);					
 				}
-				
-				
-
-
 		</script>
 	</head>
 	
 	<body >
-
 		<ul class="nav nav-tabs" id='headtable'>
 		  <li  class="active" id="headtable1" ><a href="/reportbyversion">测试结果按版本统计</a></li>
 		  <li  id="headtable3" ><a href="/uploadbin" >上传测试数据</a></li>
@@ -921,6 +782,20 @@
 		             </optgroup>                          
 		        </select>
 		        </div>
+				
+				<div id='wrapper'>
+					  <form>
+					    <select id="dataselect" class='custom-date' name='dataselect'>
+					      <option value='7'>7 Days</option>
+					      <option value='30'>30 Days</option>
+					      <option selected='selected' value='90'>90 Days</option>
+					      <option value='180'>180 Days</option>
+					      <option value='365'>365 Days</option>
+					      <option value='custom'>Custom</option>
+					    </select>
+					  </form>
+				</div>
+				<script src="/static/js/index.js"></script>
 				<h1></h1>
 		        <button id="testAjax" type="button">查询</button>
 		    </div>

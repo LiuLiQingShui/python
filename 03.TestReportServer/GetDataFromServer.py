@@ -54,7 +54,7 @@ def getSummary():
     for item in data:
         if 'OrangeBinData' in item:
             Summarylist.append([item['OrangeBinData'],item['Time'],item['Timestamp']])
-    print(Summarylist)
+    ##print(Summarylist)
     if len(Summarylist)==0:
         return {}
     else:
@@ -70,7 +70,7 @@ def getsummarymissingwrong():
     for item in data:
         if 'ID' in item:
             Summarylist.append([item['ID'],item['Time'],item['Timestamp']])
-    print(Summarylist)
+    ##print(Summarylist)
     if len(Summarylist)==0:
         return {}
     else:
@@ -134,7 +134,7 @@ def getOneItem(filename):
         TTC_manul = np.nan_to_num(TTC_manul)
         data['TTC_manul'] = TTC_manul.tolist()
 
-    print(data)
+    ##print(data)
     return data
 
 
@@ -169,7 +169,7 @@ def getDataByTime(starttime,endtime,Situation):
         conditions = list(pd_Situation.groupby(pd_Situation['BigClass']).apply(lambda x: sumstr(x["Situation"])))
         for i in range(len(conditions)):
             df = df[df['Situation'].str.contains(conditions[i])]
-    # print(df)
+    # ##print(df)
 
     df = df.assign(Timestart=np.array(df['Timestamp'].tolist())[:, 0], Timeend=np.array(df['Timestamp'].tolist())[:, 1])
     df = df[(df['Timestart'] >= starttime) & (df['Timeend'] <= endtime)].assign(selectlaber='yes')
@@ -246,7 +246,7 @@ def getDataByTime_TTC_manul(starttime,endtime,Situation):
         conditions = list(pd_Situation.groupby(pd_Situation['BigClass']).apply(lambda x: sumstr(x["Situation"])))
         for i in range(len(conditions)):
             df = df[df['Situation'].str.contains(conditions[i])]
-    # print(df)
+    # ##print(df)
 
     df = df.assign(Timestart=np.array(df['Timestamp'].tolist())[:, 0], Timeend=np.array(df['Timestamp'].tolist())[:, 1])
     df = df[(df['Timestart'] >= starttime) & (df['Timeend'] <= endtime)].assign(selectlaber='yes')
@@ -255,7 +255,7 @@ def getDataByTime_TTC_manul(starttime,endtime,Situation):
    # LDW = df.groupby(df['selectlaber']).apply(lambda x: sumLDWTTC(x["LDW"]))
     TTC_manul = df.groupby(df['selectlaber']).apply(lambda x: sumLDWTTC(x["TTC_manul"]))
 
-    print(TTC_manul)
+    ##print(TTC_manul)
 
     #LDW = LDW.tolist()[0]
     TTC_manul = TTC_manul.tolist()[0]
@@ -289,7 +289,7 @@ def getDataByTime_TTC_manul(starttime,endtime,Situation):
 
 
 
-def getdatabyversionAll(Situation):
+def getdatabyversionAll(Situation,starttime,endtime):
     timestart = time.time()
     pd.set_option('display.max_columns', None)
     pd.set_option('display.max_row', None)
@@ -299,6 +299,8 @@ def getdatabyversionAll(Situation):
     mycol = mydb["LDW"]
 
     df = pd.DataFrame(list(mycol.find({"LDW": {'$exists':True}})))
+    if len(df)==0:
+        return {}
     df['Situation'] = pd.Series(list(map(jointliststr, (df['Situation']).tolist())))
 
     if Situation != 140:
@@ -307,11 +309,26 @@ def getdatabyversionAll(Situation):
         conditions = list(pd_Situation.groupby(pd_Situation['BigClass']).apply(lambda x: sumstr(x["Situation"])))
         for i in range(len(conditions)):
             df = df[df['Situation'].str.contains(conditions[i])]
-    #print(df)
-
+    ###print(df)
+    if len(df)==0:
+        return {}
+    if float(starttime) > 0 and float(starttime) < float(endtime):
+        ##print(df)
+        df = df.assign(Timestart=np.array(df['Timestamp'].tolist())[:, 0],
+                       Timeend=np.array(df['Timestamp'].tolist())[:, 1])
+        df = df[(df['Timestart'] >= float(starttime)) & (df['Timeend'] <= float(endtime))]
+    if len(df)==0:
+        return {}
 
     LDW = df.groupby(df['version']).apply(lambda x:sumLDWTTC(x["LDW"]))
     TTC = df.groupby(df['version']).apply(lambda x:sumLDWTTC(x["TTC"]))
+
+    df['version'] = '总计'
+    LDW_ALL = df.groupby(df['version']).apply(lambda x: sumLDWTTC(x["LDW"]))
+    TTC_ALL = df.groupby(df['version']).apply(lambda x: sumLDWTTC(x["TTC"]))
+    LDW = pd.concat([LDW,LDW_ALL])
+    TTC = pd.concat(([TTC,TTC_ALL]))
+
     version = LDW.index
     LDW = (pd.DataFrame.to_numpy( LDW)).tolist()
     TTC = (pd.DataFrame.to_numpy( TTC)).tolist()
@@ -320,14 +337,14 @@ def getdatabyversionAll(Situation):
     Data = []
     for i in range(len(version)):
         Data.append([version[i],LDW[i],TTC[i]])
-    #print(Data)
+    ###print(Data)
     timesend = time.time()
-    print(timesend - timestart)
+    ##print(timesend - timestart)
     return {'data': Data}
 
 
 
-def getdatabyversionAll_TTC_manual(Situation):
+def getdatabyversionAll_TTC_manual(Situation,starttime,endtime):
     timestart = time.time()
     pd.set_option('display.max_columns', None)
     pd.set_option('display.max_row', None)
@@ -349,11 +366,21 @@ def getdatabyversionAll_TTC_manual(Situation):
         conditions = list(pd_Situation.groupby(pd_Situation['BigClass']).apply(lambda x: sumstr(x["Situation"])))
         for i in range(len(conditions)):
             df = df[df['Situation'].str.contains(conditions[i])]
-    #print(df)
-
+    if len(df) == 0:
+        return {}
+    if float(starttime)>0 and float(starttime)<float(endtime):
+        df = df.assign(Timestart=np.array(df['Timestamp'].tolist())[:, 0],
+                       Timeend=np.array(df['Timestamp'].tolist())[:, 1])
+        df = df[(df['Timestart'] >= float(starttime)) & (df['Timeend'] <= float(endtime))]
+    if len(df)==0:
+        return {}
 
     #LDW = df.groupby(df['version']).apply(lambda x:sumLDWTTC(x["LDW"]))
     TTC_manul = df.groupby(df['version']).apply(lambda x:sumLDWTTC(x["TTC_manul"]))
+
+    df['version'] = '总计'
+    TTC_manul_ALL = df.groupby(df['version']).apply(lambda x: sumLDWTTC(x["TTC_manul"]))
+    TTC_manul = pd.concat([TTC_manul,TTC_manul_ALL])
     version = TTC_manul.index
     #LDW = (pd.DataFrame.to_numpy( LDW)).tolist()
     TTC_manul = (pd.DataFrame.to_numpy( TTC_manul)).tolist()
@@ -363,9 +390,9 @@ def getdatabyversionAll_TTC_manual(Situation):
     LDW=[[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
     for i in range(len(version)):
         Data.append([version[i],LDW,TTC_manul[i]])
-    #print(Data)
+    ###print(Data)
     timesend = time.time()
-    print(timesend - timestart)
+    ##print(timesend - timestart)
     return {'data': Data}
 
 
@@ -380,6 +407,8 @@ def getDataByTimemissingwrong(starttime,endtime,Situation):
     mycol = mydb["MissingWrong"]
 
     df = pd.DataFrame(list(mycol.find()))
+    if len(df)==0:
+        return {}
     df['Situation'] = pd.Series(list(map(jointliststr, (df['Situation']).tolist())))
 
     if Situation != 140:
@@ -388,7 +417,7 @@ def getDataByTimemissingwrong(starttime,endtime,Situation):
         conditions = list(pd_Situation.groupby(pd_Situation['BigClass']).apply(lambda x: sumstr(x["Situation"])))
         for i in range(len(conditions)):
             df = df[df['Situation'].str.contains(conditions[i])]
-    # print(df)
+    # ##print(df)
 
     df = df.assign(Timestart=np.array(df['Timestamp'].tolist())[:, 0], Timeend=np.array(df['Timestamp'].tolist())[:, 1])
     df = df[(df['Timestart'] >= starttime) & (df['Timeend'] <= endtime)].assign(selectlaber='yes')
@@ -402,7 +431,7 @@ def getDataByTimemissingwrong(starttime,endtime,Situation):
     Data = pd.DataFrame.to_numpy( df)[0]
 
     timesend = time.time()
-    print(timesend - timestart)
+    ##print(timesend - timestart)
 
     data = {'distance':Data[0],'Car_wrong':Data[1],'Car_missing':Data[2],'persion_wrong':Data[3],'persion_missing':Data[4]}
     return data
@@ -410,29 +439,42 @@ def getDataByTimemissingwrong(starttime,endtime,Situation):
 
 
 
-def getdatabyversionmissingwrongAll(Situation):
+def getdatabyversionmissingwrongAll(Situation,starttime,endtime):
     timestart = time.time()
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.max_row', None)
+    pd.set_option('expand_frame_repr', False)
     myclient = pymongo.MongoClient('mongodb://47.111.16.22:27017/')
     mydb = myclient["jimu_TestResult"]
     mycol = mydb["MissingWrong"]
 
     df = pd.DataFrame(list(mycol.find({"Car_wrong": {'$exists':True}})))
+    if len(df)==0:
+        return {}
     df['Situation'] = pd.Series(list(map(jointliststr, (df['Situation']).tolist())))
 
     if Situation != 140:
         pd_Situation = pd.DataFrame({"Situation": Situation})
         pd_Situation["BigClass"] = pd_Situation["Situation"].apply(splitstr)
         conditions = list(pd_Situation.groupby(pd_Situation['BigClass']).apply(lambda x: sumstr(x["Situation"])))
+        #print(conditions)
         for i in range(len(conditions)):
             df = df[ df['Situation'].str.contains(conditions[i])]
 
+    if len(df)==0:
+        return {}
+
+    if float(starttime) > 0 and float(starttime) < float(endtime):
+        df = df.assign(Timestart=np.array(df['Timestamp'].tolist())[:, 0],
+                       Timeend=np.array(df['Timestamp'].tolist())[:, 1])
+        df = df[(df['Timestart'] >= float(starttime)) & (df['Timeend'] <= float(endtime))]
+    if len(df)==0:
+        return {}
+
+    ##print(df)
     df_base = df[['version','distance']]
     df_base[['distance']] = df_base[['distance']].astype(float)
     df_base =  df_base.groupby(df_base['version']).agg({'version': np.min, 'distance': np.sum})
     df_base.index.name = None
-    #print(df_base)
+
 
     statlist=['Car_wrong', 'Car_missing', 'persion_wrong', 'persion_missing','mobileyeCar_wrong', 'mobileyeCar_missing', 'mobileyepersion_wrong', 'mobileyepersion_missing']
     #statlist=['Car_wrong']
@@ -446,22 +488,18 @@ def getdatabyversionmissingwrongAll(Situation):
         df_singleData = df_singleData.groupby(df_singleData['version']).agg({'version': np.min, 'distance': np.sum,item:np.sum})
         df_singleData.index.name = None
         df_singleData = df_singleData.rename({'distance': 'distance' + item}, axis='columns')
-        #print(df_singleData)
+        ###print(df_singleData)
         df_base = (pd.merge(df_base, df_singleData, on='version',how='left'))
+    df_all = df_base.sum()
+    df_all['version'] = '总计'
+    df_all = pd.DataFrame(df_all.to_numpy().reshape(1,len(df_all)),columns=df_base.columns)
+    df_base = pd.concat([df_base,df_all])
 
     df_base.fillna(-1, inplace=True)
 
-
-    # df[['distance', 'Car_wrong', 'Car_missing', 'persion_wrong', 'persion_missing']] = df[['distance', 'Car_wrong', 'Car_missing', 'persion_wrong', 'persion_missing']].astype(float)
-    # df = df.groupby(df['version']).agg( {'version': np.min, 'distance': np.sum, 'Car_wrong': np.sum, 'Car_missing': np.sum, 'persion_wrong': np.sum,  'persion_missing': np.sum})
-    #
-    # Data = (np.array(df)).tolist()
-    # print(Data)
     timesend = time.time()
 
     Data = df_base.to_numpy().tolist()
-    print(Data)
-    print(timesend - timestart)
     return {'data': Data}
 
 
@@ -486,7 +524,7 @@ def uploadTTC(json_data):
         TTC_ADAS = pd.DataFrame(data['jimu_TTC_specific'],columns=['Date','timestamp','TTC_Jimu'])
     else:
         TTC_ADAS = pd.DataFrame(data['TTC_specific'],columns=['Date', 'timestamp', 'TTC_Mobileye', 'TTC_Jimu', 'speed'])
-    print(TTC_manul)
+    ##print(TTC_manul)
 
     if  len(TTC_manul)==0 and len(TTC_ADAS)==0:
         myquery = {"OrangeBinData": ID_full}
