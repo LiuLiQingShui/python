@@ -129,8 +129,7 @@ total,right,missing,wrong = len(df_stat),len(df_stat[df_stat['result']=='right']
 df_stat = df_allCasesResult[df_allCasesResult['former test result']=='wrong']
 total,right,missing,wrong = len(df_stat),len(df_stat[df_stat['result']=='right']),len(df_stat[df_stat['result']=='missing']),len(df_stat[df_stat['result']=='wrong'])
 #result.append([total,right,missing,wrong,'%.3f%%'%(right/total*100) if total>0 else 0,'%.3f%%'%(missing/total*100 if total>0 else 0),'%.3f%%'%(wrong/total*100 if total>0 else 0)])
-#print(result)
-#result = pd.DataFrame(result,columns=['用例','用例数','测试结果-正确','测试结果-漏报','测试结果-误报','测试结果-正确百分比','测试结果-漏报百分比','测试结果-误报百分比'])
+
 print(result)
 result = pd.DataFrame(np.array(result).T,index=['用例数','正确','漏报','误报','正确百分比','漏报百分比','误报百分比'],columns=['历史路测结果','本轮算法测试结果'])
 print(result)
