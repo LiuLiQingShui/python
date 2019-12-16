@@ -4,4 +4,3 @@ LANE,state lane_num reserved,U8 U8 U16,lane_t,lane_num
 ADAS,fcw_flag pdw_flag tsr_flag limit_speed,U8 U8 U8 U8,,
 OBJS,obj_num,U32,TTrackObject,obj_num
 ROBJ,obj_num,U32,radar_obj_t,obj_num
-ICAN,speed steering_angle steering_speed yaw_rate brake reverse left_light right_light,S32 S32 S32 S32 S8 S8 S8 S8,,

@@ -61,7 +61,7 @@ def JimuVsRadar(DataFolder,filename):
     df_objs_Radar = pd.read_csv(os.path.join(DataFolder,fileID+'_ROBJ.csv'), encoding='utf_8_sig',
                                 usecols=['frame_index', 'obj_id', 'obj_x', 'obj_y']).astype(np.float)
     df_objs_Radar[['frame_index']] = df_objs_Radar[['frame_index']].fillna(method='pad')
-    df_objs_Radar[['obj_x', 'obj_y']] = df_objs_Radar[['obj_x', 'obj_y']] / 100
+    df_objs_Radar[['obj_x', 'obj_y']] = df_objs_Radar[['obj_x', 'obj_y']]
     df_ID_Radar = df_IDSelect[['Radar object id', 'Radar start frame', 'Radar end frame']].dropna()
     if len(df_ID_Radar)==0:
         print('Error:'+os.path.join(DataFolder,filename)+'_ID_Selected.csv的Radar ID内容填写错误或未填写，请检查')
@@ -90,9 +90,10 @@ def JimuVsRadar(DataFolder,filename):
         columns={'frame_index': 'frame index', 'v_dist': 'Jimu', 'obj_y': 'Radar'})
     df = Data_longtitudinalDistanceToFrameIndex[
         (Data_longtitudinalDistanceToFrameIndex['Radar'] >= DistanceRange[0]) & (
-                    Data_longtitudinalDistanceToFrameIndex['Radar'] <= DistanceRange[1])]
+                    Data_longtitudinalDistanceToFrameIndex['Radar'] <= DistanceRange[1])&(Data_longtitudinalDistanceToFrameIndex['Jimu'] > 0)]
     framestart = df.iloc[0]['frame index']
     frameend = df.iloc[-1]['frame index']
+    print(framestart,frameend)
     Data_longtitudinalDistanceToFrameIndex = Data_longtitudinalDistanceToFrameIndex[
         (Data_longtitudinalDistanceToFrameIndex['frame index'] >= framestart) & (
                     Data_longtitudinalDistanceToFrameIndex['frame index'] <= frameend)]

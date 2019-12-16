@@ -86,7 +86,7 @@ def praseInfo(DataFolder,filename):
             if TypeHeader in rawDatadict:
                 rawDatadict[TypeHeader].append([USBframeIndex, Data])
         index = index + 8 + DataLength
-
+    print(rawDatadict)
     outDatadict = {}
     outHeaderDict = {}
     for key in rawDatadict.keys():
@@ -98,6 +98,7 @@ def praseInfo(DataFolder,filename):
                 outHeaderDict[key] = [['USBframeIndex'], (protocol_item[0]).split(), []]
                 format = protocol_item[1]
                 for k in range(len(value)):
+                    print(key,k,value[k][0],format,value[k][1])
                     outDatadict[key].append([value[k][0]] + list(struct.unpack_from(format, value[k][1], 0)))
             elif len(protocol_item[2]) > 0:
                 header_parent = protocol_item[0]
@@ -116,6 +117,7 @@ def praseInfo(DataFolder,filename):
                         outDatadict[key].append([value[k][0]] + parent_data + sub_data)
                     elif sub_data_num > 0:
                         for k_sub in range(sub_data_num):
+                            print(key,value[k][0], k_sub,  format_sub,len(value[k][1]))
                             sub_data = list(struct.unpack_from(format_sub, value[k][1],
                                                                formatLength_parent + formatLength_sub * k_sub))
                             outDatadict[key].append([value[k][0]] + parent_data + sub_data)
