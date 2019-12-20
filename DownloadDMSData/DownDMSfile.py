@@ -5,11 +5,13 @@ import datetime
 import csv
 import os
 import json
+import pymysql
 
-with open('configure.ini') as f:
+
+with open('configure.ini',encoding='utf-8') as f:
    reader = csv.reader(f)
    content = list(reader)
-   #print(content)
+   print(content)
    alarmliststr = content[1][1:]
    alarmlist = []
    for item in alarmliststr:
@@ -28,21 +30,68 @@ with open('configure.ini') as f:
          break
    print("format:",format)
 
-   # timestart = (time.mktime(time.strptime(content[0][1], "%Y-%m-%d %H:%M:%S")))
-   # timestart = datetime.datetime.fromtimestamp(timestart)
-   # timeend = (time.mktime(time.strptime(content[0][2], "%Y-%m-%d %H:%M:%S")))
-   # timeend = datetime.datetime.fromtimestamp(timeend)
+   excludecompanystr = content[3][1:]
+   excludecompany = ()
+   for item in excludecompanystr:
+      try:
+         print(item)
+         if item!='':
+            print(item)
+            excludecompany = excludecompany+tuple([item])
+      except:
+         break
+   print('exclude company:',excludecompany)
    timestart= datetime.datetime.strptime(content[0][1], "%Y-%m-%d %H:%M:%S")
    timeend = datetime.datetime.strptime(content[0][2], "%Y-%m-%d %H:%M:%S")
    print(timestart,timeend)
+
+   exclude_DEVICE_ID=[]
+   db = pymysql.connect('rm-bp1jzf2obq01ow7k9lo.mysql.rds.aliyuncs.com', 'jimu_read', 'jimu_db@Read', 'jimu_db')
+   if len(excludecompany)>0:
+      cursor = db.cursor()
+      sql = 'SELECT ORG_ID FROM jimu_db.jmcl_org where ORG_NAME in ' + str(excludecompany)
+      print(sql)
+      cursor.execute(sql)
+      dat = cursor.fetchall()
+      ID = ()
+      for item in dat:
+         ID = ID + item
+      print(ID)
+      if len(ID) > 0:
+         sql = 'SELECT DEVICE_ID FROM jimu_db.jmcl_device where ORG_ID in ' + str(ID)
+         print(sql)
+         cursor.execute(sql)
+         dat = cursor.fetchall()
+         #print(dat)
+         if len(dat)>0:
+            for item in dat:
+               exclude_DEVICE_ID.append(item[0])
+   db.close()
+   print(exclude_DEVICE_ID)
+   # sql = '''
+   # SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'jimu_db' AND TABLE_NAME = 'jmcl_org'
+   # '''
+   # cursor.execute(sql)
+   # dat = cursor.fetchall()
+   # print(list(dat))
+   # print(type(dat))
+   # COLLUMN_NAME = []
+   # for item in dat:
+   #    COLLUMN_NAME.append(item[0])
+   # print(COLLUMN_NAME)
+
+   #exclude_DEVICE_ID = []
+
+
+   #time.sleep(1000000)
 
    myclient = pymongo.MongoClient('mongodb://47.110.225.26:27017/')
    mydb = myclient.jimu_db
    mydb.authenticate("export", "000000")
    mycol = mydb["alarm_resource"]
 
-   myquery = {"alarmTime": {"$gte": timestart,"$lte":timeend},'format':{"$in":format},'alarm':{"$in":alarmlist}}
-
+   myquery = {"alarmTime": {"$gte": timestart,"$lte":timeend},'format':{"$in":format},'alarm':{"$in":alarmlist},'deviceId':{'$nin':exclude_DEVICE_ID}}
+   #myquery = {"alarmTime": {"$gte": timestart, "$lte": timeend}, 'format': {"$in": format}, 'alarm': {"$in": alarmlist}}
    DataFolder = os.path.join(os.getcwd(), 'Data')
    if not os.path.exists(DataFolder):
       os.makedirs(DataFolder)
@@ -50,11 +99,29 @@ with open('configure.ini') as f:
    with open(informationjson, 'w') as info_f:
       1
    mydoc = mycol.find(myquery)
+   device={}
    for item in mydoc:
+      #print(item)
+      #datetime.datetime().hour 27 30
+      #if item['alarmTime'].hour<=19 or item['alarmTime'].hour>=22:
+         #continue
+      #if time.localtime()
+      # if item['deviceId'] in  device:
+      #    if device[item['deviceId']] >=10:
+      #       continue
+      #    else:
+      #       device[item['deviceId']] = device[item['deviceId']]+1
+      # else:
+      #    device[item['deviceId']] =  1
       url = item['url']
-      f = urllib.request.urlopen(url)
-      with open(os.path.join(DataFolder, item['fileName']), "wb") as code:
-         code.write(f.read())
+      try:
+         f = urllib.request.urlopen(url,timeout=3)
+         with open(os.path.join(DataFolder, item['fileName']), "wb") as code:
+            code.write(f.read())
+      except:
+         print('failed!')
+         continue
+
       with open(informationjson,'a') as info_f:
          item.pop("_id")
          #print(item["alarmTime"])
