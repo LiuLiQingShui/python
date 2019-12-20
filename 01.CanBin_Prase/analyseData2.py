@@ -11,6 +11,10 @@ def analyseData(DataFolder,filename):
     print(DataFolder,filename)
     h=re.split('.bin|.dat', filename)
 
+    if  not os.path.exists(os.path.join(DataFolder, h[0] + '_' + "0x780" + '_testresult.csv')):
+        print('Error: No Jimu Data')
+        return
+
     orangeData_0x780 = pd.read_csv(os.path.join(DataFolder, h[0] + '_' + "0x780" + '_testresult.csv'))
 
     Data_jimu_LDW = orangeData_0x780[['timestamp', 'Left LDW', 'Right LDW']]
