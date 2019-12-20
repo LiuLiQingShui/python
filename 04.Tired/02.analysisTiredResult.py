@@ -6,8 +6,8 @@ import shutil
 pd.set_option('expand_frame_repr',False)
 
 
-DataFolder = r'F:\01Cplusplus\01.Tired\Result\2.9.9\Result'
-videoFolder = r'F:\01Cplusplus\01.Tired\Result\2.9.9\Result'
+DataFolder = r'F:\01Cplusplus\01.Tired\Result\Case2\2.9.9'
+videoFolder = r'F:\01Cplusplus\01.Tired\Data_select'
 
 path_result = os.path.join(DataFolder,'Result')
 if os.path.exists(path_result):
@@ -34,6 +34,11 @@ print(df_alarm)
 
 df_TestCases = pd.read_csv(os.path.join(DataFolder,'TiredTestCases.csv'),encoding='utf_8_sig')
 print(df_TestCases)
+
+shutil.move(os.path.join(DataFolder,'version.txt'),os.path.join(path_result,'version.txt'))
+shutil.move(os.path.join(DataFolder,'alarm.csv'),os.path.join(path_result,'alarm.csv'))
+shutil.move(os.path.join(DataFolder,'TiredTestCases.csv'),os.path.join(path_result,'TiredTestCases.csv'))
+shutil.move(os.path.join(DataFolder,'fps.csv'),os.path.join(path_result,'fps.csv'))
 
 
 df_result = pd.merge(df_TestCases,df_alarm,how='left',on=['Alarm','DMS result','Video Name','Mode']).drop(['Video Path'],axis=1)
@@ -92,8 +97,8 @@ for alarm in alarm_set:
          '%.3f%%' % (missing / total * 100 if total > 0 else 0), '%.3f%%' % (wrong / total * 100 if total > 0 else 0)])
 print(result)
 #df_alarm['result'] = df_alarm
-result = np.array(result).T
-df_stat = pd.DataFrame(result[2:],columns=[result[0],result[1]],index=['用例总数','正报','漏报','误报','正报百分比','漏报百分比','误报百分比'])
+result = np.array(result)
+df_stat = pd.DataFrame(result[:,2:],index=[result[:,0],result[:,1]],columns=['用例总数','正报','漏报','误报','正报百分比','漏报百分比','误报百分比'])
 print(df_stat)
 df_stat.to_csv(os.path.join(path_result,'Result_stat.csv'),encoding='utf_8_sig')
 

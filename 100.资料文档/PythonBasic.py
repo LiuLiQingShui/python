@@ -153,6 +153,17 @@ picname = '{:0>6d}'.format(i+1)+'.jpg'
 f.tell()
 f.seek(offset, whence)
 
+#异常处理
+def divide(x, y):
+    try:
+        result = x / y
+    except ZeroDivisionError:
+        print("division by zero!")
+    else:
+        print("result is", result)
+    finally:
+        print("executing finally clause")
+
 
 
 
@@ -164,8 +175,57 @@ Note that multiple assignment is really just a combination of tuple packing and 
 '''
 
 
+#build-in
+all(),any()
+bin(3),format(14, '#b'), format(14, 'b')
+callable(object)
+chr(97) ,ord('a')
+delattr(object, name),setattr(),getattr(x, 'foobar'),hasattr(object, name)
+dir(module)
+divmod(a,b)
+list(enumerate(seasons.start=1))
+[(1, 'Spring'), (2, 'Summer'), (3, 'Fall'), (4, 'Winter')]
+globals()
+hash()
+help(int)
+isinstance()
+issubclass()
+map(function, iterable, ...)
+zip()
+
+constants defined to be false: None and False.
+zero of any numeric type: 0, 0.0, 0j, Decimal(0), Fraction(0, 1)
+empty sequences and collections: '', (), [], {}, set(), range(0)
+
+x = {'agbadsfasdf':'1'}
+y = {'agbadsfasdf':'1'}
+z = x
+print(id(x),id(y),id(z))
+print(y is x)
+print(z is x)
+print(y == x)
+print(z == x)
 
 
+<,<=,>,>=,==,!=,is,is not,in ,not in
+x | y, x ^ y,x & y,x << n,x >>n,~x,
+
+n = -37
+n.bit_length()
+n.to_bytes((n.bit_length() + 7) // 8, byteorder='little', signed=True)
+print(int.from_bytes([255, 0, 0], byteorder='big'))
+print(int.from_bytes(b'\xff\x00\x00', byteorder='big'))
+
+Common Sequence Operations
+x in s, x not in s, s + t, s * n or n * s, s[i], s[i:j], s[i:j:k], len(s), min(s), max(s), s.index(x[, i[, j]]), s.count(x)
+Mutable Sequence Types
+s[i] = x, s[i:j] = t, del s[i:j], s[i:j:k] = t, del s[i:j:k], s.append(x), s.clear(), s.copy(), s.extend(t) or s += t, s *= n, s.insert(i, x), s.pop([i]), s.remove(x),s.reverse()
+
+list(range(0, -10, -1))
+str.capitalize(),str.casefold(),str.center(width[, fillchar]),str.count(sub[, start[, end]]),str.encode(encoding="utf-8", errors="strict"),str.find(sub[, start[, end]]),str.zfill(width),
+
+b'still allows embedded "double" quotes'
+ 
 
 
 
