@@ -8,33 +8,34 @@ with open('fold.txt','w') as f:
 
 TestCases = []
 videos = []
-for parent, dirnames, filenames in os.walk(DataFolder):
-    for dirname in dirnames:
+
+for dir in os.listdir(DataFolder):
+    filepath = os.path.join(DataFolder,dir)
+    if os.path.isdir(filepath):
         try:
-            case = int(dirname)
-            TestCases.append(dirname)
-            DataFolder_sub1 = os.path.join(DataFolder,dirname)
-            for parent_sub1, dirnames_sub1, filenames_sub1 in os.walk(DataFolder_sub1):
-                for filename_sub1 in filenames_sub1:
-                    if not os.path.exists(os.path.join(DataFolder_sub1, filename_sub1)):
-                        continue
-                    if '.ts' in filename_sub1:
-                        videos.append(filename_sub1)
-                videos.sort()
-                with open(os.path.join(DataFolder_sub1, 'videolist.txt'), 'w') as f:
-                    for item in videos:
-                        f.write(item)
-                        f.write('\n')
-                videos.clear()
+            case = int(dir)
+            TestCases.append(dir)
+            for file in os.listdir(filepath):
+                if not os.path.exists(os.path.join(filepath,file)):
+                    continue
+                if '.ts' in file:
+                    videos.append(file)
+            videos.sort()
+            with open(os.path.join(filepath, 'videolist.txt'), 'w') as f:
+                for item in videos:
+                    f.write(item)
+                    f.write('\n')
+            videos.clear()
         except:
             continue
 
-
-
-with open(os.path.join(DataFolder,'TestCase.txt'),'w') as f:
+with open(os.path.join(DataFolder, 'TestCase.txt'), 'w') as f:
     for item in TestCases:
         f.write(item)
         f.write('\n')
+
+
+
 
 
 

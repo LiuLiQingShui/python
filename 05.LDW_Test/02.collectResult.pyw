@@ -44,6 +44,10 @@ with open(os.path.join(DataFolder,'TestCase.txt'),'r') as f:
 
 
 #保存版本号
-shutil.move(os.path.join(DataFolder,'version.txt'),os.path.join(path_result,'version.txt'))
+
 shutil.move(os.path.join(DataFolder,'TestCase.txt'),os.path.join(path_result,'TestCase.txt'))
+if os.path.exists(os.path.join(DataFolder,'fold.txt')):
+    shutil.move(os.path.join(DataFolder,'fold.txt'),os.path.join(path_result,'fold.txt'))
+if os.path.exists(os.path.join(DataFolder,'version.txt')):
+    shutil.move(os.path.join(DataFolder,'version.txt'),os.path.join(path_result,'version.txt'))
 
