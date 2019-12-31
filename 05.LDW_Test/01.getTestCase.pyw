@@ -8,6 +8,7 @@ with open('fold.txt','w') as f:
 
 TestCases = []
 videos = []
+videoformatlist = ['ts']
 
 for dir in os.listdir(DataFolder):
     filepath = os.path.join(DataFolder,dir)
@@ -16,9 +17,7 @@ for dir in os.listdir(DataFolder):
             case = int(dir)
             TestCases.append(dir)
             for file in os.listdir(filepath):
-                if not os.path.exists(os.path.join(filepath,file)):
-                    continue
-                if '.ts' in file:
+                if os.path.isfile(os.path.join(filepath,file)) and file.split('.')[-1] in videoformatlist:
                     videos.append(file)
             videos.sort()
             with open(os.path.join(filepath, 'videolist.txt'), 'w') as f:

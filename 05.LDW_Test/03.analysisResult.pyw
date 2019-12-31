@@ -6,8 +6,8 @@ import shutil
 
 pd.set_option('expand_frame_repr',False)
 
-DataFolder =os.getcwd()
-#DataFolder = r'F:\TestCase'
+#DataFolder =os.getcwd()
+DataFolder = r'F:\TestCase'
 path_result = os.path.join(DataFolder,'Result')
 path_missing = os.path.join(path_result,'missing')
 os.makedirs((path_missing))

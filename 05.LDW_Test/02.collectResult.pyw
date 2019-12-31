@@ -17,6 +17,9 @@ os.makedirs(path_detail)
 path_detail_pic = os.path.join(path_result,'detailpic')
 os.makedirs(path_detail_pic)
 
+movelist = ['.png','_test.csv','_foe.csv']
+copylist = ['alarm_csv','fps_csv','except.csv','LDWparam.csv']
+
 with open(os.path.join(DataFolder,'TestCase.txt'),'r') as f:
     TestCases = list(f.readlines())
     print(TestCases)
@@ -35,12 +38,12 @@ with open(os.path.join(DataFolder,'TestCase.txt'),'r') as f:
             for parent_path_detail_onecase, dirs_path_detail_onecase, files_path_detail_onecase in os.walk(
                     DataFolder_case):
                 for item in files_path_detail_onecase:
-                    if '.png' in item:
-                        shutil.move(os.path.join(DataFolder_case, item), os.path.join(path_detail_pic_onecase, item))
-                    if 'alarm_csv' in item or 'fps_csv' in item:
-                        shutil.copy(os.path.join(DataFolder_case, item), os.path.join(path_detail_onecase, item))
-                    if 'except' in item or 'param' in item:
-                        shutil.copy(os.path.join(DataFolder_case, item), os.path.join(path_detail_onecase, item))
+                    for tag in movelist:
+                        if tag in item:
+                            shutil.move(os.path.join(DataFolder_case, item),os.path.join(path_detail_pic_onecase, item))
+                    for tag in copylist:
+                        if tag in item:
+                            shutil.copy(os.path.join(DataFolder_case, item), os.path.join(path_detail_onecase, item))
 
 
 #保存版本号
