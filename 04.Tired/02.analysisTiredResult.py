@@ -6,8 +6,8 @@ import shutil
 pd.set_option('expand_frame_repr',False)
 
 
-DataFolder = r'F:\01Cplusplus\01.Tired\Result\Case2\2.9.9'
-videoFolder = r'F:\01Cplusplus\01.Tired\Data_select'
+DataFolder = r'F:\Temp\Test4'
+videoFolder = r'F:\01Cplusplus\01.Tired\From fenyang'
 
 path_result = os.path.join(DataFolder,'Result')
 if os.path.exists(path_result):

@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 #DataFolder = os.getcwd()
-DataFolder = r'F:\01Cplusplus\01.Tired\Data_select'
+DataFolder = r'F:\01Cplusplus\01.Tired\From fenyang\2'
 
 TestCases=[]
 
