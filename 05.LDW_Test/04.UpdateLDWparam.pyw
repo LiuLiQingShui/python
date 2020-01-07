@@ -26,7 +26,7 @@ with open(os.path.join(DataFolder,'TestCase.txt'),'r') as f:
         #统计每一个case的结果
         if os.path.exists(os.path.join(DataFolder_case,'foe.csv')) and os.path.exists(os.path.join(DataFolder_case,'LDWparam.csv')):
             df_LDWparam = pd.read_csv(os.path.join(DataFolder_case,'LDWparam.csv'),encoding='utf_8_sig',usecols=['name','value'])
-            df_foe = pd.read_csv(os.path.join(DataFolder_case,'foe.csv'),encoding='utf_8_sig',usecols=['foe_x','foe_y'])
+            df_foe = pd.read_csv(os.path.join(DataFolder_case,'foe.csv'),encoding='utf_8_sig',usecols=['vanish_pt_x','vanish_pt_y'])
             if len(df_foe)>0:
                 df_LDWparam.iloc[df_LDWparam[(df_LDWparam['name']=='foe_x')].index.tolist()[0],1] = df_foe.iloc[-1,0]
                 df_LDWparam.iloc[df_LDWparam[(df_LDWparam['name'] == 'foe_y')].index.tolist()[0], 1] = df_foe.iloc[

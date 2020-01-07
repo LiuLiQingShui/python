@@ -20,6 +20,9 @@ play_Scale_value = 0
 timenow = time.time()
 image_background = Image.fromarray(cv2.cvtColor(cv2.imread(r'background.jpg'), cv2.COLOR_RGB2BGRA))
 image_background = ImageTk.PhotoImage(image=image_background)
+image_scale = Image.fromarray(cv2.cvtColor(cv2.imread(r'scale.png'), cv2.COLOR_RGB2BGRA))
+image_scale = ImageTk.PhotoImage(image=image_scale)
+
 thread_play = 0
 #image_background.show()
 #print(image_background)
@@ -50,7 +53,7 @@ class Backgroundopenfile (threading.Thread):   #继承父类threading.Thread
         width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         size = str(int(width)) + 'x' + str(int(height + 150))
-        window.geometry(size)
+        #window.geometry(size)
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGRA)
         frame = Image.fromarray(frame)
         frame = ImageTk.PhotoImage(image=frame)
@@ -86,7 +89,7 @@ def play():
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
     size = str(int(width)) + 'x' + str(int(height + 200))
-    window.geometry(size)
+    #window.geometry(size)
     Lock_StateChange.release()
     pause = 0
     play = 0
@@ -119,7 +122,7 @@ def play():
                 width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
                 height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
                 size = str(int(width)) + 'x' + str(int(height + 200))
-                window.geometry(size)
+                #window.geometry(size)
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGRA)
                 frame = Image.fromarray(frame)
                 frame = ImageTk.PhotoImage(image=frame)
@@ -130,7 +133,7 @@ def play():
                 videoRoi.configure(image=image_background)
                 videoRoi.image = image_background
                 information.configure(text=str(''))
-                window.geometry('640x600')
+                #window.geometry('640x600')
             cap.release()
             break
         if pause:
@@ -212,7 +215,7 @@ def tk_selectVideoPath(event):
         width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         size = str(int(width)) + 'x' + str(int(height + 200))
-        window.geometry(size)
+        #window.geometry(size)
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGRA)
         frame = Image.fromarray(frame)
         frame = ImageTk.PhotoImage(image=frame)
@@ -405,13 +408,17 @@ Lock_StateChange = threading.Lock()
 
 
 window.title('VideoPlayer (LLQS)')
-window.geometry('640x600')
+#window.geometry('640x600')
 window.resizable(0,0)
 
 #视频窗口
 videoRoi = tkinter.Label(window)
-videoRoi.grid(row=0,column=0,columnspan=12)
+videoRoi.grid(row=9,column=0,columnspan=12)
 videoRoi.configure(image=image_background)
+
+scaleRoi = tkinter.Label(window)
+scaleRoi.grid(row=10,column=0,columnspan=12)
+scaleRoi.configure(image=image_scale)
 
 
 #信息展示栏
