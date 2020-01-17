@@ -6,8 +6,8 @@ import shutil
 pd.set_option('expand_frame_repr',False)
 
 
-DataFolder = r'F:\Temp\Test4'
-videoFolder = r'F:\01Cplusplus\01.Tired\From fenyang'
+DataFolder = r'F:\01Cplusplus\01.Tired\03.TestCase\02.Result\3.0.5\Result_0004\Result'
+videoFolder = r'F:\01Cplusplus\01.Tired\03.TestCase\01.Video\20190115'
 
 path_result = os.path.join(DataFolder,'Result')
 if os.path.exists(path_result):
@@ -24,7 +24,6 @@ df_alarm = pd.read_csv(os.path.join(DataFolder,'alarm.csv'),encoding='utf_8_sig'
 df_alarm = df_alarm.groupby(by=['Alarm','DMS result','Video Name','Mode']).agg(
     {
         'Alarm':np.min,
-        'DMS result':np.min,
         'Video Name':np.min,
         'Mode':np.min,
         'alarm':lambda x:[item for item in x ]
@@ -41,13 +40,13 @@ shutil.move(os.path.join(DataFolder,'TiredTestCases.csv'),os.path.join(path_resu
 shutil.move(os.path.join(DataFolder,'fps.csv'),os.path.join(path_result,'fps.csv'))
 
 
-df_result = pd.merge(df_TestCases,df_alarm,how='left',on=['Alarm','DMS result','Video Name','Mode']).drop(['Video Path'],axis=1)
+df_result = pd.merge(df_TestCases,df_alarm,how='left',on=['Alarm','Video Name','Mode']).drop(['Video Path'],axis=1)
 
 
 
 df_Alarm_missing = df_result[((df_result['DMS result']=='right')|(df_result['DMS result']=='missing'))&(df_result.apply(lambda x:True if pd.isna(np.sum(x['alarm'])) else False,axis=1))].assign(result='missing')
 df_Alarm_right = df_result[((df_result['DMS result']=='right')|(df_result['DMS result']=='missing'))&(df_result.apply(lambda x:x['Alarm'] in x['alarm'] if pd.notna(np.sum(x['alarm'])) else False,axis=1))].assign(result='right')
-df_Alarm_wrong = df_result[((df_result['DMS result']=='right')|(df_result['DMS result']=='missing'))&(df_result.apply(lambda x:x['Alarm'] not in x['alarm'] if pd.notna(np.sum(x['alarm'])) else False,axis=1))].assign(result='wrong')
+df_Alarm_wrong = df_result[((df_result['DMS result']=='right')|(df_result['DMS result']=='missing'))&(df_result.apply(lambda x:x['Alarm'] not in x['alarm'] if pd.notna(np.sum(x['alarm'])) else False,axis=1))].assign(result='missing')
 
 df_NoAlarm_right = df_result[(df_result['DMS result']=='wrong')&(df_result.apply(lambda x:True if pd.isna(np.sum(x['alarm'])) else (x['Alarm'] not in x['alarm']),axis=1))].assign(result='right')
 df_NoAlarm_wrong = df_result[(df_result['DMS result']=='wrong')&(df_result.apply(lambda x:False if pd.isna(np.sum(x['alarm'])) else (x['Alarm']  in x['alarm']),axis=1))].assign(result='wrong')
@@ -75,16 +74,21 @@ for alarm in alarm_set:
     path_wrong = os.path.join(path_alarm, 'wrong')
     os.makedirs(path_wrong)
     df_alarm = df_result[(df_result['Alarm']==alarm)]
-    df_alarm_missing = df_alarm[df_alarm['result']=='missing'].reset_index(drop=True)
-    for k in range(len(df_alarm_missing)):
-        videopath = os.path.join(videoFolder,str(df_alarm_missing.loc[k,'Alarm']),df_alarm_missing.loc[k,'DMS result'],df_alarm_missing.loc[k,'Video Name'])
-        newvideopath = os.path.join(path_missing,df_alarm_missing.loc[k,'Video Name'])
-        shutil.copy(videopath,newvideopath)
-    df_alarm_wrong = df_alarm[df_alarm['result']=='wrong'].reset_index(drop=True)
-    for k in range(len(df_alarm_wrong)):
-        videopath = os.path.join(videoFolder,str(df_alarm_wrong.loc[k,'Alarm']),df_alarm_wrong.loc[k,'DMS result'],df_alarm_wrong.loc[k,'Video Name'])
-        newvideopath = os.path.join(path_wrong,df_alarm_wrong.loc[k,'Video Name'])
-        shutil.copy(videopath,newvideopath)
+
+    if 0:
+        df_alarm_missing = df_alarm[df_alarm['result'] == 'missing'].reset_index(drop=True)
+        for k in range(len(df_alarm_missing)):
+            videopath = os.path.join(videoFolder, str(df_alarm_missing.loc[k, 'Alarm']),
+                                     df_alarm_missing.loc[k, 'DMS result'], df_alarm_missing.loc[k, 'Video Name'])
+            newvideopath = os.path.join(path_missing, df_alarm_missing.loc[k, 'Video Name'])
+            shutil.copy(videopath, newvideopath)
+        df_alarm_wrong = df_alarm[df_alarm['result'] == 'wrong'].reset_index(drop=True)
+        for k in range(len(df_alarm_wrong)):
+            videopath = os.path.join(videoFolder, str(df_alarm_wrong.loc[k, 'Alarm']),
+                                     df_alarm_wrong.loc[k, 'DMS result'], df_alarm_wrong.loc[k, 'Video Name'])
+            newvideopath = os.path.join(path_wrong, df_alarm_wrong.loc[k, 'Video Name'])
+            shutil.copy(videopath, newvideopath)
+
 
     total,right,wrong,missing = len(df_result[(df_result['Alarm']==alarm)]),len(df_result[(df_result['Alarm']==alarm)&(df_result['DMS result']=='right')]),len(df_result[(df_result['Alarm']==alarm)&(df_result['DMS result']=='wrong')]),len(df_result[(df_result['Alarm']==alarm)&(df_result['DMS result']=='missing')])
     result.append([alarm,'DMS result',total,right,missing,wrong,'%.3f%%'%(right/total*100) if total>0 else 0,'%.3f%%'%(missing/total*100 if total>0 else 0),'%.3f%%'%(wrong/total*100 if total>0 else 0)])

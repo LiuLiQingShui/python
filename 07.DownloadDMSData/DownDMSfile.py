@@ -6,6 +6,7 @@ import csv
 import os
 import json
 import pymysql
+import pytz
 
 
 with open('configure.ini',encoding='utf-8') as f:
@@ -42,8 +43,18 @@ with open('configure.ini',encoding='utf-8') as f:
          break
    print('exclude company:',excludecompany)
    timestart= datetime.datetime.strptime(content[0][1], "%Y-%m-%d %H:%M:%S")
+   timestart = timestart.replace(tzinfo=pytz.timezone('Asia/Shanghai'))
+   timestart = timestart.astimezone(tz=pytz.timezone('UTC'))
+   #print(timestart.tzname())
+
+   #print(timestart)
    timeend = datetime.datetime.strptime(content[0][2], "%Y-%m-%d %H:%M:%S")
+   timeend = timeend.replace(tzinfo=pytz.timezone('Asia/Shanghai'))
+   timeend = timeend.astimezone(tz=pytz.timezone('UTC'))
    print(timestart,timeend)
+
+
+   #time.sleep(6000)
 
    exclude_DEVICE_ID=[]
    db = pymysql.connect('rm-bp1jzf2obq01ow7k9lo.mysql.rds.aliyuncs.com', 'jimu_read', 'jimu_db@Read', 'jimu_db')
@@ -62,36 +73,17 @@ with open('configure.ini',encoding='utf-8') as f:
          print(sql)
          cursor.execute(sql)
          dat = cursor.fetchall()
-         #print(dat)
          if len(dat)>0:
             for item in dat:
                exclude_DEVICE_ID.append(item[0])
    db.close()
    print(exclude_DEVICE_ID)
-   # sql = '''
-   # SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'jimu_db' AND TABLE_NAME = 'jmcl_org'
-   # '''
-   # cursor.execute(sql)
-   # dat = cursor.fetchall()
-   # print(list(dat))
-   # print(type(dat))
-   # COLLUMN_NAME = []
-   # for item in dat:
-   #    COLLUMN_NAME.append(item[0])
-   # print(COLLUMN_NAME)
-
-   #exclude_DEVICE_ID = []
-
-
-   #time.sleep(1000000)
-
    myclient = pymongo.MongoClient('mongodb://47.110.225.26:27017/')
    mydb = myclient.jimu_db
    mydb.authenticate("export", "000000")
    mycol = mydb["alarm_resource"]
 
    myquery = {"alarmTime": {"$gte": timestart,"$lte":timeend},'format':{"$in":format},'alarm':{"$in":alarmlist},'deviceId':{'$nin':exclude_DEVICE_ID}}
-   #myquery = {"alarmTime": {"$gte": timestart, "$lte": timeend}, 'format': {"$in": format}, 'alarm': {"$in": alarmlist}}
    DataFolder = os.path.join(os.getcwd(), 'Data')
    if not os.path.exists(DataFolder):
       os.makedirs(DataFolder)
@@ -100,40 +92,37 @@ with open('configure.ini',encoding='utf-8') as f:
       1
    mydoc = mycol.find(myquery)
    device={}
+   count = 1
    for item in mydoc:
-      #print(item)
-      #datetime.datetime().hour 27 30
-      #if item['alarmTime'].hour<=19 or item['alarmTime'].hour>=22:
-         #continue
-      #if time.localtime()
-      # if item['deviceId'] in  device:
-      #    if device[item['deviceId']] >=10:
-      #       continue
-      #    else:
-      #       device[item['deviceId']] = device[item['deviceId']]+1
-      # else:
-      #    device[item['deviceId']] =  1
+      print(item)
       url = item['url']
+
+      #timeend = timeend.astimezone(tz=pytz.timezone('UTC'))
+      #replace(tzinfo=pytz.timezone('Asia/Shanghai'))
+      item["alarmTime"] = item["alarmTime"].replace(tzinfo=pytz.timezone('UTC'))
+      item["alarmTime"] = item["alarmTime"].astimezone(tz=pytz.timezone('Asia/Shanghai'))
+      item["uploadTime"] = item["uploadTime"].replace(tzinfo=pytz.timezone('UTC'))
+      item["uploadTime"] = item["uploadTime"].astimezone(tz=pytz.timezone('Asia/Shanghai'))
+      item["createAt"] = item["createAt"].replace(tzinfo=pytz.timezone('UTC'))
+      item["createAt"] = item["createAt"].astimezone(tz=pytz.timezone('Asia/Shanghai'))
+      print(item["alarmTime"].tzname())
       try:
          f = urllib.request.urlopen(url,timeout=3)
-         with open(os.path.join(DataFolder, item['fileName']), "wb") as code:
+         with open(os.path.join(DataFolder, str(item['alarm'])+'__'+'{:06}'.format(count)+'__'+item["alarmTime"].strftime( '%Y-%m-%d__%H-%M-%S')+'__'+item['fileName']), "wb") as code:
             code.write(f.read())
+         count = count +1
       except:
          print('failed!')
          continue
-
       with open(informationjson,'a') as info_f:
          item.pop("_id")
-         #print(item["alarmTime"])
          item["alarmTime"] = item["alarmTime"].strftime( '%Y-%m-%d %H:%M:%S %f' )
          item["uploadTime"] = item["uploadTime"].strftime('%Y-%m-%d %H:%M:%S %f')
          item["createAt"] = item["createAt"].strftime('%Y-%m-%d %H:%M:%S %f')
-         #print(item["alarmTime"])
          print(item)
          print(json.dumps(item))
          info_f.write(json.dumps(item))
          info_f.write('\n')
-      #print(x)
 
 
 
